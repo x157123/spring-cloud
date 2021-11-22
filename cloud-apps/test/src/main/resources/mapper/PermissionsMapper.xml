@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cloud.mapper.PermissionsMapper">
+
+    <select id="queryPage" resultType="com.cloud.entity.Permissions"
+            parameterType="com.cloud.query.PermissionsQuery">
+        select * from permissions
+		<where>
+			<if test="param.id != null">
+				and id = #{param.id}
+			</if>
+			<if test="param.name != null and param.name != ''">
+				and name like concat('%',#{param.name},'%')
+			</if>
+			<if test="param.userIds!=null and param.userIds.size()>0">
+				and id in (select permissions_id from user_permissions_merge where user_id in
+				<foreach collection="param.userIds" item="item" open="(" close=")" separator="," >
+					#{item}
+				</foreach>
+			</if>
+			<if test="param.menuIds!=null and param.menuIds.size()>0">
+				and id in (select permissions_id from menu_permissions_merge where menu_id in
+				<foreach collection="param.menuIds" item="item" open="(" close=")" separator="," >
+					#{item}
+				</foreach>
+			</if>
+	</where>
+    </select>
+</mapper>
