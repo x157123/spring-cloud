@@ -11,7 +11,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
-<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+<#if (table.foreignKeys?? && (table.foreignKeys?size > 0)) || (table.mergeTables?? && (table.mergeTables?size > 0)) >
 import java.util.List;
 </#if>
 <#list table.column as col>

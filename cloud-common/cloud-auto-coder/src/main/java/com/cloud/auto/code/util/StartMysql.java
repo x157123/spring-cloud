@@ -137,7 +137,7 @@ public class StartMysql extends DbComponent {
         autoCodeConfig.setAuthor("liulei");
         autoCodeConfig.setCreateTime(new Date());
         autoCodeConfig.setPackagePrefix("com.cloud");
-        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud3.0/cloud-apps/test/src/main/");
+        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
         autoCodeConfig.setTables(list);
         String ftlPath = "cloud";
         CodeUtil.writer(autoCodeConfig, ftlPath);
