@@ -16,7 +16,7 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       batch-size: 65536
       buffer-memory: 524288
-      #自定义的topic
+      #自定义的topic .*模糊匹配
       myTopic: publicall.*
       myTopic1: DBTestServer.public.p_sg_com_pub_edu_2020
       myTopic2: DBTestServer.public.p_sg_com_pub_edu_2021
