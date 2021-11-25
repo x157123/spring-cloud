@@ -1,16 +1,28 @@
 server:
-  port: 8010
+  port: 8066
 spring:
   application:
     name: cloud-config
   profiles:
     active: native
-  # 配置中心
   cloud:
+    bus:
+      trace:
+        enabled: true
     config:
       server:
-        native:
-          search-locations: classpath:/config/
+        git:
+          uri: https://gitee.com/zhuyu1991/spring-config-repo.git # git仓库的地址
+          searchPaths: config-info                                # git仓库地址下的相对地址，可以配置多个，用,分割
+          username: 用户名                                         # git仓库的账号
+          password: 密码                                           # git仓库的密码
+
+  rabbitmq:
+    host: 192.168.1.101
+    port: 5672
+    username: 用户名
+    password: 密码
+    virtual-host: zy_vhosts
 # 指定注册中心的地址
 eureka:
   client:

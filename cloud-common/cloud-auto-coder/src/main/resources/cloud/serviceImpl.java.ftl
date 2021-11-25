@@ -13,8 +13,10 @@ import ${package}.service.${table.className}Service;
 import ${package}.param.${table.className}Param;
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
+        <#if foreignKey.tableNameClass != table.className>
 import ${basePackage}${foreignKey.packagePath}.vo.${foreignKey.tableNameClass}Vo;
 import ${basePackage}${foreignKey.packagePath}.service.${foreignKey.tableNameClass}Service;
+        </#if>
     </#list>
 </#if>
 import lombok.AllArgsConstructor;
@@ -39,8 +41,10 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
 
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
+<#if foreignKey.tableNameClass != table.className>
     private ${foreignKey.tableNameClass}Service ${foreignKey.tableNameClass? uncap_first}Service;
 
+</#if>
     </#list>
 </#if>
     /**
@@ -180,9 +184,9 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         if (list != null) {
             List<Long> ids = list.stream().map(${table.className}Vo::getId).collect(Collectors.toList());
 	<#list table.foreignKeys as foreignKey>
-            Map<Long, List<${foreignKey.tableNameClass}Vo>> ${foreignKey.tableNameClass? uncap_first}Map = ${foreignKey.tableNameClass? uncap_first}Service.findBy${foreignKey.columnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.tableNameClass}Vo::get${foreignKey.columnNameClass}));
+            Map<Long, List<${foreignKey.tableNameClass}Vo>> ${foreignKey.tableNameClass? uncap_first}Map = <#if foreignKey.tableNameClass != table.className>${foreignKey.tableNameClass? uncap_first}Service.</#if>findBy${foreignKey.columnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.tableNameClass}Vo::get${foreignKey.columnNameClass}));
 	</#list>
-            for (${table.className}Vo user : list) {
+            for (${table.className}Vo ${table.className? uncap_first} : list) {
 	<#list table.foreignKeys as foreignKey>
         <#if foreignKey.uni>
                 List<${foreignKey.tableNameClass}Vo> ${foreignKey.tableNameClass? uncap_first}Vos = ${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId());

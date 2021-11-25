@@ -4,7 +4,7 @@ server:
 spring:
   application:
     #应用名称（在注册中显示的）
-    name: flowable-server
+    name: eureka
 eureka:
   client:
     #此客户端是否获取eureka服务器注册表上的注册信息，默认为true
