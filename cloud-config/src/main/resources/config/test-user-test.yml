@@ -11,13 +11,13 @@ spring:
       server:
         git:
           # git仓库的地址
-          uri: https://github.com/x157123/spring-cloud
+          uri: https://gitee.com/x157123/springCloud.git
           # git仓库地址下的相对地址，可以配置多个，用,分割
-          searchPaths: cloud-config/src/main/resources/config
+          searchPaths: config-repo
           # git仓库的账号
           username: x157123@126.com
           # git仓库的密码
-          password: 5dp4FmqXfDNHE46
+          password: xujia4209
           force-pull: true
       label: master
   # http://127.0.0.1:15672 管理地址端口

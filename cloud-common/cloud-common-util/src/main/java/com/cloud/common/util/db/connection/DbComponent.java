@@ -151,7 +151,7 @@ public abstract class DbComponent {
      * @param <S>
      * @param <T>
      */
-    <S, T> void readJdbcData(String sql, S s, Supplier<T> target, DbReadDataCallBack<S, T> readDataCallBack) {
+    public <S, T> void readJdbcData(String sql, S s, Supplier<T> target, DbReadDataCallBack<S, T> readDataCallBack) {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {

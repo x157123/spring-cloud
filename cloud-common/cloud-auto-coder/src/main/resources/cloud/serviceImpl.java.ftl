@@ -19,7 +19,6 @@ import ${basePackage}${foreignKey.packagePath}.service.${foreignKey.tableNameCla
         </#if>
     </#list>
 </#if>
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
  * @author liulei
  */
 @Service
-@AllArgsConstructor
 public class ${table.className}ServiceImpl implements ${table.className}Service {
 
     private ${table.className}Mapper ${table.className? uncap_first}Mapper;
@@ -48,6 +46,29 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     </#list>
 </#if>
     /**
+     * 使用构造方法注入
+     *
+     * @param ${table.className? uncap_first}Mapper
+<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+    <#list table.foreignKeys as foreignKey>
+        <#if foreignKey.tableNameClass != table.className>
+     * @param ${foreignKey.tableNameClass? uncap_first}Service;
+        </#if>
+    </#list>
+</#if>
+     */
+    public ${table.className}ServiceImpl(${table.className}Mapper ${table.className? uncap_first}Mapper<#if table.foreignKeys?? && (table.foreignKeys?size > 0) ><#list table.foreignKeys as foreignKey><#if foreignKey.tableNameClass != table.className>, ${foreignKey.tableNameClass}Service ${foreignKey.tableNameClass? uncap_first}Service</#if></#list></#if>){
+        this.${table.className? uncap_first}Mapper = ${table.className? uncap_first}Mapper;
+<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+    <#list table.foreignKeys as foreignKey>
+        <#if foreignKey.tableNameClass != table.className>
+        this.${foreignKey.tableNameClass? uncap_first}Service=${foreignKey.tableNameClass? uncap_first}Service;
+        </#if>
+    </#list>
+</#if>
+    }
+
+    /**
      * 保存对象
      *
      * @param ${table.className? uncap_first}Param 前端传入对象
@@ -56,7 +77,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     @Override
     public Boolean save(${table.className}Param ${table.className? uncap_first}Param) {
         ${table.className} ${table.className? uncap_first} = BeanUtil.copyProperties(${table.className? uncap_first}Param, ${table.className}::new);
-        if(${table.className? uncap_first}Param.getId()!=null){
+        if (${table.className? uncap_first}Param.getId() != null) {
             return this.updateById(${table.className? uncap_first});
         }
         ${table.className? uncap_first}Mapper.insert(${table.className? uncap_first});
@@ -72,7 +93,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     @Override
     public ${table.className}Vo findById(Long id) {
         List<${table.className}Vo> ${table.className? uncap_first}Vos = this.findByIds(Collections.singletonList(id));
-        if(CollectionUtils.isEmpty(${table.className? uncap_first}Vos)){
+        if (CollectionUtils.isEmpty(${table.className? uncap_first}Vos)) {
             return null;
         }
         return CollectionUtils.firstElement(${table.className? uncap_first}Vos);

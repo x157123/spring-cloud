@@ -19,5 +19,6 @@
         <module>cloud-common-mybatisplus</module>
         <module>cloud-common-kafka</module>
         <module>cloud-common-util</module>
+        <module>cloud-common-easyexcel</module>
     </modules>
 </project>

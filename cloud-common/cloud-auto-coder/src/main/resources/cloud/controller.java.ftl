@@ -8,7 +8,6 @@ import ${package}.service.${table.className}Service;
 import ${package}.vo.${table.className}Vo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,10 +18,18 @@ import java.util.List;
 @RestController
 @RequestMapping("/${table.className? uncap_first}")
 @Api(value = "${table.comment}", tags = "${table.comment}")
-@AllArgsConstructor
 public class ${table.className}Controller {
 
     private ${table.className}Service ${table.className? uncap_first}Service;
+
+    /**
+     * 使用构造方法注入
+     *
+     * @param deptService
+     */
+    public ${table.className}Controller(${table.className}Service ${table.className? uncap_first}Service){
+        this.${table.className? uncap_first}Service= ${table.className? uncap_first}Service;
+    }
 
     /**
      * 保存对象

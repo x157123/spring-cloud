@@ -1,9 +1,0 @@
-# 暴露监控端点 bootstrap.yml 会被优先加载
-management:
-  endpoints:
-    web:
-      exposure:
-        include: '*'
-  endpoint:
-    health:
-      show-details: always
