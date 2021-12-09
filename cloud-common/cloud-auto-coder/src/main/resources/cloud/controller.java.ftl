@@ -25,7 +25,7 @@ public class ${table.className}Controller {
     /**
      * 使用构造方法注入
      *
-     * @param deptService
+     * @param ${table.className? uncap_first}Service
      */
     public ${table.className}Controller(${table.className}Service ${table.className? uncap_first}Service){
         this.${table.className? uncap_first}Service= ${table.className? uncap_first}Service;
