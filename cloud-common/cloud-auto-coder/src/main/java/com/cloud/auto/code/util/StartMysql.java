@@ -45,9 +45,16 @@ public class StartMysql extends DbComponent {
 
 
     public static void main(String[] args) {
-        String schema = "testuser";
+        String schema = "test";
+        //作者信息
+        String ftlPath = "cloud";
+        AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
+        autoCodeConfig.setAuthor("lei.liu");
+        autoCodeConfig.setCreateTime(new Date());
+        autoCodeConfig.setPackagePrefix("com.cloud");
+        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
         StartMysql startMysql = new StartMysql();
-        startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", "testuser", "root", "123456");
+        startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", "test", "root", "123456");
         //获取所有表
         List<Table> tables = startMysql.getTable(schema);
         //获取所有表外键
@@ -132,14 +139,7 @@ public class StartMysql extends DbComponent {
                 }
             }
         }
-        //作者信息
-        AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
-        autoCodeConfig.setAuthor("liulei");
-        autoCodeConfig.setCreateTime(new Date());
-        autoCodeConfig.setPackagePrefix("com.cloud");
-        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
         autoCodeConfig.setTables(list);
-        String ftlPath = "cloud";
         CodeUtil.writer(autoCodeConfig, ftlPath);
     }
 

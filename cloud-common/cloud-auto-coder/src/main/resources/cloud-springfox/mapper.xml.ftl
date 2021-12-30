@@ -11,7 +11,7 @@
 		<#if table.column?? && (table.column?size > 0) >
 		<#list table.column as col>
 		<#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
-			&& col.nameClass != "CreateDate" && col.nameClass != "UpdateDate" && col.nameClass != "IsDelete" && col.nameClass != "Version">
+			&& col.nameClass != "CreateDate" && col.nameClass != "UpdateDate" && col.nameClass != "IsDeleted">
 		<#if col.type == 'varchar'>
 			<if test="param.${col.nameClass ? uncap_first} != null and param.${col.nameClass ? uncap_first} != ''">
 				and ${col.name} like concat('%',${r"#"}{param.${col.nameClass ? uncap_first}},'%')

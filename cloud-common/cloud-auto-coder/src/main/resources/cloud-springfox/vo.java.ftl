@@ -1,6 +1,5 @@
 package ${package}.vo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
 <#list table.column as col>
     <#if col.javaType=='Long'>
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
     </#if>
 </#list>
 
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 <#if (table.foreignKeys?? && (table.foreignKeys?size > 0)) || (table.mergeTables?? && (table.mergeTables?size > 0)) >
@@ -37,20 +35,19 @@ import ${basePackage}${mergeTable.packagePath}.vo.${mergeTable.tableNameClass}Vo
  * ${table.comment}
  */
 @Data
-@Schema(name = "${table.comment}响应对象", description = "${table.comment}响应对象")
+@ApiModel(value = "${table.comment}响应对象", description = "${table.comment}响应对象")
 public class ${table.className}Vo {
 <#if table.column?? && (table.column?size > 0) >
     <#list table.column as col>
-    <#if col.nameClass != "IsDelete">
+
 	/**
      * ${col.comment}
      */
-    @Schema(description = "${table.comment}${col.comment}")
+    @ApiModelProperty(value = "${table.comment}${col.comment}")
     <#if col.javaType=='Long'>
     @JsonSerialize(using = ToStringSerializer.class)
     </#if>
     private ${col.javaType} ${col.nameClass? uncap_first};
-    </#if>
     </#list>
 </#if>
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
@@ -59,7 +56,7 @@ public class ${table.className}Vo {
 	/**
      * ${foreignKey.comment}
      */
-    @Schema(description = "${table.comment}${foreignKey.comment}")
+    @ApiModelProperty(value = "${table.comment}${foreignKey.comment}")
     <#if foreignKey.uni>
     private ${foreignKey.tableNameClass}Vo ${foreignKey.tableNameClass? uncap_first}VO;
     <#else>
@@ -73,7 +70,7 @@ public class ${table.className}Vo {
     /**
     * ${mergeTable.comment}
     */
-    @Schema(description = "${table.comment}${mergeTable.comment}")
+    @ApiModelProperty(value = "${table.comment}${mergeTable.comment}")
     private List<${mergeTable.tableNameClass}Vo> ${mergeTable.tableNameClass? uncap_first}VOList;
     </#list>
 </#if>

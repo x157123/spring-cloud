@@ -17,3 +17,9 @@ spring:
     port: 5672
     username: liulei
     password: liulei
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

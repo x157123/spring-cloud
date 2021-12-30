@@ -130,6 +130,7 @@ public class Column {
             case "bigint":
             case "NUMBER":
                 return "Long";
+            case "tinyint":
             case "int":
                 return "Integer";
             case "DATE":

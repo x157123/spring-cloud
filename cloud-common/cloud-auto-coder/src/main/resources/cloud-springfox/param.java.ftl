@@ -1,6 +1,6 @@
 package ${package}.param;
 
-import io.swagger.v3.oas.annotations.media.Schema;
+
 import lombok.Data;
 <#list table.column as col>
     <#if col.type=='varchar'>
@@ -28,13 +28,12 @@ import java.util.Date;
  * ${table.comment}
  */
 @Data
-@Schema(name = "${table.comment}响应对象", description = "${table.comment}响应对象")
+@ApiModel(value = "${table.comment}响应对象", description = "${table.comment}响应对象")
 public class ${table.className}Param {
 <#if table.column?? && (table.column?size > 0) >
     <#list table.column as col>
     <#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
-        && col.nameClass != "CreateDate" && col.nameClass != "UpdateDate"
-        && col.nameClass != "IsDelete">
+        && col.nameClass != "CreateDate" && col.nameClass != "UpdateDate" && col.nameClass != "IsDeleted">
 
 	/**
      * ${col.comment}
@@ -44,10 +43,10 @@ public class ${table.className}Param {
     @NotBlank(message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]不能为null")
 </#if>
 <#if col.type == 'varchar'>
-    @Length(max = ${col.length?c}, message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]长度不能大于${col.length?c}")
+    @Length(max = ${col.length}, message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]长度不能大于${col.length}")
 </#if>
 </#if>
-    @Schema(description = "${col.comment}"<#if col.requiredType == 'true' && col.nameClass != "Id">, required = true</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'>, example = "1"</#if>)
+    @ApiModelProperty(value = "${col.comment}"<#if col.requiredType == 'true' && col.nameClass != "Id">, required = true</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'>, example = "1"</#if>)
     private ${col.javaType} ${col.nameClass? uncap_first};
     </#if>
     </#list>

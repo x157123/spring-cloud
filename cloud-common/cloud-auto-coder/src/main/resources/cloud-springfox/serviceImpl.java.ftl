@@ -3,7 +3,6 @@ package ${package}.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.utils.BeanUtil;
-import com.cloud.common.core.utils.DataVersionUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import ${package}.entity.${table.className};
@@ -29,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 </#if>
-import java.util.Random;
 
 /**
  * @author liulei
@@ -173,13 +171,8 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
      */
     private Boolean updateById(${table.className} ${table.className? uncap_first}) {
         LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId())
-                    .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
-        ${table.className? uncap_first}.setVersion(DataVersionUtils.next());
-        int count = ${table.className? uncap_first}Mapper.update(${table.className? uncap_first}, queryWrapper);
-        if (count <= 0) {
-            return Boolean.FALSE;
-        }
+        queryWrapper.in(${table.className}::getId, ${table.className? uncap_first}.getId());
+        ${table.className? uncap_first}Mapper.update(${table.className? uncap_first}, queryWrapper);
         return Boolean.TRUE;
     }
 

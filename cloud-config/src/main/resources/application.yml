@@ -18,6 +18,7 @@ spring:
           username: x157123@126.com
           # git仓库的密码
           password: xujia4209
+          default-label: master
   # http://127.0.0.1:15672 管理地址端口
   rabbitmq:
     host: 127.0.0.1

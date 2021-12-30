@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -101,10 +102,10 @@ public class ExportUtil {
             // 过滤隐藏的数据
             List<List<String>> dataList = handlerData(fieldList, list, tClass);
 
-            String ecFileName = URLEncoder.encode(fileName, Charsets.UTF_8.name());
+            String ecFileName = URLEncoder.encode(fileName, StandardCharsets.UTF_8.name());
             //response输出文件流
             response.setContentType("application/vnd.ms-excel");
-            response.setCharacterEncoding(Charsets.UTF_8.name());
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
             response.setHeader("Content-Disposition", "attachment; filename=" + ecFileName + ExcelTypeEnum.XLSX.getValue());
             //写入表头，表数据
             EasyExcel.write(response.getOutputStream()).excelType(ExcelTypeEnum.XLSX)

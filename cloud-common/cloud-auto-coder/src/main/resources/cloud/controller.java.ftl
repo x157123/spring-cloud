@@ -1,13 +1,14 @@
 package ${package}.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.cloud.common.core.result.ResultBody;
 import com.cloud.common.mybatis.page.PageParam;
 import ${package}.param.${table.className}Param;
 import ${package}.query.${table.className}Query;
 import ${package}.service.${table.className}Service;
 import ${package}.vo.${table.className}Vo;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/${table.className? uncap_first}")
-@Api(value = "${table.comment}", tags = "${table.comment}")
+@Tag(description = "${table.comment}", name = "${table.comment}")
 public class ${table.className}Controller {
 
     private ${table.className}Service ${table.className? uncap_first}Service;
@@ -38,9 +39,9 @@ public class ${table.className}Controller {
      * @return
      */
     @PostMapping(value = "/save")
-    @ApiOperation(value = "保存", notes = "${table.comment}")
-    public Boolean save(${table.className}Param ${table.className? uncap_first}Param) {
-        return ${table.className? uncap_first}Service.save(${table.className? uncap_first}Param);
+    @Operation(summary = "保存", description = "${table.comment}")
+    public ResultBody save(@RequestBody ${table.className}Param ${table.className? uncap_first}Param) {
+        return ResultBody.success(${table.className? uncap_first}Service.save(${table.className? uncap_first}Param));
     }
 
     /**
@@ -50,9 +51,9 @@ public class ${table.className}Controller {
      * @return
      */
     @GetMapping(value = "/findById")
-    @ApiOperation(value = "通过Id查询数据", notes = "${table.comment}")
-    public ${table.className}Vo findById(Long id) {
-        return ${table.className? uncap_first}Service.findById(id);
+    @Operation(summary = "通过Id查询数据", description = "${table.comment}")
+    public ResultBody findById(Long id) {
+        return ResultBody.success(${table.className? uncap_first}Service.findById(id));
     }
 
     /**
@@ -62,9 +63,9 @@ public class ${table.className}Controller {
      * @return
      */
     @PostMapping(value = "/findByIds")
-    @ApiOperation(value = "传入多个Id查询数据", notes = "${table.comment}")
-    public List<${table.className}Vo> findByIds(@RequestParam(value = "ids") List<Long> ids) {
-        return ${table.className? uncap_first}Service.findByIds(ids);
+    @Operation(summary = "传入多个Id查询数据", description = "${table.comment}")
+    public ResultBody findByIds(@RequestParam(value = "ids") List<Long> ids) {
+        return ResultBody.success(${table.className? uncap_first}Service.findByIds(ids));
     }
 
 
@@ -75,9 +76,9 @@ public class ${table.className}Controller {
      * @return
      */
     @PostMapping(value = "/findByList")
-    @ApiOperation(value = "根据查询条件查询列表", notes = "${table.comment}")
-    public List<${table.className}Vo> findByList(${table.className}Query ${table.className? uncap_first}Query) {
-        return ${table.className? uncap_first}Service.findByList(${table.className? uncap_first}Query);
+    @Operation(summary = "根据查询条件查询列表", description = "${table.comment}")
+    public ResultBody findByList(${table.className}Query ${table.className? uncap_first}Query) {
+        return ResultBody.success(${table.className? uncap_first}Service.findByList(${table.className? uncap_first}Query));
     }
 
     /**
@@ -87,9 +88,9 @@ public class ${table.className}Controller {
      * @return
      */
     @PostMapping(value = "/removeByIds")
-    @ApiOperation(value = "传入多个Id并删除", notes = "${table.comment}")
-    public Boolean removeByIds(@RequestParam(value = "ids") List<Long> ids) {
-        return ${table.className? uncap_first}Service.removeByIds(ids);
+    @Operation(summary = "传入多个Id并删除", description = "${table.comment}")
+    public ResultBody removeByIds(@RequestParam(value = "ids") List<Long> ids) {
+        return ResultBody.success(${table.className? uncap_first}Service.removeByIds(ids));
     }
 
     /**
@@ -100,9 +101,9 @@ public class ${table.className}Controller {
      * @return
      */
     @PostMapping(value = "/queryPage")
-    @ApiOperation(value = "数据分页查询", notes = "${table.comment}")
-    public IPage<${table.className}Vo> queryPage(${table.className}Query ${table.className? uncap_first}Query, PageParam pageParam) {
-        return ${table.className? uncap_first}Service.queryPage(${table.className? uncap_first}Query, pageParam);
+    @Operation(summary = "数据分页查询", description = "${table.comment}")
+    public ResultBody queryPage(${table.className}Query ${table.className? uncap_first}Query, PageParam pageParam) {
+        return ResultBody.success(${table.className? uncap_first}Service.queryPage(${table.className? uncap_first}Query, pageParam));
     }
 
 }

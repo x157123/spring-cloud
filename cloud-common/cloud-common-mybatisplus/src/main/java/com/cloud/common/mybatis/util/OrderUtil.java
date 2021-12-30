@@ -14,14 +14,15 @@ public class OrderUtil {
 
     /**
      * 获取分页条件
+     *
      * @param pageParam
      * @param <T>
      * @return
      */
-    public static <T> Page<T> getPage(PageParam pageParam){
-        pageParam = pageParam==null?new PageParam():pageParam;
-        Page<T> page = new Page((long)pageParam.getPage(), (long)pageParam.getRows());
-        if(hasText(pageParam.getSidx())) {
+    public static <T> Page<T> getPage(PageParam pageParam) {
+        pageParam = pageParam == null ? new PageParam() : pageParam;
+        Page<T> page = new Page((long) pageParam.getPage(), (long) pageParam.getRows());
+        if (hasText(pageParam.getSidx())) {
             OrderItem orderItem = new OrderItem();
             orderItem.setColumn(pageParam.getSidx());
             if (ASC.equalsIgnoreCase(pageParam.getSord())) {

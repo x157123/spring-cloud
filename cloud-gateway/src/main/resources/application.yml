@@ -25,3 +25,6 @@ management:
   endpoint:
     health:
       show-details: always
+api:
+  server:
+    exclude: [eureka,gateway,cloud-config]
