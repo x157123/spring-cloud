@@ -10,6 +10,7 @@
 # target file
 target
 
+# 屏蔽测试文件
 cloud-apps/test
 
 # BlueJ files
