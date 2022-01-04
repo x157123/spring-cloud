@@ -6,14 +6,14 @@ import lombok.Data;
  * @author liulei
  */
 @Data
-public class DataException extends RuntimeException {
+public class DataValidationException extends RuntimeException {
     /**
      * 错误信息
      */
     protected String errorMsg;
 
 
-    public DataException(String errorMsg){
+    public DataValidationException(String errorMsg){
         super(errorMsg);
         this.errorMsg = errorMsg;
     }

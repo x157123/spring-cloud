@@ -3,23 +3,48 @@ package ${package}.param;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 <#list table.column as col>
-    <#if col.type=='varchar'>
+    <#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
+        && col.nameClass != "CreateDate" && col.nameClass != "UpdateDate"
+        && col.nameClass != "IsDelete">
+        <#if col.type=='varchar'>
 import org.hibernate.validator.constraints.Length;
-        <#break>
+            <#break>
+        </#if>
     </#if>
 </#list>
 <#list table.column as col>
-    <#if col.requiredType == 'true'>
-
+    <#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
+        && col.nameClass != "CreateDate" && col.nameClass != "UpdateDate"
+        && col.nameClass != "IsDelete">
+        <#if col.requiredType == 'true'>
+            <#if col.type != 'varchar'>
+import javax.validation.constraints.NotNull;
+                <#break>
+            </#if>
+        </#if>
+    </#if>
+</#list>
+<#list table.column as col>
+    <#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
+        && col.nameClass != "CreateDate" && col.nameClass != "UpdateDate"
+        && col.nameClass != "IsDelete">
+        <#if col.requiredType == 'true'>
+            <#if col.type == 'varchar'>
 import javax.validation.constraints.NotBlank;
-        <#break>
+                <#break>
+            </#if>
+        </#if>
     </#if>
 </#list>
 <#list table.column as col>
+    <#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
+        && col.nameClass != "CreateDate" && col.nameClass != "UpdateDate"
+        && col.nameClass != "IsDelete">
     <#if col.javaType=='Date'>
 
 import java.util.Date;
         <#break>
+    </#if>
     </#if>
 </#list>
 
@@ -40,12 +65,17 @@ public class ${table.className}Param {
      * ${col.comment}
      */
 <#if col.nameClass != "Id">
-<#if col.requiredType == 'true'>
+    <#if col.requiredType == 'true'>
+        <#if col.type == 'varchar'>
     @NotBlank(message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]不能为null")
-</#if>
-<#if col.type == 'varchar'>
+        </#if>
+        <#if col.type != 'varchar'>
+    @NotNull(message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]不能为null")
+        </#if>
+    </#if>
+    <#if col.type == 'varchar'>
     @Length(max = ${col.length?c}, message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]长度不能大于${col.length?c}")
-</#if>
+    </#if>
 </#if>
     @Schema(description = "${col.comment}"<#if col.requiredType == 'true' && col.nameClass != "Id">, required = true</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'>, example = "1"</#if>)
     private ${col.javaType} ${col.nameClass? uncap_first};

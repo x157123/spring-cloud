@@ -2,8 +2,10 @@ package ${package}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.cloud.common.core.exceptions.DataException;
 import com.cloud.common.core.utils.BeanUtil;
 import com.cloud.common.core.utils.DataVersionUtils;
+import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import ${package}.entity.${table.className};
@@ -29,7 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 </#if>
-import java.util.Random;
 
 /**
  * @author liulei
@@ -78,6 +79,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
      */
     @Override
     public Boolean save(${table.className}Param ${table.className? uncap_first}Param) {
+        ValidationUtils.validate(${table.className? uncap_first}Param);
         ${table.className} ${table.className? uncap_first} = BeanUtil.copyProperties(${table.className? uncap_first}Param, ${table.className}::new);
         if (${table.className? uncap_first}Param.getId() != null) {
             return this.updateById(${table.className? uncap_first});
@@ -178,7 +180,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         ${table.className? uncap_first}.setVersion(DataVersionUtils.next());
         int count = ${table.className? uncap_first}Mapper.update(${table.className? uncap_first}, queryWrapper);
         if (count <= 0) {
-            return Boolean.FALSE;
+            throw new DataException("数据保存异常");
         }
         return Boolean.TRUE;
     }
