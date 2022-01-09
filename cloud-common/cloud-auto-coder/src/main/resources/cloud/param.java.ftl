@@ -74,7 +74,7 @@ public class ${table.className}Param {
         </#if>
     </#if>
     <#if col.type == 'varchar'>
-    @Length(max = ${col.length?c}, message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]长度不能大于${col.length?c}")
+    @Length(max = ${col.length?c}, message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]长度不能超过${col.length?c}个字符")
     </#if>
 </#if>
     @Schema(description = "${col.comment}"<#if col.requiredType == 'true' && col.nameClass != "Id">, required = true</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'>, example = "1"</#if>)
