@@ -6,6 +6,8 @@ import ${package}.param.${table.className}Param;
 import ${package}.query.${table.className}Query;
 import ${package}.service.${table.className}Service;
 import ${package}.vo.${table.className}Vo;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;

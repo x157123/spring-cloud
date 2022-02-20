@@ -20,13 +20,13 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  #配置zipkin
-  zipkin:
-    base-url: http://127.0.0.1:9411
-    #discovery-client-enabled: false  # 不要让nacos把zipkin注册进去（可以不写）
-  sleuth:
-    sampler:
-      probability: 1.0
+#  #配置zipkin
+#  zipkin:
+#    base-url: http://127.0.0.1:9411
+#    #discovery-client-enabled: false  # 不要让nacos把zipkin注册进去（可以不写）
+#  sleuth:
+#    sampler:
+#      probability: 1.0
 mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

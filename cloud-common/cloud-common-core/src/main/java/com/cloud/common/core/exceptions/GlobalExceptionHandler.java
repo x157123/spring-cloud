@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
+
 /**
  * @author liulei
  */
@@ -26,9 +28,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = DataException.class)
     @ResponseBody
-    public ResultBody dataExceptionHandler(DataException e) {
+    public ResultBody dataExceptionHandler(DataException e, HttpServletResponse response) {
         logger.error("发生业务异常！原因是：{}", e.getErrorMsg());
-        return ResultBody.error(ResultEnum.INTERNAL_SERVER_ERROR, e.getErrorMsg());
+        ResultBody resultBody = ResultBody.error(ResultEnum.INTERNAL_SERVER_ERROR, e.getErrorMsg());
+        setError(resultBody, response);
+        return resultBody;
     }
 
     /**
@@ -39,9 +43,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = DataValidationException.class)
     @ResponseBody
-    public ResultBody validationExceptionHandler(DataValidationException e) {
+    public ResultBody validationExceptionHandler(DataValidationException e, HttpServletResponse response) {
         logger.error("数据校验错误！原因是:", e);
-        return ResultBody.error(ResultEnum.BODY_NOT_MATCH, e.getErrorMsg());
+        ResultBody resultBody = ResultBody.error(ResultEnum.BODY_NOT_MATCH, e.getErrorMsg());
+        setError(resultBody, response);
+        return resultBody;
     }
 
     /**
@@ -52,9 +58,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = NullPointerException.class)
     @ResponseBody
-    public ResultBody exceptionHandler(NullPointerException e) {
+    public ResultBody exceptionHandler(NullPointerException e, HttpServletResponse response) {
         logger.error("发生空指针异常！原因是:", e);
-        return ResultBody.error(ResultEnum.INTERNAL_SERVER_ERROR);
+        ResultBody resultBody = ResultBody.error(ResultEnum.INTERNAL_SERVER_ERROR);
+        setError(resultBody, response);
+        return resultBody;
     }
 
     /**
@@ -65,9 +73,11 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = HttpMessageNotReadableException.class)
     @ResponseBody
-    public ResultBody exceptionHandler(HttpMessageNotReadableException e) {
+    public ResultBody exceptionHandler(HttpMessageNotReadableException e, HttpServletResponse response) {
         logger.error("数据格式错误！原因是:", e);
-        return ResultBody.error(ResultEnum.BODY_NOT_MATCH);
+        ResultBody resultBody = ResultBody.error(ResultEnum.BODY_NOT_MATCH);
+        setError(resultBody, response);
+        return resultBody;
     }
 
     /**
@@ -78,8 +88,19 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    public ResultBody exceptionHandler(Exception e) {
+    public ResultBody exceptionHandler(Exception e, HttpServletResponse response) {
         logger.error("未知异常！原因是:", e);
-        return ResultBody.error(ResultEnum.INTERNAL_SERVER_ERROR);
+        ResultBody resultBody = ResultBody.error(ResultEnum.INTERNAL_SERVER_ERROR);
+        setError(resultBody, response);
+        return resultBody;
+    }
+
+    private void setError(ResultBody resultBody, HttpServletResponse response) {
+        try {
+            //设置指定错误码
+            response.setStatus(resultBody.getStatus());
+        } catch (Exception e) {
+            logger.error("异常:", e);
+        }
     }
 }

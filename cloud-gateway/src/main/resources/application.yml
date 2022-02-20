@@ -10,13 +10,13 @@ spring:
           enabled: true
           # 服务名小写
           lower-case-service-id: true
-  #配置zipkin
-  zipkin:
-    base-url: http://127.0.0.1:9411
-    #discovery-client-enabled: false  # 不要让nacos把zipkin注册进去（可以不写）
-  sleuth:
-    sampler:
-      probability: 1.0
+#  #配置zipkin
+#  zipkin:
+#    base-url: http://127.0.0.1:9411
+#    #discovery-client-enabled: false  # 不要让nacos把zipkin注册进去（可以不写）
+#  sleuth:
+#    sampler:
+#      probability: 1.0
 # 指定注册中心的地址
 eureka:
   client:

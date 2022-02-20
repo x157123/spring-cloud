@@ -23,7 +23,9 @@ public abstract class DbComponent {
      */
     private String driver = "";
 
-    /**连接地址*/
+    /**
+     * 连接地址
+     */
     private String url;
 
     /**
@@ -54,6 +56,7 @@ public abstract class DbComponent {
 
     /**
      * 初始化数据库连接
+     *
      * @param driver
      * @param ip
      * @param port
@@ -62,7 +65,7 @@ public abstract class DbComponent {
      * @param pwd
      * @return
      */
-    Connection initConnection(String driver,String url,String ip,String port,String sid,String name,String pwd){
+    Connection initConnection(String driver, String url, String ip, String port, String sid, String name, String pwd) {
         this.driver = driver;
         this.url = url;
         this.ip = ip;
@@ -80,11 +83,11 @@ public abstract class DbComponent {
      */
     private Connection getJdbcConnection() {
         try {
-            if(conn!=null){
+            if (conn != null) {
                 return conn;
             }
             Class.forName(driver).newInstance();
-            conn = DriverManager.getConnection(String.format(url,ip,port,sid), name, pwd);
+            conn = DriverManager.getConnection(String.format(url, ip, port, sid), name, pwd);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -132,7 +135,7 @@ public abstract class DbComponent {
                 for (int k = 0; k < count; k++) {
                     try {
                         // 获取字段名
-                        String name = result.getColumnName(k+1);
+                        String name = result.getColumnName(k + 1);
                         String properties = dbNameToClassName(name);
                         Object value = rs.getObject(name);
                         if (value != null) {
@@ -142,7 +145,7 @@ public abstract class DbComponent {
                             }
                             BeanUtil.setProperties(t, properties, value);
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -178,10 +181,8 @@ public abstract class DbComponent {
      * @param <T>
      */
     <T> List<T> readJdbcData(String sql, Supplier<T> target) {
-        return this.readJdbcData(sql,target,null);
+        return this.readJdbcData(sql, target, null);
     }
-
-
 
 
     /**
@@ -210,7 +211,7 @@ public abstract class DbComponent {
     }
 
 
-    String dbNameToClassName(String tableName){
+    String dbNameToClassName(String tableName) {
         StringBuilder properties = new StringBuilder();
         String[] names = tableName.split("_");
         if (names.length > 0) {

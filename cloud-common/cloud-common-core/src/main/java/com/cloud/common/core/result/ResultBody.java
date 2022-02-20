@@ -2,6 +2,8 @@ package com.cloud.common.core.result;
 
 import lombok.Data;
 
+import java.util.Date;
+
 /**
  * @author liulei
  */
@@ -9,40 +11,45 @@ import lombok.Data;
 public class ResultBody {
 
     /**
+     * 返回时间
+     */
+    private Date timestamp = new Date();
+
+    /**
      * 相应Code
      */
-    private String code;
+    private Integer status;
 
     /**
      * 响应消息
      */
-    private String msg;
+    private String error;
 
     /**
      * 响应结果
      */
-    private Object result;
+    private Object data;
 
 
     public static ResultBody error(ResultEnum result) {
         ResultBody resultBody = new ResultBody();
-        resultBody.setCode(result.getResultCode());
-        resultBody.setMsg(result.getResultMsg());
+        resultBody.setStatus(result.getStatus());
+        resultBody.setError(result.getError());
         return resultBody;
     }
 
     public static ResultBody error(ResultEnum result, String msg) {
         ResultBody resultBody = new ResultBody();
-        resultBody.setCode(result.getResultCode());
-        resultBody.setMsg(msg);
+        resultBody.setStatus(result.getStatus());
+        resultBody.setError(msg);
         return resultBody;
     }
 
     public static ResultBody success(Object result) {
         ResultBody resultBody = new ResultBody();
-        resultBody.setCode(ResultEnum.SUCCESS.getResultCode());
-        resultBody.setMsg(ResultEnum.SUCCESS.getResultMsg());
-        resultBody.setResult(result);
+        resultBody.setStatus(ResultEnum.SUCCESS.getStatus());
+//        resultBody.setError(ResultEnum.SUCCESS.getError());
+        resultBody.setData(result);
         return resultBody;
     }
 }

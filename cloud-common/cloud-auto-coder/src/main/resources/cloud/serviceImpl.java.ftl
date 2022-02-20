@@ -4,7 +4,14 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.exceptions.DataException;
 import com.cloud.common.core.utils.BeanUtil;
+<#assign showVersion = 0>
+<#list table.column as col>
+    <#if col.nameClass != "Version">
+        <#assign showVersion = 1>
 import com.cloud.common.core.utils.DataVersionUtils;
+        <#break>
+    </#if>
+</#list>
 import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
@@ -175,12 +182,17 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
      */
     private Boolean updateById(${table.className} ${table.className? uncap_first}) {
         LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
+<#if showVersion==0 >
+        queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId());
+</#if>
+<#if showVersion==1 >
         queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId())
-                    .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
+        .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
         ${table.className? uncap_first}.setVersion(DataVersionUtils.next());
+</#if>
         int count = ${table.className? uncap_first}Mapper.update(${table.className? uncap_first}, queryWrapper);
         if (count <= 0) {
-            throw new DataException("数据保存异常");
+            throw new DataException("数据保存异常,未更新到任何数据");
         }
         return Boolean.TRUE;
     }

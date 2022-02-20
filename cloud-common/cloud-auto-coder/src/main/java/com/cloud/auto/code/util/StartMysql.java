@@ -46,13 +46,17 @@ public class StartMysql extends DbComponent {
 
     public static void main(String[] args) {
         String schema = "test";
-        //作者信息
-        String ftlPath = "cloud";
+        String ftlPath = "cloud-springfox";
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
+//        autoCodeConfig.setPackagePrefix("com.cloud");
+//        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
+
+        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue");
+        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/tests/src/main/");
+
+
         autoCodeConfig.setAuthor("lei.liu");
         autoCodeConfig.setCreateTime(new Date());
-        autoCodeConfig.setPackagePrefix("com.cloud");
-        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
         StartMysql startMysql = new StartMysql();
         startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", "test", "root", "123456");
         //获取所有表

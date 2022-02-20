@@ -55,7 +55,6 @@ public class CodeUtil {
                 }
             });
         });
-
         createFile("application.java.ftl", map, autoCodeConfig.getProjectPath(), ftlPath, "");
         createFile("mybatisPlusConfig.java.ftl", map, autoCodeConfig.getProjectPath(), ftlPath, "");
         createFile("swaggerConfig.java.ftl", map, autoCodeConfig.getProjectPath(), ftlPath, "");
