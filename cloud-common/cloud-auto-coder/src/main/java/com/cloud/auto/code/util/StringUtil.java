@@ -2,11 +2,16 @@ package com.cloud.auto.code.util;
 
 import org.springframework.util.StringUtils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * 文本工具类
  * @author liulei
  */
 public class StringUtil {
+
+    private static Pattern p = Pattern.compile("\\s*|\t|\r|\n");
 
     /**
      * 数据库字段转java驼峰命名
@@ -57,5 +62,14 @@ public class StringUtil {
             return str;
         }
         return "";
+    }
+
+    public static String replaceBlank(String str) {
+        String dest = "";
+        if (str!=null) {
+            Matcher m = p.matcher(str);
+            dest = m.replaceAll("");
+        }
+        return dest;
     }
 }

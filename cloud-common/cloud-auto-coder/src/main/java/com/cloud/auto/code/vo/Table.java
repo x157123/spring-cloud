@@ -1,9 +1,13 @@
 package com.cloud.auto.code.vo;
 
 import com.cloud.auto.code.util.StringUtil;
+import com.cloud.common.core.utils.BeanUtil;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author liulei
@@ -49,12 +53,41 @@ public class Table {
     private String packagePath;
 
     /**
+     * 前缀
+     */
+    private List<String> prefix;
+
+    /**
      * 获取ClassName
      *
      * @return
      */
     public String getClassName() {
-        return StringUtil.dbToClassName(name);
+        String className = name;
+        if (prefix != null && prefix.size() > 0) {
+            for (String pre : prefix) {
+                int i = className.indexOf(pre);
+                if(i == 0){
+                    className = className.substring(pre.length());
+                }
+            }
+        }
+        return StringUtil.dbToClassName(className);
+    }
+
+    public List<Key> getKeys() {
+        if (keys != null && keys.size() > 0) {
+            Map<String, Key> map = new HashMap<>();
+            for (Key key : keys) {
+                map.put(key.getColumnName(), key);
+            }
+            List<Key> list = new ArrayList<>();
+            map.forEach((k, v) -> {
+                list.add(v);
+            });
+            keys = list;
+        }
+        return keys;
     }
 
     /**
@@ -63,6 +96,7 @@ public class Table {
      * @return
      */
     public String getComment() {
+        comment = BeanUtil.replaceBlank(comment);
         if (comment != null && comment.lastIndexOf("->") > 0) {
             return comment.substring(0, comment.lastIndexOf("->"));
         } else if (comment == null) {
@@ -77,9 +111,11 @@ public class Table {
      * @return
      */
     public String getPackagePath() {
+        comment = BeanUtil.replaceBlank(comment);
         if (comment != null && comment.lastIndexOf("->") > 0) {
             return "." + comment.substring(comment.lastIndexOf("->") + 2);
         }
         return "";
     }
+
 }

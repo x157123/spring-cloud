@@ -47,7 +47,6 @@ public class MySwaggerResourceProvider {
         routeLocator.getRoutes().filter(route -> route.getUri().getHost() != null)
                 .filter(route -> exclude != null && !exclude.contains(route.getUri().getHost().toLowerCase()))
                 .subscribe(route -> routeHosts.add(route.getUri().getHost().toLowerCase()));
-
         // 记录已经添加过的server，存在同一个应用注册了多个服务在注册中心上
         return routeHosts;
     }

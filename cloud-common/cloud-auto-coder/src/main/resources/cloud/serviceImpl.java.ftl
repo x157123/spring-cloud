@@ -32,6 +32,7 @@ import ${basePackage}${foreignKey.packagePath}.service.${foreignKey.tableNameCla
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
@@ -121,8 +122,10 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${table.className}::getId, ids);
         List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
+        //数据转换
         List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
 		<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+        //封装关联数据
 		this.setParam(list);
 		</#if>
 		return list;
@@ -138,6 +141,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     public List<${table.className}Vo> findByList(${table.className}Query ${table.className? uncap_first}Query) {
         IPage<${table.className}Vo> iPage = this.queryPage(${table.className? uncap_first}Query, new PageParam());
 		<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+        //封装关联数据
 		this.setParam(iPage.getRecords());
 		</#if>
         return iPage.getRecords();
@@ -187,7 +191,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
 </#if>
 <#if showVersion==1 >
         queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId())
-        .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
+                .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
         ${table.className? uncap_first}.setVersion(DataVersionUtils.next());
 </#if>
         int count = ${table.className? uncap_first}Mapper.update(${table.className? uncap_first}, queryWrapper);
@@ -202,14 +206,19 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
 	
 	/**
      * 传入多个Id 查询数据
+     *
      * @param ${key.columnNameClass? uncap_first}s
      * @return
      */
     @Override
     public List<${table.className}Vo> findBy${key.columnNameClass}(List<Long> ${key.columnNameClass? uncap_first}s){
+        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() <= 0) {
+            return new ArrayList<>();
+        }
 		LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${table.className}::get${key.columnNameClass}, ${key.columnNameClass? uncap_first}s);
         List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
+        //数据转换
         List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
         return list;
 	}

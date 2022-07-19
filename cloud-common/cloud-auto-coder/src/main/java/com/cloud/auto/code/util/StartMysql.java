@@ -46,19 +46,21 @@ public class StartMysql extends DbComponent {
 
     public static void main(String[] args) {
         String schema = "test";
-        String ftlPath = "cloud-springfox";
+        String ftlPath;
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
+//        ftlPath = "cloud";
 //        autoCodeConfig.setPackagePrefix("com.cloud");
 //        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
 
-        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue");
-        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/tests/src/main/");
+        ftlPath = "cloud-springfox-sg";
+        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.synchronize.sync");
+        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/tianque-cloud/src/main/");
 
-
+        List<String> prefix = Arrays.asList("app_","wgh_","sg_");
         autoCodeConfig.setAuthor("lei.liu");
         autoCodeConfig.setCreateTime(new Date());
         StartMysql startMysql = new StartMysql();
-        startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", "test", "root", "123456");
+        startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", schema, "root", "123456");
         //获取所有表
         List<Table> tables = startMysql.getTable(schema);
         //获取所有表外键
@@ -72,6 +74,7 @@ public class StartMysql extends DbComponent {
         tables.forEach(table -> {
             table.setColumn(startMysql.getColumn(schema, table.getName()));
             table.setForeignKeys(foreignKeyMap.get(table.getName()));
+            table.setPrefix(prefix);
         });
         List<Table> list = new ArrayList<>();
         List<Table> merge = new ArrayList<>();
@@ -91,6 +94,7 @@ public class StartMysql extends DbComponent {
                 //排除中间表
                 continue;
             }
+            foreignKey.setPrefix(prefix);
             List<Key> keys = keyMsp.get(foreignKey.getTableName());
             if (keys == null) {
                 keys = new ArrayList<>();
@@ -98,6 +102,10 @@ public class StartMysql extends DbComponent {
             Key key = new Key();
             key.setColumnName(foreignKey.getColumnName());
             key.setTableName(foreignKey.getTableName());
+            List<Table> tablesTmp = tableMap.get(foreignKey.getReferencedTableName());
+            if(tablesTmp!=null && tablesTmp.size()>0) {
+                key.setTableComment(tablesTmp.get(0).getComment());
+            }
             keys.add(key);
             keyMsp.put(foreignKey.getTableName(), keys);
         }
@@ -117,7 +125,7 @@ public class StartMysql extends DbComponent {
                                 tmp = foreignKeyList.get(1);
                             }
                             MergeTable mergeTable = new MergeTable();
-
+                            mergeTable.setPrefix(prefix);
                             mergeTable.setMergeTable(foreignKey.getTableName());
                             mergeTable.setLeftMergeTableColumn(foreignKey.getColumnName());
                             mergeTable.setLeftTable(foreignKey.getReferencedTableName());

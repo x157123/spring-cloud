@@ -19,6 +19,11 @@ public class Key {
      */
     private String columnName;
 
+    /**
+     * 关联表表名
+     */
+    private String tableComment;
+
     public String getTableNameClass() {
         return StringUtil.dbToClassName(tableName);
     }

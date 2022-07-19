@@ -18,23 +18,24 @@ public class CodeUtil {
 
     /**
      * 文件写入
+     *
      * @param autoCodeConfig
      * @param ftlPath
      */
-    public static void writer(AutoCodeConfig autoCodeConfig,String ftlPath) {
+    public static void writer(AutoCodeConfig autoCodeConfig, String ftlPath) {
         Map<String, Object> map = new HashMap<>(2);
         List<String> ftps = getFtlList(ftlPath);
 
         //获取所有table的指定包
-        Map<String,String> tables = new HashMap<>(autoCodeConfig.getTables().size());
-        Map<String,String> comment = new HashMap<>(autoCodeConfig.getTables().size());
+        Map<String, String> tables = new HashMap<>(autoCodeConfig.getTables().size());
+        Map<String, String> comment = new HashMap<>(autoCodeConfig.getTables().size());
         autoCodeConfig.getTables().forEach(table -> {
-            tables.put(table.getName(),table.getPackagePath());
-            comment.put(table.getName(),table.getComment());
+            tables.put(table.getName(), table.getPackagePath());
+            comment.put(table.getName(), table.getComment());
         });
 
         autoCodeConfig.getTables().forEach(table -> {
-            if(table.getForeignKeys()!=null){
+            if (table.getForeignKeys() != null) {
                 table.getForeignKeys().forEach(foreignKey -> {
                     foreignKey.setPackagePath(tables.get(foreignKey.getTableName()));
                     foreignKey.setComment(comment.get(foreignKey.getTableName()));
@@ -48,16 +49,20 @@ public class CodeUtil {
             map.put("table", table);
             map.put("basePackage", PackageUtil.mergePack(autoCodeConfig.getPackagePrefix()));
             map.put("expandPackage", PackageUtil.mergePack(table.getPackagePath()));
-            map.put("package", PackageUtil.mergePack(autoCodeConfig.getPackagePrefix(),table.getPackagePath()));
+            map.put("package", PackageUtil.mergePack(autoCodeConfig.getPackagePrefix(), table.getPackagePath()));
             ftps.forEach(ftlName -> {
-                if(!"application.java.ftl".equals(ftlName)&& !"mybatisPlusConfig.java.ftl".equals(ftlName)&& !"swaggerConfig.java.ftl".equals(ftlName)) {
-                    createFile(ftlName, map, autoCodeConfig.getProjectPath(), ftlPath, table.getName());
+                if (!"application.java.ftl".equals(ftlName) && !"mybatisPlusConfig.java.ftl".equals(ftlName) && !"swaggerConfig.java.ftl".equals(ftlName)) {
+                    createFile(ftlName, map, autoCodeConfig.getProjectPath(), ftlPath, table.getClassName());
                 }
             });
         });
+
+        map.put("expandPackage", "");
+        map.put("package", PackageUtil.mergePack(autoCodeConfig.getPackagePrefix(), ""));
         createFile("application.java.ftl", map, autoCodeConfig.getProjectPath(), ftlPath, "");
         createFile("mybatisPlusConfig.java.ftl", map, autoCodeConfig.getProjectPath(), ftlPath, "");
         createFile("swaggerConfig.java.ftl", map, autoCodeConfig.getProjectPath(), ftlPath, "");
+
 
     }
 
@@ -77,30 +82,30 @@ public class CodeUtil {
             //设置编码
             configuration.setDefaultEncoding("UTF-8");
 
-            //ftl模板文件
+            //ftl模板文件路径
             configuration.setClassForTemplateLoading(CodeUtil.class, File.separator + ftlPath + File.separator);
 
             //获取模板
             Template template = configuration.getTemplate(templateName);
 
             //默认保存路径 包+扩展包+文件名
-            String saveFilePath = savePath+PackageUtil.packToFilePath(PackageUtil.mergePack("java",dataMap.get("basePackage").toString(),dataMap.get("expandPackage").toString(), getPack(templateName)));
+            String saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", dataMap.get("basePackage").toString(), dataMap.get("expandPackage").toString(), getPack(templateName)));
 
             //当出现mapper.xml 统一保存到某个目录
             if (templateName.startsWith("mapper.xml")) {
                 //保存到 xml+扩展包
-                saveFilePath = savePath+PackageUtil.packToFilePath(PackageUtil.mergePack("resources.mapper",getPack(templateName),dataMap.get("expandPackage").toString()));
-            }else if(templateName.startsWith("application.java")) {
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("resources.mapper", getPack(templateName), dataMap.get("expandPackage").toString()));
+            } else if (templateName.startsWith("application.java")) {
                 //保存到 跟目录
-                saveFilePath = savePath+PackageUtil.packToFilePath(PackageUtil.mergePack("java",dataMap.get("basePackage").toString(),dataMap.get("expandPackage").toString()));
-            }else if(templateName.startsWith("mybatisPlusConfig.java") || templateName.startsWith("swaggerConfig.java")) {
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", dataMap.get("basePackage").toString(), dataMap.get("expandPackage").toString()));
+            } else if (templateName.startsWith("mybatisPlusConfig.java") || templateName.startsWith("swaggerConfig.java")) {
                 //保存到 第一级目录
-                saveFilePath = savePath+PackageUtil.packToFilePath(PackageUtil.mergePack("java",dataMap.get("basePackage").toString(),dataMap.get("expandPackage").toString(),"config"));
-            }else if(templateName.startsWith("entity.java")){
-                templateName=".java.ftl";
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", dataMap.get("basePackage").toString(), dataMap.get("expandPackage").toString(), "config"));
+            } else if (templateName.startsWith("entity.java")) {
+                templateName = ".java.ftl";
             }
-                //输出文件
-            File outFile = new File(saveFilePath + File.separator + StringUtil.dbToClassName(fileName)+getSuffix(templateName));
+            //输出文件
+            File outFile = new File(saveFilePath + File.separator + StringUtil.dbToClassName(fileName) + getSuffix(templateName));
 
             //如果输出目标文件夹不存在，则创建
             if (!outFile.getParentFile().exists()) {
@@ -120,8 +125,6 @@ public class CodeUtil {
             e.printStackTrace();
         }
     }
-
-
 
 
     /**

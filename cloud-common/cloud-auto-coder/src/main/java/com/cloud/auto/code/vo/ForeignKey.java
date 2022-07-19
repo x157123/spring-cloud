@@ -1,7 +1,12 @@
 package com.cloud.auto.code.vo;
 
 import com.cloud.auto.code.util.StringUtil;
+import com.cloud.common.core.utils.BeanUtil;
 import lombok.Data;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -48,12 +53,27 @@ public class ForeignKey {
      */
     private boolean uni;
 
+    /**
+     * 表前缀
+     */
+    private List<String> prefix;
+
+
     public String getPackagePath(){
         return StringUtil.getString(packagePath);
     }
 
     public String getTableNameClass() {
-        return StringUtil.dbToClassName(tableName);
+        String className = tableName;
+        if (prefix != null && prefix.size() > 0) {
+            for (String pre : prefix) {
+                int i = className.indexOf(pre);
+                if(i == 0){
+                    className = className.substring(pre.length());
+                }
+            }
+        }
+        return StringUtil.dbToClassName(className);
     }
 
     public String getColumnNameClass() {
@@ -61,11 +81,25 @@ public class ForeignKey {
     }
 
     public String getReferencedTableNameClass() {
-        return StringUtil.dbToClassName(referencedTableName);
+        String className = referencedTableName;
+        if (prefix != null && prefix.size() > 0) {
+            for (String pre : prefix) {
+                int i = className.indexOf(pre);
+                if(i == 0){
+                    className = className.substring(pre.length());
+                }
+            }
+        }
+        return StringUtil.dbToClassName(className);
     }
 
     public String getReferencedColumnNameClass() {
         return StringUtil.dbToClassName(referencedColumnName);
     }
 
+
+
+    public String getComment() {
+        return BeanUtil.replaceBlank(comment);
+    }
 }

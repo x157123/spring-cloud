@@ -31,12 +31,10 @@
             <version>1.2.58</version>
         </dependency>
 
-        <!--validation begin-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-        <!--validation   end-->
 
 
         <dependency>

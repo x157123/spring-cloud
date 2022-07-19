@@ -3,6 +3,8 @@ package com.cloud.auto.code.vo;
 import com.cloud.auto.code.util.StringUtil;
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * @author liulei
  * 中间关联表信息
@@ -54,7 +56,21 @@ public class MergeTable {
      */
     private String packagePath;
 
+    /**
+     * 表前缀
+     */
+    private List<String> prefix;
+
     public String getTableNameClass() {
-        return StringUtil.dbToClassName(rightTable);
+        String className = rightTable;
+        if (prefix != null && prefix.size() > 0) {
+            for (String pre : prefix) {
+                int i = className.indexOf(pre);
+                if(i == 0){
+                    className = className.substring(pre.length());
+                }
+            }
+        }
+        return StringUtil.dbToClassName(className);
     }
 }

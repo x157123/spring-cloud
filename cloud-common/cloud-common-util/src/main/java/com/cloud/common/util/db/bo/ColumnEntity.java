@@ -3,11 +3,13 @@ package com.cloud.common.util.db.bo;
 import com.cloud.common.util.db.enums.DataType;
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * @author liulei
  */
 @Data
-public class ColumnEntity {
+public class ColumnEntity implements Serializable {
     /**
      * 列表
      */
@@ -17,43 +19,54 @@ public class ColumnEntity {
      */
     private String type;
 
+    /**
+     * 数据库原始类型
+     */
+    private String dbType;
+
+    public String getDbType() {
+        return this.type;
+    }
+
     public DataType getType() {
-        switch (this.type) {
-            case "boolean":
-                return DataType.BOOLEAN;
-            case "int2":
-                this.setLength(2);
-                return DataType.INTEGER;
-            case "integer":
-            case "int4":
-            case "smallint":
-                this.setLength(4);
-                return DataType.INTEGER;
-            case "bigint":
-            case "int8":
-                this.setLength(8);
-                return DataType.LONG;
-            case "float":
-                return DataType.FLOAT;
-            case "numeric":
-                if(this.scale<=0){
-                    if(this.length>=12) {
-                        return DataType.LONG;
-                    }else{
-                        return DataType.INTEGER;
+        if (this.type != null) {
+            switch (this.type) {
+                case "boolean":
+                    return DataType.BOOLEAN;
+                case "int2":
+                    this.setLength(2);
+                    return DataType.INTEGER;
+                case "integer":
+                case "int4":
+                case "smallint":
+                    this.setLength(4);
+                    return DataType.INTEGER;
+                case "bigint":
+                case "int8":
+                    this.setLength(8);
+                    return DataType.LONG;
+                case "float":
+                    return DataType.FLOAT;
+                case "numeric":
+                    if (this.scale <= 0) {
+                        if (this.length >= 12) {
+                            return DataType.LONG;
+                        } else {
+                            return DataType.INTEGER;
+                        }
                     }
-                }
-                return DataType.DOUBLE;
-            case "timestamp without time zone":
-            case "timestamp":
-                return DataType.DATE;
-            case "varchar":
-                return DataType.STRING;
-            case "text":
-                this.setLength(-1);
-                return DataType.STRING;
+                    return DataType.DOUBLE;
+                case "timestamp without time zone":
+                case "timestamp":
+                    return DataType.DATE;
+                case "varchar":
+                    return DataType.STRING;
+                case "text":
+                    this.setLength(-1);
+                    return DataType.STRING;
+            }
         }
-        System.out.println("我是未匹配类型：" + this.type);
+        System.out.println("我是未匹配字段及类型：" + this.getColumnName() + ":" + this.type);
         return DataType.STRING;
     }
 

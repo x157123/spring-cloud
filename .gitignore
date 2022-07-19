@@ -11,7 +11,7 @@
 target
 
 # 屏蔽测试文件
-cloud-apps/test
+cloud-apps/
 
 # BlueJ files
 *.ctxt

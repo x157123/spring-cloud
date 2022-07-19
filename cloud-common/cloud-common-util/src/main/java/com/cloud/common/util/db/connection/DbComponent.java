@@ -4,9 +4,14 @@ package com.cloud.common.util.db.connection;
 import com.cloud.common.util.db.bo.ColumnEntity;
 import com.cloud.common.util.db.bo.TableEntity;
 import com.cloud.common.util.db.functional.DbReadDataCallBack;
+import com.cloud.common.core.utils.BeanUtil;
+import com.cloud.common.util.db.functional.DbReadDataCallBackFun;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -44,7 +49,9 @@ public abstract class DbComponent {
      */
     String sid = "";
 
-    /**数据库*/
+    /**
+     * 数据库
+     */
     String database = "";
 
     /**
@@ -115,7 +122,7 @@ public abstract class DbComponent {
      *
      * @return
      */
-    Connection getJdbcConnection() {
+    public Connection getJdbcConnection() {
         try {
             if (conn != null) {
                 return conn;
@@ -131,13 +138,143 @@ public abstract class DbComponent {
     /**
      * 关闭数据库
      */
-    void close() {
+    public void close() {
         if (conn != null) {
             try {
                 conn.close();
             } catch (Exception e) {
                 e.printStackTrace();
             }
+        }
+    }
+
+
+    /**
+     * 数据读取转为List Map
+     *
+     * @param sql
+     */
+    public List<Map<String, Object>> readJdbcData(String sql) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Map<String, Object>> list = null;
+        try {
+            ps = getJdbcConnection().prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = ps.executeQuery();
+            rs.beforeFirst();
+            list = new ArrayList<>(rs.getRow());
+            // 获取结果集的数据源
+            ResultSetMetaData result = rs.getMetaData();
+            // 获取结果集中的字段数
+            int count = result.getColumnCount();
+            while (rs.next()) {
+                Map map = new HashMap<String, Object>();
+                // 循环取出个字段的名字以及他们的值并将其作为值赋给对应的实体对象的属性
+                for (int k = 0; k < count; k++) {
+                    try {
+                        // 获取字段名
+                        String name = result.getColumnName(k + 1);
+                        String properties = dbNameToClassName(name);
+                        Object value = rs.getObject(name);
+                        if (value != null) {
+                            // 将结果集中的值赋给相应的对象实体的属性
+                            if ("java.math.BigDecimal".equals(value.getClass().getName())
+                                    || "java.lang.Integer".equals(value.getClass().getName())
+                                    || "java.lang.Long".equals(value.getClass().getName())) {
+                                value = Long.parseLong(value.toString());
+                            }
+                        }
+                        map.put(name,value);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                list.add(map);
+            }
+            return list;
+        } catch (Exception e) {
+            list = new ArrayList<>();
+            e.printStackTrace();
+        } finally {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return list;
+        }
+    }
+
+    /**
+     * 数据读取转为对象
+     *
+     * @param sql
+     * @param target
+     * @param readDataCallBack
+     * @param <T>
+     */
+    public <T> List<T> readJdbcData(String sql, Supplier<T> target, DbReadDataCallBackFun<T> readDataCallBack) {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<T> list = null;
+        try {
+            ps = getJdbcConnection().prepareStatement(sql, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+            rs = ps.executeQuery();
+            rs.beforeFirst();
+            list = new ArrayList<>(rs.getRow());
+            // 获取结果集的数据源
+            ResultSetMetaData result = rs.getMetaData();
+            // 获取结果集中的字段数
+            int count = result.getColumnCount();
+            while (rs.next()) {
+                T t = target.get();
+                // 循环取出个字段的名字以及他们的值并将其作为值赋给对应的实体对象的属性
+                for (int k = 0; k < count; k++) {
+                    try {
+                        // 获取字段名
+                        String name = result.getColumnName(k + 1);
+                        String properties = dbNameToClassName(name);
+                        Object value = rs.getObject(name);
+                        if (value != null) {
+                            // 将结果集中的值赋给相应的对象实体的属性
+                            if ("java.math.BigDecimal".equals(value.getClass().getName())) {
+                                value = Long.parseLong(value.toString());
+                            }
+                            if("java.math.BigInteger".equals(value.getClass().getName())) {
+                                value = Long.parseLong(value.toString());
+                            }
+                            BeanUtil.setProperties(t, properties, value);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (readDataCallBack != null) {
+                    readDataCallBack.callBack(t, rs);
+                }
+                list.add(t);
+            }
+            return list;
+        } catch (Exception e) {
+            list = new ArrayList<>();
+            e.printStackTrace();
+        } finally {
+            try {
+                rs.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            try {
+                ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+            return list;
         }
     }
 
@@ -244,7 +381,7 @@ public abstract class DbComponent {
      */
     String splicingNames(String symbol, String splicing, String... names) {
         StringBuffer queryTables = new StringBuffer();
-        if(names.length>0) {
+        if (names.length > 0) {
             for (String name : names) {
                 if (queryTables != null && queryTables.length() > 0) {
                     queryTables.append(splicing);
@@ -259,5 +396,22 @@ public abstract class DbComponent {
             }
         }
         return queryTables.toString();
+    }
+
+
+    String dbNameToClassName(String tableName) {
+        StringBuilder properties = new StringBuilder();
+        String[] names = tableName.split("_");
+        if (names.length > 0) {
+            for (int g = 0; g < names.length; g++) {
+                String str = names[g].toLowerCase();
+                if (g != 0) {
+                    properties.append(str.substring(0, 1).toUpperCase()).append(str.substring(1));
+                } else {
+                    properties.append(str);
+                }
+            }
+        }
+        return properties.toString();
     }
 }

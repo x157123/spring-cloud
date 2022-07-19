@@ -1,7 +1,11 @@
 package com.cloud.auto.code.vo;
 
 import com.cloud.auto.code.util.StringUtil;
+import com.cloud.common.core.utils.BeanUtil;
 import lombok.Data;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author liulei
@@ -94,7 +98,8 @@ public class Column {
      * @return
      */
     public String getNameClass() {
-        return StringUtil.dbToClassName(name);
+        String className = name.toLowerCase();
+        return StringUtil.dbToClassName(className);
     }
 
 
@@ -126,19 +131,31 @@ public class Column {
             case "BLOB":
             case "blob":
             case "varchar":
+            case "text":
+            case "longtext":
+            case "longblob":
                 return "String";
             case "bigint":
             case "NUMBER":
                 return "Long";
             case "tinyint":
             case "int":
+            case "smallint":
                 return "Integer";
+            case "date":
             case "DATE":
             case "datetime":
+            case "timestamp":
                 return "Date";
+            case "decimal":
+                return "Double";
             default:
                 System.out.println("我没有对应类型:" + type);
                 return "";
         }
+    }
+
+    public String getComment() {
+        return BeanUtil.replaceBlank(comment);
     }
 }

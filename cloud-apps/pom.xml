@@ -15,6 +15,7 @@
     <description>应用服务</description>
     <modules>
         <module>test</module>
-        <module>tests</module>
+        <module>tianque</module>
+        <module>tianque-cloud</module>
     </modules>
 </project>

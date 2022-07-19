@@ -41,7 +41,8 @@ import ${basePackage}${mergeTable.packagePath}.vo.${mergeTable.tableNameClass}Vo
 public class ${table.className}Vo {
 <#if table.column?? && (table.column?size > 0) >
     <#list table.column as col>
-    <#if col.nameClass != "IsDelete">
+        <#if col.nameClass != "CreateUser" && col.nameClass != "UpdateUser"
+        && col.nameClass != "IsDelete" && col.nameClass != "IsDeleted" && col.nameClass != "Version">
 	/**
      * ${col.comment}
      */

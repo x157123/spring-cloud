@@ -2,6 +2,7 @@ package com.cloud.common.core.utils;
 
 
 import com.alibaba.fastjson.JSONObject;
+import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
@@ -15,7 +16,6 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,14 +88,14 @@ public class HttpUtil {
         return getResponse(httpGet);
     }
 
-    public static String sendPost(String url, Map<String, String> paramsMap, Map<String, String> headerMap) throws UnsupportedEncodingException {
+    public static String sendPost(String url, Map<String, String> paramsMap, Map<String, String> headerMap) {
         HttpPost httpPost = new HttpPost(url);
         if (paramsMap != null) {
             List<NameValuePair> params = new ArrayList<NameValuePair>();
             paramsMap.forEach((k, v) -> {
                 params.add(new BasicNameValuePair(k, v));
             });
-            httpPost.setEntity(new UrlEncodedFormEntity(params));
+            httpPost.setEntity(new UrlEncodedFormEntity(params, Consts.UTF_8));
         }
         if (headerMap != null) {
             headerMap.forEach((k, v) -> {

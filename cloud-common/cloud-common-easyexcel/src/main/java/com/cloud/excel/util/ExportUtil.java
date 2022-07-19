@@ -14,6 +14,7 @@ import org.springframework.util.ObjectUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -26,6 +27,38 @@ import java.util.stream.Collectors;
 public class ExportUtil {
 
     private static final Logger log = LoggerFactory.getLogger(ExportUtil.class);
+
+    /**
+     * 导出数据
+     *
+     * @param dynamicResult
+     * @throws IOException
+     */
+    public static void exportListData(DynamicResult dynamicResult, List<String> exportList) {
+        try {
+            String filePath = "";
+            // 指定文件输出位置
+            if(dynamicResult.getFileContent()!=null && dynamicResult.getFileContent().length()>0){
+                filePath = "X:/create/"+dynamicResult.getFileContent()+"/";
+            }else{
+                filePath = "X:/create/";
+            }
+            File file = new File(filePath + dynamicResult.getTitleVO().getTitle() + ".xlsx");
+            File folder  = new File(filePath);
+            if (!folder.exists() && !folder.isDirectory()) {
+                folder.mkdirs();
+            }
+            List<List<String>> headTitles = dynamicResult.getTitleList(exportList);
+            //表数据
+            List<List<String>> rowList = dynamicResult.getDateList();
+            //写入表头，表数据
+            EasyExcel.write(file).excelType(ExcelTypeEnum.XLSX)
+                    .registerWriteHandler(new ExportExcelStyle(dynamicResult.getTitleVO().getHeadDepth()))
+                    .head(headTitles).sheet(dynamicResult.getTitleVO().getTitle()).doWrite(rowList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 导出数据

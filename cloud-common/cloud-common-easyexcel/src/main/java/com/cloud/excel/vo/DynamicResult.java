@@ -32,6 +32,11 @@ public class DynamicResult {
      */
     private List<Map<String, Object>> data;
 
+    /**
+     * 文件目录
+     */
+    private String fileContent;
+
 
     public DynamicResult(TitleVO titleVO, List<Map<String, Object>> data) {
         this.titleVO = titleVO;

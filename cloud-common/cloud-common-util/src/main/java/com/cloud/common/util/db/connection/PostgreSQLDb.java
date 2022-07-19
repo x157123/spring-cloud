@@ -30,32 +30,52 @@ public class PostgreSQLDb extends DbComponent {
     private String queryTable = "select relname as name,cast(obj_description(relfilenode,'pg_class') as varchar) as comments from pg_class c" +
             " where relname in (select tablename from pg_tables where schemaname='%s' and tablename in (%s))";
 
+
+    private String queryTableAll = "select relname as name,cast(obj_description(relfilenode,'pg_class') as varchar) as comments from pg_class c" +
+            " where relname in (SELECT tablename FROM pg_tables T inner JOIN pg_class C on T.tablename = C.relname WHERE T.schemaname = '%s' and C.relispartition = 'f')";
     /**
      * 查询表字段
      */
-    private String queryTableColumn = "select  " +
-            "             tb.column_name as column_name, " +
-            "             td.data_type, " +
-            "             td.length, " +
-            "             numeric_scale as scale, " +
-            "             case tb.is_nullable when 'NO' then 1 else 0 end as required, " +
-            "             tb.column_default as defaultVal, " +
-            "             td.comments " +
-            "            from information_schema.columns tb left join ( " +
-            "            select  " +
-            "    a.attname AS column_name, " +
-            "    t.typname as data_type, " +
-            "    SUBSTRING(format_type(a.atttypid,a.atttypmod) from '\\((.+)\\)') as length, " +
-            "    d.description AS comments " +
-            "    from pg_class c, pg_attribute a , pg_type t, pg_description d  " +
-            "    where  c.relname = '%s' " +
-            "    and a.attnum>0  " +
-            "    and a.attrelid = c.oid  " +
-            "    and a.atttypid = t.oid  " +
-            "    and  d.objoid=a.attrelid " +
-            "    and d.objsubid=a.attnum " +
-            "            )td on tb.column_name = td.column_name  " +
-            "            where table_schema='%s' and table_name='%s' order by ordinal_position asc";
+    private String queryTableColumn = "select " +
+            "        a.attname as column_name, " +
+            "        concat_ws('', t.typname) as data_type, " +
+            "        (case when a.attlen > 0 then a.attlen when t.typname='bit' then a.atttypmod else a.atttypmod - 4 end) as length, " +
+            "        numeric_scale as scale,  " +
+            "        (case when a.attnotnull = true then 1 else 0 end) as required, " +
+            "        (case " +
+            "                when ( " +
+            "                select " +
+            "                        count(pg_constraint.*) " +
+            "                from " +
+            "                        pg_constraint " +
+            "                inner join pg_class on " +
+            "                        pg_constraint.conrelid = pg_class.oid " +
+            "                inner join pg_attribute on " +
+            "                        pg_attribute.attrelid = pg_class.oid " +
+            "                        and pg_attribute.attnum = any(pg_constraint.conkey) " +
+            "                inner join pg_type on " +
+            "                        pg_type.oid = pg_attribute.atttypid " +
+            "                where " +
+            "                        pg_class.relname = c.relname " +
+            "                        and pg_constraint.contype = 'p' " +
+            "                        and pg_attribute.attname = a.attname) > 0 then 1 " +
+            "                else 0 end) as keys, " +
+            "         col.is_identity        as zizheng, " +
+            "         col.column_default        as defaultVal, " +
+            "        (select description from pg_description where objoid = a.attrelid and objsubid = a.attnum) as comments " +
+            "from " +
+            "        pg_class c, " +
+            "        pg_attribute a , " +
+            "        pg_type t, " +
+            "        information_schema.columns as col " +
+            "where " +
+            "        table_schema = '%s' " +
+            "        and c.relname = '%s' " +
+            "        and a.attnum>0 " +
+            "        and a.attrelid = c.oid " +
+            "        and a.atttypid = t.oid " +
+            "        and col.table_name=c.relname and col.column_name=a.attname " +
+            "order by c.relname desc,a.attnum asc";
 
 
     private PostgreSQLDb() {
@@ -99,11 +119,19 @@ public class PostgreSQLDb extends DbComponent {
     public List<TableEntity> getTable(String... tables) {
         List<TableEntity> list = new ArrayList<>();
         try {
-            readJdbcData(String.format(queryTable, database, this.splicingNames("'", ",", tables).toString()), list, TableEntity::new, (k, b, rs) -> {
-                b.setTableName(rs.getString(1));
-                b.setComments(rs.getString(2));
-                k.add(b);
-            });
+            if(tables!=null && tables.length>0){
+                readJdbcData(String.format(queryTable, database, this.splicingNames("'", ",", tables).toString()), list, TableEntity::new, (k, b, rs) -> {
+                    b.setTableName(rs.getString(1));
+                    b.setComments(rs.getString(2));
+                    k.add(b);
+                });
+            }else{
+                readJdbcData(String.format(queryTableAll, database, this.splicingNames("'", ",", tables).toString()), list, TableEntity::new, (k, b, rs) -> {
+                    b.setTableName(rs.getString(1));
+                    b.setComments(rs.getString(2));
+                    k.add(b);
+                });
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -115,22 +143,26 @@ public class PostgreSQLDb extends DbComponent {
     public void setTableColumn(TableEntity tableEntity) {
         List<ColumnEntity> list = new ArrayList<>();
         try {
-            readJdbcData(String.format(queryTableColumn, tableEntity.getTableName(), database, tableEntity.getTableName()), list, ColumnEntity::new, (k, b, rs) -> {
-                b.setColumnName(rs.getString("column_name"));
-                b.setType(rs.getString("data_type"));
-                String length = rs.getString("length");
-                if(length!=null){
-                    if(length.indexOf(",")>0){
-                        b.setLength(Integer.parseInt(length.split(",")[0]));
-                    }else{
-                        b.setLength(rs.getInt("length"));
+            readJdbcData(String.format(queryTableColumn, database, tableEntity.getTableName()), list, ColumnEntity::new, (k, b, rs) -> {
+                try {
+                    b.setColumnName(rs.getString("column_name"));
+                    b.setType(rs.getString("data_type"));
+                    String length = rs.getString("length");
+                    if (length != null) {
+                        if (length.indexOf(",") > 0) {
+                            b.setLength(Integer.parseInt(length.split(",")[0]));
+                        } else {
+                            b.setLength(rs.getInt("length"));
+                        }
                     }
+                    b.setScale(rs.getInt("scale"));
+                    b.setRequired(rs.getBoolean("required"));
+                    b.setDefaultVal(rs.getString("defaultVal"));
+                    b.setComments(rs.getString("comments"));
+                    k.add(b);
+                }catch (Exception e){
+                    e.printStackTrace();
                 }
-                b.setScale(rs.getInt("scale"));
-                b.setRequired(rs.getBoolean("required"));
-                b.setDefaultVal(rs.getString("defaultVal"));
-                b.setComments(rs.getString("comments"));
-                k.add(b);
             });
             tableEntity.setColumns(list);
         } catch (Exception e) {

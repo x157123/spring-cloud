@@ -21,5 +21,7 @@
         <module>cloud-common-util</module>
         <module>cloud-common-easyexcel</module>
         <module>cloud-data-sync</module>
+        <module>cloud-common-test</module>
+        <module>cloud-work</module>
     </modules>
 </project>

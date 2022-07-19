@@ -8,11 +8,31 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * @author liulei
  */
 public class BeanUtil {
+
+
+    private static Pattern p = Pattern.compile("\\s*|\t|\r|\n");
+
+
+
+    /**
+     * 当任意一个为null时 停止拷贝
+     *
+     * @param source
+     * @param target
+     */
+    public static void copyProperties(Object source, Object target) {
+        if (Objects.nonNull(source) && Objects.nonNull(target)) {
+            BeanUtils.copyProperties(source, target);
+        }
+    }
+
 
     /**
      * 当任意一个为null时 停止拷贝
@@ -90,5 +110,14 @@ public class BeanUtil {
 
         }
 
+    }
+
+    public static String replaceBlank(String str) {
+        String dest = "";
+        if (str!=null) {
+            Matcher m = p.matcher(str);
+            dest = m.replaceAll("");
+        }
+        return dest;
     }
 }
