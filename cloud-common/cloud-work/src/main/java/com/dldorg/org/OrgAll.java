@@ -86,6 +86,7 @@ public class OrgAll {
 
     private String orgInternalCode;
 
+    private String dept;
 
     public Long getSort() {
         Long sort = seq;
@@ -107,16 +108,16 @@ public class OrgAll {
         this.orgs = new ArrayList<>();
     }
 
-    public OrgAll addOrgAndCode(String orgName, Boolean type, Long orgId, boolean bool, String orgFullName,String orgCode) {
-        return this.addOrg(orgName, null, type, orgId, bool, null, orgFullName,orgCode);
+    public OrgAll addOrgAndCode(String orgName, Boolean type, String orgId, boolean bool, String orgFullName,String orgCode) {
+        return this.addOrg(orgName, null, type, orgId, bool, null, orgFullName,orgCode,null);
     }
 
-    public OrgAll addOrg(String orgName, Boolean type, Long orgId, boolean bool, String orgFullName) {
-        return this.addOrg(orgName, null, type, orgId, bool, null, orgFullName,null);
+    public OrgAll addOrg(String orgName, Boolean type, String orgId, boolean bool, String orgFullName) {
+        return this.addOrg(orgName, null, type, orgId, bool, null, orgFullName,null,null);
     }
 
 
-    public OrgAll addOrg(String orgName, Long seq, Boolean type, Long orgId, boolean bool, String orgType, String orgFullName,String orgCode) {
+    public OrgAll addOrg(String orgName, Long seq, Boolean type, String orgId, boolean bool, String orgType, String orgFullName,String orgCode,String dept) {
         OrgAll orgAll = null;
         if (!bool) {
             //全路径匹配
@@ -160,22 +161,22 @@ public class OrgAll {
                 }
             }
             //拼音匹配
-            if (cou <= 0) {
-                for (OrgAll org : orgs) {
-                    try {
-                        String orgNameNews = getStr(org.getOrgName());
-                        if (comparePinYin(orgNames, orgNameNews)) {
-                            orgAll = org;
-                            org.setCom(org.getCom() + 1);
-                            cou += 1;
-                            str.add(org.getOrgName());
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        System.out.println("异常数据" + orgName);
-                    }
-                }
-            }
+//            if (cou <= 0) {
+//                for (OrgAll org : orgs) {
+//                    try {
+//                        String orgNameNews = getStr(org.getOrgName());
+//                        if (comparePinYin(orgNames, orgNameNews)) {
+//                            orgAll = org;
+//                            org.setCom(org.getCom() + 1);
+//                            cou += 1;
+//                            str.add(org.getOrgName());
+//                        }
+//                    } catch (Exception e) {
+//                        e.printStackTrace();
+//                        System.out.println("异常数据" + orgName);
+//                    }
+//                }
+//            }
             if (cou <= 1 && orgAll != null) {
                 orgAll.setNewOrgName(orgName);
                 orgAll.setNewId(orgId.toString());
@@ -196,6 +197,7 @@ public class OrgAll {
         if (bool) {
             orgAll.setId(orgId.toString());
             orgAll.setOrgFullName(orgFullName);
+            orgAll.setDept(dept);
         } else {
             orgAll.setNewId(orgId.toString());
             orgAll.setOrgInternalCode(orgCode);

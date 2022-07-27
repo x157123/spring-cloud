@@ -4,7 +4,14 @@
 
 <mapper namespace="${package}.mapper.${table.className}Mapper">
 
-    <select id="queryPage" resultType="${package}.entity.${table.className}"
+	<resultMap id="${table.className? uncap_first}Result" type="com.tianque.scgrid.service.synchronize.read.dld.entity.Person">
+		<#list table.column as col>
+		<result column="${col.name}" property="${col.nameClass? uncap_first}"/>
+		</#list>
+	</resultMap>
+
+
+    <select id="queryPage" resultMap="${table.className? uncap_first}Result"
             parameterType="${package}.query.${table.className}Query">
         select * from ${table.name}
 		<where>

@@ -25,8 +25,8 @@ public class ReadDldNewData {
 
     private static long id = 1435295512763183122L;
 
-    public static void repeat(Map<Long, List<Org>> map) {
-        for (Long key : map.keySet()) {
+    public static void repeat(Map<String, List<Org>> map) {
+        for (String key : map.keySet()) {
             List<Org> list = new ArrayList<>();
             List<Org> orgs = map.get(key);
             Map<String, List<Org>> newMap = orgs.stream().collect(Collectors.groupingBy(Org::getOrgName));
@@ -49,53 +49,53 @@ public class ReadDldNewData {
     public static void main(String[] args) throws FileNotFoundException {
         OrgAll orgAll = new OrgAll("四川省");
 
-        Map<Long, List<Org>> orgDldMap = getDldDbOrg();
+        Map<String, List<Org>> orgDldMap = getDldDbOrg();
 
         repeat(orgDldMap);
         //合并相同orgName
 
-        getOrgAll(orgAll, orgDldMap, 510101L, Boolean.TRUE);
+        getOrgAll(orgAll, orgDldMap, "510101", Boolean.TRUE);
 
         System.out.println("读取大联动组织机构完成");
 
-        Map<Long, List<Org>> orgMap = getDbOrg();
-        getOrgAll(orgAll, orgMap, 2L, Boolean.FALSE);
+        Map<String, List<Org>> orgMap = getDbOrg();
+        getOrgAll(orgAll, orgMap, "2", Boolean.FALSE);
 
-        System.out.println("读取社管组织机构完成,开始读取用户");
-
-        List<Long> unGrid = getDldGridDbUser();
-
-        Map<String, List<Users>> dldUser = getDldDbUser(unGrid);
-
-
-        System.out.println("大联动 读取用户完成");
-
-        Map<String, List<Users>> sgUser = getSgDbUser();
-
-        System.out.println("读取用户完成");
-
+        //------------------------------处理用户-----------------
+//        System.out.println("读取社管组织机构完成,开始读取用户");
+//
+//        List<Long> unGrid = getDldGridDbUser();
+//
+//        Map<String, List<Users>> dldUser = getDldDbUser(unGrid);
+//
+//
+//        System.out.println("大联动 读取用户完成");
+//
+//        Map<String, List<Users>> sgUser = getSgDbUser();
+//
+//        System.out.println("读取用户完成");
 //        List<User> list = new ArrayList<>();
 //        setList(list, orgAll.getOrgs(), dldUser, sgUser);
+        //------------------------------处理用户-----------------
 
 
 //        写入文件
-//        List<OrgCompareAll> list = getOrgCompareAll(orgAll);
-//        WritData.writ(list);
+        List<OrgCompareAll> list = getOrgCompareAll(orgAll);
+        WritData.writ(list);
 
 
-//        List<DockingMapping> all = new ArrayList<>();
+        List<DockingMapping> all = new ArrayList<>();
+
+        print(orgAll, all);
 //
-//        print(orgAll, all);
-
 //        list.forEach(System.out::println);
 
 //        all.forEach(System.out::println);
 
-//        startWriteWithConnection(all);
+        startWriteWithConnection(all);
 
 
     }
-
 
 
     /**
@@ -134,7 +134,7 @@ public class ReadDldNewData {
             connection.commit();
         } catch (Exception e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             dbComponent.close();
         }
     }
@@ -142,9 +142,9 @@ public class ReadDldNewData {
 
     private static void print(OrgAll org, List<DockingMapping> all) {
         if (org != null) {
-            id +=1;
-            if(org.getNewId()!=null && org.getId() != null) {
-                all.add(new DockingMapping(id, Long.parseLong(org.getNewId()), org.getOrgInternalCode(), org.getOrgName(), org.getId()));
+            id += 1;
+            if (org.getNewId() != null && org.getId() != null) {
+                all.add(new DockingMapping(id, Long.parseLong(org.getNewId()), org.getOrgInternalCode(), org.getOrgName(), org.getDept()));
             }
             if (org.getOrgs() != null && org.getOrgs().size() > 0) {
                 for (OrgAll orgAll : org.getOrgs()) {
@@ -240,17 +240,47 @@ public class ReadDldNewData {
      *
      * @return
      */
-    public static Map<Long, List<Org>> getDldDbOrg() {
+    public static Map<String, List<Org>> getDldDbOrg() {
         Long start = 0L;
         Long page = 2000L;
         List<Org> all = new ArrayList<>();
+
+        Org orgc = new Org();
+        orgc.setId("510101");
+        orgc.setParentId("1");
+        orgc.setOrgName("四川省");
+        orgc.setSeq(510101L);
+        orgc.setOrgType("1");
+        all.add(orgc);
+
+        Org org = new Org();
+        org.setId("510111");
+        org.setParentId("510101");
+        org.setOrgName("成都市");
+        org.setSeq(510111L);
+        org.setOrgType("1");
+        all.add(org);
+
+        Org orga = new Org();
+        orga.setId("510108-110357");
+        orga.setParentId("510111");
+        orga.setOrgName("成华区");
+        orga.setSeq(110357L);
+        orga.setOrgType("1");
+        all.add(orga);
+
         DbComponent dbComponent = MySQLDb.createDb("10.1.235.26", "23333", "dld", "dld", "wanggh", "123456");
         try {
-            String queryTable = "SELECT ORGID as id,PORGID  as parent_id,ORGNAME org_name,ORGID as seq ,ORGTYPE as org_type, ORGNAMEPATH as org_full_name FROM dld.wgh_org " +
-                    " where ORGIDPATH like '%s' and effective='0' and destory is null LIMIT %s ,2000";
+            String queryTable = "SELECT CONCAT(ssqx,'-',ORGID) as id,CASE WHEN PORGID = 510111 THEN 510111 ELSE CONCAT(ssqx,'-',PORGID) END as parent_id,COSTOMNO dept,ORGNAME org_name,ORGID as seq ,ORGTYPE as org_type, ORGNAMEPATH as org_full_name FROM dld.wgh_org " +
+                    " where (ORGIDPATH like '%s' or ORGIDPATH like '%s') and effective='0' and destory is null LIMIT %s ,2000";
             boolean bool = Boolean.TRUE;
             while (bool) {
-                List<Org> list = dbComponent.readJdbcData(String.format(queryTable, "1/510101/%", start), Org::new, (b, t) -> b.setSg(Boolean.TRUE));
+                List<Org> list = dbComponent.readJdbcData(String.format(queryTable, "1/510101/%","1/110357/%", start), Org::new, (b, t) -> {
+                    b.setSg(Boolean.TRUE);
+                    if(b.getId().equals("510104-5101400022") ){
+                        b.setParentId("510111");
+                    }
+                });
                 all.addAll(list);
                 start += page;
                 if (list.size() < page) {
@@ -261,23 +291,22 @@ public class ReadDldNewData {
             e.printStackTrace();
         }
         dbComponent.close();
-        Map<Long, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
+        Map<String, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
         return map;
     }
-
 
 
     /**
      * 获取数据库组织机构信息
      */
-    public static Map<Long, List<Org>> getDbOrg() {
+    public static Map<String, List<Org>> getDbOrg() {
         Long start = 0L;
         Long page = 2000L;
         List<Org> all = new ArrayList<>();
         DbComponent dbComponent = MySQLDb.createDb("192.168.10.95", "3306", "doraemon_system", "doraemon_system", "sichuan", "Tianquekeji@123");
 //        DbComponent dbComponent = MySQLDb.createDb("192.168.10.113", "3306", "doraemon_system_v5", "doraemon_system_v5", "root", "tianquekeji");
         try {
-            String queryTable = "SELECT id,parent_id,org_internal_code,org_name, org_full_name,seq FROM `doraemon_system`.uc_sys_organization where is_deleted =0 and org_internal_code like '%s' LIMIT %s ,2000";
+            String queryTable = "SELECT CONCAT(id,'') as id,CONCAT(parent_id,'') as parent_id,org_internal_code,org_name, org_full_name,seq FROM `doraemon_system`.uc_sys_organization where is_deleted =0 and org_internal_code like '%s' LIMIT %s ,2000";
             boolean bool = Boolean.TRUE;
             while (bool) {
                 List<Org> list = dbComponent.readJdbcData(String.format(queryTable, ".1.2.%", start), Org::new, (b, t) -> b.setSg(Boolean.TRUE));
@@ -291,7 +320,7 @@ public class ReadDldNewData {
             e.printStackTrace();
         }
         dbComponent.close();
-        Map<Long, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
+        Map<String, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
         return map;
     }
 
@@ -342,7 +371,7 @@ public class ReadDldNewData {
             while (bool) {
                 List<Users> list = dbComponent.readJdbcData(String.format(queryTable, start), Users::new, null);
                 list.forEach(users -> {
-                    if(!unGrid.contains(users.getId())){
+                    if (!unGrid.contains(users.getId())) {
                         all.add(users);
                     }
                 });
@@ -395,13 +424,13 @@ public class ReadDldNewData {
         return maps;
     }
 
-    private static void getOrgAll(OrgAll orgAll, Map<Long, List<Org>> map, Long paramId, boolean bool) {
+    private static void getOrgAll(OrgAll orgAll, Map<String, List<Org>> map, String paramId, boolean bool) {
         List<Org> orgs = getOrg(map, paramId);
         if (orgs != null && orgs.size() > 0) {
             for (Org org : orgs) {
                 OrgAll tmp;
                 if (bool) {
-                    tmp = orgAll.addOrg(org.getOrgName(), org.getSeq(), Boolean.TRUE, org.getId(), bool, org.getOrgType(), org.getOrgFullName(), null);
+                    tmp = orgAll.addOrg(org.getOrgName(), org.getSeq(), Boolean.TRUE, org.getId(), bool, org.getOrgType(), org.getOrgFullName(), null, org.getDept());
                 } else {
                     tmp = orgAll.addOrgAndCode(org.getOrgName(), Boolean.FALSE, org.getId(), bool, org.getOrgFullName(), org.getOrgInternalCode());
                 }
@@ -411,7 +440,7 @@ public class ReadDldNewData {
     }
 
 
-    private static List<Org> getOrg(Map<Long, List<Org>> map, Long key) {
+    private static List<Org> getOrg(Map<String, List<Org>> map, String key) {
         List<Org> list = map.get(key);
         if (list != null && list.size() > 0) {
             Collections.sort(list, (o1, o2) -> o1.getSeq() < o2.getSeq() ? -1 : (o1.getSeq().longValue() == o2.getSeq().longValue() ? 0 : 1));

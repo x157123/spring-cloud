@@ -1,5 +1,6 @@
 package ${package}.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.tianque.scgrid.service.componet.domain.BaseDomainExtend;
 import io.swagger.annotations.ApiModel;
@@ -29,6 +30,7 @@ public class ${table.className} extends BaseDomainExtend{
 	/**
      * ${col.comment}
      */
+    @TableField(value = "${col.name}")
     private ${col.javaType} ${col.nameClass? uncap_first};
     </#if>
     </#list>

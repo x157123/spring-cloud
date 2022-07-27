@@ -15,17 +15,22 @@ public class Org implements Serializable {
     /**
      * orgId
      */
-    private Long id;
+    private String id;
 
     /**
      * 上级
      */
-    private Long parentId;
+    private String parentId;
 
     /**
      * orgName
      */
     private String orgName;
+
+    /**
+     * 部门编号
+     */
+    private String dept;
 
     /**
      * 排序
@@ -58,7 +63,7 @@ public class Org implements Serializable {
     /**
      * 相同OrgName
      */
-    private List<Long> sameOrg;
+    private List<String> sameOrg;
 
     /**
      * 用户关联
@@ -66,7 +71,7 @@ public class Org implements Serializable {
     private String orgInternalCode;
 
 
-    public void addSameOrgId(Long orgId){
+    public void addSameOrgId(String orgId){
         if(sameOrg == null){
             sameOrg = new ArrayList<>();
         }

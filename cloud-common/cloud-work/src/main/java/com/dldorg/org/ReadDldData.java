@@ -28,13 +28,13 @@ public class ReadDldData {
         OrgAll orgAll = new OrgAll("四川省");
 
 
-        Map<Long, List<Org>> orgDldMap = getDldDbOrg();
-        getOrgAll(orgAll, orgDldMap, 510101L, Boolean.TRUE);
+        Map<String, List<Org>> orgDldMap = getDldDbOrg();
+        getOrgAll(orgAll, orgDldMap, "510101", Boolean.TRUE);
 
         System.out.println("读取大联动组织机构完成");
 
-        Map<Long, List<Org>> orgMap = getDbOrg();
-        getOrgAll(orgAll, orgMap, 2L, Boolean.FALSE);
+        Map<String, List<Org>> orgMap = getDbOrg();
+        getOrgAll(orgAll, orgMap, "2", Boolean.FALSE);
 
         System.out.println("读取社管组织机构完成,开始读取用户");
 
@@ -143,13 +143,13 @@ public class ReadDldData {
      *
      * @return
      */
-    public static Map<Long, List<Org>> getDldDbOrg() {
+    public static Map<String, List<Org>> getDldDbOrg() {
         Long start = 0L;
         Long page = 2000L;
         List<Org> all = new ArrayList<>();
         DbComponent dbComponent = MySQLDb.createDb("10.1.235.26", "23333", "dld", "dld", "wanggh", "123456");
         try {
-            String queryTable = "SELECT ORGID as id,PORGID  as parent_id,ORGNAME org_name,ORGID as seq ,ORGTYPE as org_type, ORGNAMEPATH as org_full_name FROM dld.wgh_org " +
+            String queryTable = "SELECT CONCAT(ssqx,'-',ORGID) as id,CASE WHEN PORGID = 510111 THEN 510111 ELSE CONCAT(ssqx,'-',PORGID) END as parent_id,ORGNAME org_name,ORGID as seq ,ORGTYPE as org_type, ORGNAMEPATH as org_full_name FROM dld.wgh_org " +
                     " where ORGIDPATH like '%s' and effective='0' and destory is null LIMIT %s ,2000";
             boolean bool = Boolean.TRUE;
             while (bool) {
@@ -164,14 +164,14 @@ public class ReadDldData {
             e.printStackTrace();
         }
         dbComponent.close();
-        Map<Long, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
+        Map<String, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
         return map;
     }
 
     /**
      * 获取数据库组织机构信息
      */
-    public static Map<Long, List<Org>> getDbOrg() {
+    public static Map<String, List<Org>> getDbOrg() {
         Long start = 0L;
         Long page = 2000L;
         List<Org> all = new ArrayList<>();
@@ -192,7 +192,7 @@ public class ReadDldData {
             e.printStackTrace();
         }
         dbComponent.close();
-        Map<Long, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
+        Map<String, List<Org>> map = all.stream().collect(Collectors.groupingBy(Org::getParentId));
         return map;
     }
 
@@ -262,13 +262,13 @@ public class ReadDldData {
         return maps;
     }
 
-    private static void getOrgAll(OrgAll orgAll, Map<Long, List<Org>> map, Long paramId, boolean bool) {
+    private static void getOrgAll(OrgAll orgAll, Map<String, List<Org>> map, String paramId, boolean bool) {
         List<Org> orgs = getOrg(map, paramId);
         if (orgs != null && orgs.size() > 0) {
             for (Org org : orgs) {
                 OrgAll tmp;
                 if (bool) {
-                    tmp = orgAll.addOrg(org.getOrgName(), org.getSeq(), Boolean.TRUE, org.getId(), bool, org.getOrgType(), org.getOrgFullName(),null);
+                    tmp = orgAll.addOrg(org.getOrgName(), org.getSeq(), Boolean.TRUE, org.getId(), bool, org.getOrgType(), org.getOrgFullName(),null, org.getDept());
                 } else {
                     tmp = orgAll.addOrg(org.getOrgName(), Boolean.FALSE, org.getId(), bool, org.getOrgFullName());
                 }
@@ -278,7 +278,7 @@ public class ReadDldData {
     }
 
 
-    private static List<Org> getOrg(Map<Long, List<Org>> map, Long key) {
+    private static List<Org> getOrg(Map<String, List<Org>> map, String key) {
         List<Org> list = map.get(key);
         if (list != null && list.size() > 0) {
             Collections.sort(list, (o1, o2) -> o1.getSeq() < o2.getSeq() ? -1 : (o1.getSeq().longValue() == o2.getSeq().longValue() ? 0 : 1));
