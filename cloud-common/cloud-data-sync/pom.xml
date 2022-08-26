@@ -11,6 +11,10 @@
 
     <artifactId>cloud-data-sync</artifactId>
 
+    <properties>
+        <version.debezium>1.4.2.Final</version.debezium>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -18,8 +22,19 @@
         </dependency>
 
         <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-api</artifactId>
+            <version>${version.debezium}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-embedded</artifactId>
+            <version>${version.debezium}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.debezium</groupId>
+            <artifactId>debezium-connector-mysql</artifactId>
+            <version>${version.debezium}</version>
         </dependency>
     </dependencies>
 

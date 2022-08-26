@@ -87,10 +87,7 @@ public class ReadDldNewData {
         List<DockingMapping> all = new ArrayList<>();
 
         print(orgAll, all);
-//
-//        list.forEach(System.out::println);
 
-//        all.forEach(System.out::println);
 
         startWriteWithConnection(all);
 
@@ -99,7 +96,7 @@ public class ReadDldNewData {
 
 
     /**
-     * 写入数据
+     * 写入组织机构关联数据
      *
      * @param dataList
      */

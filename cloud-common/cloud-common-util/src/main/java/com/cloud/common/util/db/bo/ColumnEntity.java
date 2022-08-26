@@ -28,6 +28,78 @@ public class ColumnEntity implements Serializable {
         return this.type;
     }
 
+    public static String sqlType2JavaType(String sqlType) {
+        switch (sqlType.toLowerCase()){
+            case "bit": return "boolean";
+            case "tinyint": return "byte";
+            case "smallint": return "short";
+            case "int": return "int";
+            case "bigint": return "long";
+            case "float": return "float";
+            case "decimal":
+            case "numeric":
+            case "real":
+            case "money":
+            case "smallmoney": return "double";
+            case "varchar":
+            case "char":
+            case "nvarchar":
+            case "nchar":
+            case "text": return "String";
+            case "datetime":
+            case "date": return "Date";
+            case "image": return "Blob";
+            case "timestamp": return "Timestamp";
+            default: return "String";
+        }
+    }
+
+
+    /**
+     * 数据类型转化JAVA
+     * @param sqlType：类型名称
+     * @return
+     */
+    public static String toSqlToJava(String sqlType) {
+        if( sqlType == null || sqlType.trim().length() == 0 ) {
+            return sqlType;
+        }
+        sqlType = sqlType.toLowerCase();
+        switch(sqlType){
+            case "nvarchar":return "String";
+            case "char":return "String";
+            case "varchar":return "String";
+            case "text":return "String";
+            case "nchar":return "String";
+            case "blob":return "byte[]";
+            case "integer":return "Long";
+            case "tinyint":return "Integer";
+            case "smallint":return "Integer";
+            case "mediumint":return "Integer";
+            case "bit":return "Boolean";
+            case "bigint":return "java.math.BigInteger";
+            case "float":return "Fload";
+            case "double":return "Double";
+            case "decimal":return "java.math.BigDecimal";
+            case "boolean":return "Boolean";
+            case "id":return "Long";
+            case "date":return "java.util.Date";
+            case "datetime":return "java.util.Date";
+            case "year":return "java.util.Date";
+            case "time":return "java.sql.Time";
+            case "timestamp":return "java.sql.Timestamp";
+            case "numeric":return "java.math.BigDecimal";
+            case "real":return "java.math.BigDecimal";
+            case "money":return "Double";
+            case "smallmoney":return "Double";
+            case "image":return "byte[]";
+            default:
+                System.out.println("-----------------》转化失败：未发现的类型"+sqlType);
+                break;
+        }
+        return sqlType;
+    }
+
     public DataType getType() {
         if (this.type != null) {
             switch (this.type) {
@@ -38,6 +110,7 @@ public class ColumnEntity implements Serializable {
                     return DataType.INTEGER;
                 case "integer":
                 case "int4":
+                case "int":
                 case "smallint":
                     this.setLength(4);
                     return DataType.INTEGER;
@@ -47,6 +120,7 @@ public class ColumnEntity implements Serializable {
                     return DataType.LONG;
                 case "float":
                     return DataType.FLOAT;
+                case "decimal":
                 case "numeric":
                     if (this.scale <= 0) {
                         if (this.length >= 12) {
@@ -58,10 +132,13 @@ public class ColumnEntity implements Serializable {
                     return DataType.DOUBLE;
                 case "timestamp without time zone":
                 case "timestamp":
+                case "date":
+                case "datetime":
                     return DataType.DATE;
                 case "varchar":
                     return DataType.STRING;
                 case "text":
+                case "longtext":
                     this.setLength(-1);
                     return DataType.STRING;
             }

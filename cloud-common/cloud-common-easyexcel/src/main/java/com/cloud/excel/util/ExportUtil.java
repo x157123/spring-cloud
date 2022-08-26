@@ -1,9 +1,15 @@
 package com.cloud.excel.util;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.support.ExcelTypeEnum;
+import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.fastjson.JSON;
+import com.cloud.common.core.utils.BeanUtil;
+import com.cloud.common.util.db.bo.ColumnEntity;
+import com.cloud.common.util.db.bo.TableEntity;
+import com.cloud.excel.test.Column;
 import com.cloud.excel.vo.DynamicResult;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.codec.Charsets;
@@ -29,6 +35,27 @@ public class ExportUtil {
     private static final Logger log = LoggerFactory.getLogger(ExportUtil.class);
 
     /**
+     * 导出表结构
+     * @param tables
+     */
+    public static void exportListData(List<TableEntity> tables) {
+        try {
+            String fileName = "X:/导出表结构.xlsx";
+            ExcelWriter excelWriter = EasyExcel.write(fileName).registerWriteHandler(new ExportExcelStyle(1)).build();
+            int i = 0;
+            for (TableEntity tableEntity : tables) {
+                List<Column> list = BeanUtil.copyListProperties(tableEntity.getColumns(), Column::new);
+                WriteSheet writeSheet = EasyExcel.writerSheet(i, tableEntity.getComments()).head(Column.class).build();
+                excelWriter.write(list, writeSheet);
+                i++;
+            }
+            excelWriter.finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 导出数据
      *
      * @param dynamicResult
@@ -38,13 +65,13 @@ public class ExportUtil {
         try {
             String filePath = "";
             // 指定文件输出位置
-            if(dynamicResult.getFileContent()!=null && dynamicResult.getFileContent().length()>0){
-                filePath = "X:/create/"+dynamicResult.getFileContent()+"/";
-            }else{
+            if (dynamicResult.getFileContent() != null && dynamicResult.getFileContent().length() > 0) {
+                filePath = "X:/create/" + dynamicResult.getFileContent() + "/";
+            } else {
                 filePath = "X:/create/";
             }
             File file = new File(filePath + dynamicResult.getTitleVO().getTitle() + ".xlsx");
-            File folder  = new File(filePath);
+            File folder = new File(filePath);
             if (!folder.exists() && !folder.isDirectory()) {
                 folder.mkdirs();
             }
@@ -59,6 +86,7 @@ public class ExportUtil {
             e.printStackTrace();
         }
     }
+
 
     /**
      * 导出数据

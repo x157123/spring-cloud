@@ -262,12 +262,12 @@ public class OrgAll {
         orgNameNews = orgNameNews.replace("社区居委员会", "");
         orgNameNews = orgNameNews.replace("社居民委员会", "");
         orgNameNews = orgNameNews.replace("村村民委员会", "");
-        orgNameNews = orgNameNews.replace("路社区居委会", "");
         orgNameNews = orgNameNews.replace("居民委员委会", "");
+//        orgNameNews = orgNameNews.replace("路社区居委会", "");
+        orgNameNews = orgNameNews.replace("社区居委会", "");
         orgNameNews = orgNameNews.replace("景区管理局", "");
         orgNameNews = orgNameNews.replace("村村民委员", "");
         orgNameNews = orgNameNews.replace("社区委员会", "");
-//        orgNameNews = orgNameNews.replace("社区居委会", "");
         orgNameNews = orgNameNews.replace("筹委居委会", "");
         orgNameNews = orgNameNews.replace("居民委员会", "");
         orgNameNews = orgNameNews.replace("居名委员会", "");

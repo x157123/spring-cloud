@@ -27,7 +27,7 @@ public class MySQLDb extends DbComponent {
      * 查询表
      */
     private String queryTable = "SELECT TABLE_NAME as name, TABLE_COMMENT as comment " +
-            "FROM information_schema.TABLES WHERE TABLE_SCHEMA = '%s' and table_name = %s order by CREATE_TIME asc";
+            "FROM information_schema.TABLES WHERE TABLE_SCHEMA = '%s' and table_name in ( %s )";
 
     /**
      * 查询表字段
@@ -100,7 +100,12 @@ public class MySQLDb extends DbComponent {
                         if (length.indexOf(",") > 0) {
                             b.setLength(Integer.parseInt(length.split(",")[0]));
                         } else {
-                            b.setLength(rs.getInt("length"));
+                            try {
+                                b.setLength(rs.getInt("length"));
+                            }catch (Exception e){
+                                System.out.println("长度无限制");
+//                                b.setLength(Integer.MAX_VALUE);
+                            }
                         }
                     }
                     b.setScale(rs.getInt("accuracy"));
