@@ -1,5 +1,6 @@
 package com.cloud.common.data.consumption.utils;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
@@ -7,8 +8,7 @@ import io.debezium.engine.format.Json;
 
 import java.io.IOException;
 import java.util.Properties;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * @author liulei
@@ -23,22 +23,22 @@ public class Tests {
         props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
 
         props.setProperty("offset.storage", "org.apache.kafka.connect.storage.FileOffsetBackingStore");
-        props.setProperty("offset.storage.file.filename", "x:/offsets.dat");
+        props.setProperty("offset.storage.file.filename", "E:/offsets.dat");
         props.setProperty("offset.flush.interval.ms", "60000");
         /* begin connector properties */
         props.setProperty("database.hostname", "127.0.0.1");
         props.setProperty("database.port", "3306");
-        props.setProperty("database.user", "cdc_user");
-        props.setProperty("database.password", "cdc_password");
+        props.setProperty("database.user", "root");
+        props.setProperty("database.password", "123456");
 
         props.setProperty("database.serverTimezone", "UTC");
 
-        props.setProperty("table.whitelist", "test.wgh_person_hj");
+        props.setProperty("table.whitelist", "test.issue_focus_tag");
 
         props.setProperty("database.server.id", "1");
         props.setProperty("database.server.name", "my-app-connector");
         props.setProperty("database.history", "io.debezium.relational.history.FileDatabaseHistory");
-        props.setProperty("database.history.file.filename", "x:/dbhistory.dat");
+        props.setProperty("database.history.file.filename", "E:/dbhistory.dat");
 
         // Create the engine with this configuration ...
 
@@ -56,11 +56,19 @@ public class Tests {
                     }
                 }).build();
 
-        // Run the engine asynchronously ...
-        ExecutorService executor = Executors.newSingleThreadExecutor();
+//        ExecutorService executor = Executors.newSingleThreadExecutor();
+//        executor.execute(engine);
+
+
+        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("pool-%d").build();
+        ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
+                new LinkedBlockingQueue<>(), threadFactory);
+
         executor.execute(engine);
-        // Do something else or wait for a signal or an event
-        // Engine is stopped when the main code is finished
+
+        System.out.println("我要关闭了1");
+
+//        engine.close();
     }
 
 }
