@@ -11,12 +11,12 @@ import java.io.Serializable;
 @Data
 public class OrgStr implements Serializable {
 
-    @ExcelProperty(value = {"行政区划","县（市、区）"}, index = 1)
+    @ExcelProperty(index = 0)
     private String xian;
 
-    @ExcelProperty(value = {"行政区划","乡（镇、街道）"}, index = 2)
+    @ExcelProperty(index = 1)
     private String xiang;
 
-    @ExcelProperty(value = {"行政区划","村（社区）"}, index = 3)
+    @ExcelProperty(index = 2)
     private String sq;
 }
