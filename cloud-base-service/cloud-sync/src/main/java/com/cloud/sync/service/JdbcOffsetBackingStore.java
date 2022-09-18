@@ -21,6 +21,7 @@ import java.util.concurrent.*;
 public class JdbcOffsetBackingStore implements OffsetBackingStore {
 
     protected Map<ByteBuffer, ByteBuffer> data = new HashMap<>();
+
     protected ExecutorService executor;
 
     @Override
@@ -29,7 +30,7 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
         executor = new ThreadPoolExecutor(5, 200, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory,
                 new ThreadPoolExecutor.AbortPolicy());
-
+        load();
     }
 
     @Override
@@ -68,16 +69,19 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
         return executor.submit(() -> {
             for (Map.Entry<ByteBuffer, ByteBuffer> entry : map.entrySet()) {
                 data.put(entry.getKey(), entry.getValue());
+                {
+                    // 打印游标
+                    Charset charset = Charset.forName("utf-8");
+                    CharsetDecoder decoder = charset.newDecoder();
+                    CharBuffer keyBuffer = decoder.decode(entry.getKey());
+                    CharBuffer valueBuffer = decoder.decode(entry.getValue());
 
-                Charset charset = Charset.forName("utf-8");
-                CharsetDecoder decoder = charset.newDecoder();
-                CharBuffer keyBuffer = decoder.decode(entry.getKey());
-                CharBuffer valueBuffer = decoder.decode(entry.getValue());
-
-                System.out.println("key-->:" + keyBuffer.toString());
-                System.out.println("value-->:" + valueBuffer.toString());
+                    System.out.println("key-->:" + keyBuffer.toString());
+                    System.out.println("value-->:" + valueBuffer.toString());
+                }
             }
             //写入数据库
+            save();
             if (callback != null) {
                 callback.onCompletion(null, null);
             }
@@ -87,5 +91,21 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
 
     @Override
     public void configure(WorkerConfig workerConfig) {
+    }
+
+    /**
+     * 获取数据库
+     */
+    private void load(){
+        String key = "{\"schema\":null,\"payload\":[\"engine\",{\"server\":\"my-app-connector\"}]}";
+        String value = "{\"ts_sec\":1663507270,\"file\":\"mysql-bin.000028\",\"pos\":2853,\"gtids\":\"6e743415-ca40-11e8-8a55-10f0059aec86:1-3128\",\"row\":1,\"server_id\":1,\"event\":2}";
+        data.put(ByteBuffer.wrap(key.getBytes()),ByteBuffer.wrap(value.getBytes()));
+    }
+
+    /**
+     * 写入数据库
+     */
+    private void save(){
+
     }
 }
