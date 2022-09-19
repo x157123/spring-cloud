@@ -140,6 +140,53 @@ public class OrgAll {
         String orgNameNews = st.trim();
 //        orgNameNews = orgNameNews.replaceAll("\\(.*?\\)|\\{.*?}|\\[.*?]|（.*?）|0[0-9]*$|0[0-9]*号$|[0-9]*社$|[0-9]*组$|村.*?组$|[0-9]*网格", "");
         orgNameNews = orgNameNews.replaceAll("\\(.*?\\)|\\{.*?}|\\[.*?]|（.*?）", "");
+
+        orgNameNews = orgNameNews.replaceAll("四川", "");
+
+        orgNameNews = orgNameNews.replaceAll("成都高新技术产业开发区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("四川", "");
+        orgNameNews = orgNameNews.replaceAll("成都高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("成都东部新区", "东部新区");
+        orgNameNews = orgNameNews.replaceAll("自贡高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("攀枝花高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("泸州高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("德阳高新区", "高新区");
+
+        orgNameNews = orgNameNews.replaceAll("绵阳高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("绵阳科学城办事处", "科学城区");
+        orgNameNews = orgNameNews.replaceAll("绵阳科创业园区", "科技城新区");
+        orgNameNews = orgNameNews.replaceAll("绵阳经开区", "经开区");
+        orgNameNews = orgNameNews.replaceAll("绵阳仙海管理委员会", "仙海管委会");
+
+        orgNameNews = orgNameNews.replaceAll("经济技术开发区", "经开区");
+
+        orgNameNews = orgNameNews.replaceAll("广元高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("遂宁高新区", "高新区");
+
+        orgNameNews = orgNameNews.replaceAll("国家经济技术开发区", "遂宁经济技术开发区");
+
+        orgNameNews = orgNameNews.replaceAll("内江高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("乐山高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("南充高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("宜宾高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("广安高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("达州高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("巴中高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("雅安高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("眉山高新区", "高新区");
+        orgNameNews = orgNameNews.replaceAll("资阳高新区", "高新区");
+//        orgNameNews = orgNameNews.replaceAll("竹友场社区居民委员会", "竹友社区");
+
+
+//
+//
+        orgNameNews = orgNameNews.replaceAll("村民委员会", "");
+        orgNameNews = orgNameNews.replaceAll("居民委员会", "");
+        orgNameNews = orgNameNews.replaceAll("居委会", "");
+        orgNameNews = orgNameNews.replaceAll("街街道", "");
+        orgNameNews = orgNameNews.replaceAll("街道办", "");
+        orgNameNews = orgNameNews.replaceAll("街道", "");
+
         orgNameNews = orgNameNews.replaceAll("综合执法第一分局", "");
         orgNameNews = orgNameNews.replaceAll("村村民村村民委员会", "");
         orgNameNews = orgNameNews.replaceAll("村村民委员会委会", "");
@@ -176,7 +223,7 @@ public class OrgAll {
 
         orgNameNews = orgNameNews.replaceAll("社区保留", "社区");
         orgNameNews = orgNameNews.replaceAll("网格保留", "网格");
-        orgNameNews = orgNameNews.replaceAll("高新技术产业开发区", "高新区");
+
 
 
         orgNameNews = orgNameNews.replaceAll("村民委会", "");
@@ -191,6 +238,7 @@ public class OrgAll {
         orgNameNews = orgNameNews.replaceAll("办事处", "");
         orgNameNews = orgNameNews.replaceAll("办事处", "");
         orgNameNews = orgNameNews.replaceAll("村委会", "");
+        orgNameNews = orgNameNews.replaceAll("街道办事处", "");
         orgNameNews = orgNameNews.replaceAll("街道办", "");
         orgNameNews = orgNameNews.replaceAll("村网格", "");
         orgNameNews = orgNameNews.replaceAll("苗族乡", "");

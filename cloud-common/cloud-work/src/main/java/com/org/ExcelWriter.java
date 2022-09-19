@@ -43,6 +43,16 @@ public class ExcelWriter {
                 if (data == null) {
                     continue;
                 }
+                if (!(data.getCounty().getCom() <= 1
+                        || data.getTown().getCom() <= 1
+                        || data.getVillage().getCom() <= 1)) {
+                    continue;
+                }
+                if(!((data.getCounty().getNewOrgName() != null && data.getCounty().getNewOrgName().length() > 0)
+                        || (data.getTown().getNewOrgName() != null && data.getTown().getNewOrgName().length() > 0)
+                        || (data.getVillage().getNewOrgName() != null && data.getVillage().getNewOrgName().length() > 0))){
+                    continue;
+                }
                 //输出行数据
                 Row row = sheet.createRow(rowNum++);
                 convertDataToRow(data, row, roseStyle, greenStyle, blueStyle);

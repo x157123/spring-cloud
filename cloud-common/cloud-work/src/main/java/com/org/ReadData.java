@@ -24,9 +24,8 @@ public class ReadData {
     public static void main(String[] args) throws FileNotFoundException {
         OrgAll orgAll = new OrgAll("四川省");
 
-        Map<Long, List<Org>> orgMap = getDbOrg();
-
-        getOrgAll(orgAll, orgMap, 2L);
+//        Map<Long, List<Org>> orgMap = getDbOrg();
+//        getOrgAll(orgAll, orgMap, 2L);
 
         Map<String, Map<String, Map<String, Set<String>>>> excelMap = getExcel();
         excelMap.forEach((k, v) -> {
