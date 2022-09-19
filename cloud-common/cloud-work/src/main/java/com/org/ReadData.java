@@ -122,7 +122,7 @@ public class ReadData {
      * 获取数据
      */
     public static Map<String, Map<String, Map<String, Set<String>>>> getExcel() throws FileNotFoundException {
-        File file = new File("C:/Users/Administrator/Desktop/四川省网格划分统计总表.xlsx");
+        File file = new File("D://四川省网格划分统计总表.xls");
         ExcelReaderBuilder excelReaderBuilder = EasyExcel.read(file);
         ExcelReader excelReader = excelReaderBuilder.build();
         List<ReadSheet> sheets = excelReader.excelExecutor().sheetList();
@@ -130,7 +130,7 @@ public class ReadData {
         for (ReadSheet sheet : sheets) {
             map.put(sheet.getSheetName(), new HashMap<>());
             Map<String, Map<String, Set<String>>> xian = map.get(sheet.getSheetName());
-            List<OrgStr> orgs = getData(new FileInputStream("C:/Users/Administrator/Desktop/四川省网格划分统计总表.xlsx"), OrgStr.class, sheet.getSheetName());
+            List<OrgStr> orgs = getData(new FileInputStream("D://四川省网格划分统计总表.xls"), OrgStr.class, sheet.getSheetName());
             for (OrgStr str : orgs) {
                 Map<String, Set<String>> xiangMap = xian.get(str.getXian());
                 if (xiangMap == null) {
