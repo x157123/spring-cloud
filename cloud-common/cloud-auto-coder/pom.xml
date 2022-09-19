@@ -14,7 +14,6 @@
     <description>代码生成组件</description>
 
     <properties>
-        <mysql.version>8.0.15</mysql.version>
     </properties>
 
     <dependencies>

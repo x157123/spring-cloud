@@ -12,10 +12,6 @@
     <artifactId>cloud-common-util</artifactId>
 
     <properties>
-        <mysql.version>8.0.28</mysql.version>
-        <postgresql.version>42.4.2</postgresql.version>
-        <clickhouse.version>0.2.4</clickhouse.version>
-        <oracle.version>11.2.0.4</oracle.version>
     </properties>
 
     <dependencies>
