@@ -130,6 +130,9 @@ public class OrgAll {
     }
 
     private static boolean compare(String a, String b) {
+        if((a.trim().equals("会龙") && b.trim().equals("回龙")) || (b.trim().equals("会龙") && a.trim().equals("回龙"))){
+            return false;
+        }
         if (a.trim().equals(b.trim()) || Pinyin4jUtils.getFullPinyinStr(a).equals(Pinyin4jUtils.getFullPinyinStr(b))) {
             return true;
         }
@@ -220,12 +223,8 @@ public class OrgAll {
         orgNameNews = orgNameNews.replaceAll("管理委员会", "");
         orgNameNews = orgNameNews.replaceAll("旅游风景区", "");
         orgNameNews = orgNameNews.replaceAll("成都直管区", "");
-
         orgNameNews = orgNameNews.replaceAll("社区保留", "社区");
         orgNameNews = orgNameNews.replaceAll("网格保留", "网格");
-
-
-
         orgNameNews = orgNameNews.replaceAll("村民委会", "");
         orgNameNews = orgNameNews.replaceAll("村委员会", "");
         orgNameNews = orgNameNews.replaceAll("村村委会", "");
@@ -291,7 +290,6 @@ public class OrgAll {
         orgNameNews = orgNameNews.replaceAll("卷", "棬");
         orgNameNews = orgNameNews.replaceAll("泥", "坭");
         orgNameNews = orgNameNews.replaceAll("竹湖园", "竹湖");
-        orgNameNews = orgNameNews.replaceAll("龙", "隆");
         orgNameNews = orgNameNews.replaceAll("渔", "鱼");
         orgNameNews = orgNameNews.replaceAll("伏", "福");
         orgNameNews = orgNameNews.replaceAll("篷", "蓬");
