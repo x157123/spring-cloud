@@ -12,7 +12,7 @@
     <artifactId>cloud-sync</artifactId>
 
     <properties>
-        <version.debezium>1.4.2.Final</version.debezium>
+        <version.debezium>1.9.5.Final</version.debezium>
     </properties>
 
     <dependencies>
@@ -23,10 +23,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

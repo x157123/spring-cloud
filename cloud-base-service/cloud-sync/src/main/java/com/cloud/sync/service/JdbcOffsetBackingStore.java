@@ -98,7 +98,7 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
      */
     private void load(){
         String key = "{\"schema\":null,\"payload\":[\"engine\",{\"server\":\"my-app-connector\"}]}";
-        String value = "{\"ts_sec\":1663507270,\"file\":\"mysql-bin.000028\",\"pos\":2853,\"gtids\":\"6e743415-ca40-11e8-8a55-10f0059aec86:1-3128\",\"row\":1,\"server_id\":1,\"event\":2}";
+        String value = "{\"transaction_id\":null,\"ts_sec\":1663775169,\"file\":\"mysql-bin.000029\",\"pos\":2115,\"gtids\":\"6e743415-ca40-11e8-8a55-10f0059aec86:1-3137\",\"row\":1,\"server_id\":1,\"event\":2}";
         data.put(ByteBuffer.wrap(key.getBytes()),ByteBuffer.wrap(value.getBytes()));
     }
 
