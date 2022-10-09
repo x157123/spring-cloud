@@ -2,6 +2,7 @@ package com.cloud.common.core.utils;
 
 
 import com.alibaba.fastjson.JSONObject;
+import okhttp3.*;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -16,6 +17,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -136,5 +138,49 @@ public class HttpUtil {
             }
         }
         return "";
+    }
+
+
+
+
+
+
+
+
+    public static String sendOkHttpPost(String url, Map<String, String> paramsMap, Map<String, String> headerMap)  {
+        try {
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .build();
+            MediaType mediaType = MediaType.parse("text/plain");
+            RequestBody body = RequestBody.create(mediaType, "");
+            //判断是否有参数
+            StringBuffer stringBuffer = new StringBuffer();
+            if (paramsMap != null) {
+                //将参数转换为字符串
+                for (Map.Entry<String, String> entry : paramsMap.entrySet()) {
+                    String key = entry.getKey();
+                    String value = entry.getValue();
+                    stringBuffer.append(key).append("=").append(value).append("&");
+                }
+                if (url.contains("?")) {
+                    url += "&" + stringBuffer.substring(0, stringBuffer.length() - 1);
+                } else {
+                    url += "?" + stringBuffer.substring(0, stringBuffer.length() - 1);
+                }
+            }
+            Request request = new Request.Builder()
+                    .url(url)
+                    .method("POST", body)
+                    .addHeader("auth", "bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0ZW5hbnRfaWQiOiIwMDAwMDAiLCJjb2RlIjoyMDAsInJvbGVfY29kZXMiOltdLCJ1c2VyX25hbWUiOiJsaXVsZWkiLCJhdXRob3JpdGllcyI6WyIxNTMzNzEyMTQzOTg2MjAwNjU5Il0sImNsaWVudF9pZCI6InVzZXJjZW50ZXIiLCJyb2xlX2lkcyI6WzE1MzM3MTIxNDM5ODYyMDA2NTldLCJhZG1pbmlzdHJhdG9yIjp0cnVlLCJncmFudF90eXBlIjoicGFzc3dvcmQiLCJ1c2VyX2lkIjoiMTg4NTcwIiwib3JnX2lkIjoiMSIsInN1Y2Nlc3MiOnRydWUsInNjb3BlIjpbImFsbCJdLCJvYXV0aF9pZCI6IiIsImV4cCI6MTY2NTI1MTczNSwianRpIjoiMmQ5NGMyNjUtNTEwNC00MmQzLTk0MDMtODkxYzA0NGZlZGQxIn0.RnmwOmLws-sPL8IDyOnFpSExpp5hzXo9P38QMsZOucg")
+                    .build();
+            Response response = client.newCall(request).execute();
+            final ResponseBody responseBody = response.body();
+            String res = responseBody.string();
+            responseBody.close(); // even this doesn't work!
+            return res;
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return "错误";
     }
 }

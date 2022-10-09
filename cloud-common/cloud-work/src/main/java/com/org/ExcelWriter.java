@@ -1,10 +1,12 @@
 package com.org;
 
+import com.cloud.common.core.utils.HttpUtil;
+import com.sun.deploy.net.MessageHeader;
 import org.apache.poi.hssf.usermodel.HSSFDataFormat;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Description: 生成Excel并写入数据
@@ -20,6 +22,9 @@ public class ExcelWriter {
      * @return 写入数据后的工作簿对象
      */
     public static Workbook exportData(List<String> heads, List<OrgCompareAll> orgCompareAll) {
+
+        Set<String> set = new HashSet<>();
+
         // 生成xlsx的Excel
         Workbook workbook = new SXSSFWorkbook();
 
@@ -31,6 +36,9 @@ public class ExcelWriter {
 
             // 生成Sheet表，写入第一行的列头
             Sheet sheet = buildDataSheet(heads, workbook, compareAll.getCity());
+            if (compareAll.getCity().equals("成都市")) {
+                continue;
+            }
 
             //设置背景颜色
             CellStyle roseStyle = buildHeadCellStyle(sheet.getWorkbook(), IndexedColors.ROSE.getIndex());
@@ -43,21 +51,43 @@ public class ExcelWriter {
                 if (data == null) {
                     continue;
                 }
-                if (!(data.getCounty().getCom() <= 1
-                        || data.getTown().getCom() <= 1
-                        || data.getVillage().getCom() <= 1)) {
-                    continue;
-                }
-                if(!((data.getCounty()!=null && data.getCounty().getNewOrgName() != null && data.getCounty().getNewOrgName().length() > 0)
-                        || (data.getTown()!=null && data.getTown().getNewOrgName() != null && data.getTown().getNewOrgName().length() > 0)
-                        || (data.getVillage()!=null && data.getVillage().getNewOrgName() != null && data.getVillage().getNewOrgName().length() > 0))){
+//                if (!(data.getCounty().getCom() <= 1
+//                        || data.getTown().getCom() <= 1
+//                        || data.getVillage().getCom() <= 1)) {
+//                    continue;
+//                }
+//                if (!((data.getCounty() != null && data.getCounty().getNewOrgName() != null && data.getCounty().getNewOrgName().length() > 0)
+//                        || (data.getTown() != null && data.getTown().getNewOrgName() != null && data.getTown().getNewOrgName().length() > 0)
+//                        || (data.getVillage() != null && data.getVillage().getNewOrgName() != null && data.getVillage().getNewOrgName().length() > 0))) {
+//                    continue;
+//                }
+                if(!(errorData(data.getCounty()) || errorData(data.getTown()) || errorData(data.getVillage()))){
                     continue;
                 }
                 //输出行数据
                 Row row = sheet.createRow(rowNum++);
-                convertDataToRow(data, row, roseStyle, greenStyle, blueStyle);
+                convertDataToRow(data, row, roseStyle, greenStyle, blueStyle, set);
             }
         }
+
+        int i = 1;
+
+//        for (String str : set) {
+//            Map<String, String> map = new HashMap<>();
+//            String[] strs = str.split("-----");
+//            map.put("id", strs[0]);
+//            map.put("orgName", strs[1]);
+//            String msg = HttpUtil.sendOkHttpPost("http://10.0.188.11:9999/api/doraemon-system/organization/updateOrgName", map, null);
+//            System.out.println(i + "----" + str + " --> " + msg);
+//            if (i % 30 == 0) {
+//                try {
+////                    Thread.sleep(5000);
+//                } catch (Exception e) {
+//                }
+//            }
+//            i++;
+//        }
+
         return workbook;
     }
 
@@ -166,7 +196,7 @@ public class ExcelWriter {
      * @param greenStyle 行对象
      * @return
      */
-    private static void convertDataToRow(OrgCompare data, Row row, CellStyle roseStyle, CellStyle greenStyle, CellStyle blueStyle) {
+    private static void convertDataToRow(OrgCompare data, Row row, CellStyle roseStyle, CellStyle greenStyle, CellStyle blueStyle, Set<String> set) {
         int cellNum = 0;
         Cell cell;
         //区县
@@ -175,25 +205,25 @@ public class ExcelWriter {
          */
         OrgAll county = data.getCounty();
         cell = row.createCell(cellNum++);
-        setCell(cell, county, roseStyle, greenStyle, blueStyle);
+        setCell(cell, county, roseStyle, greenStyle, blueStyle, set);
 
         /**
          * 乡镇
          */
         OrgAll town = data.getTown();
         cell = row.createCell(cellNum++);
-        setCell(cell, town, roseStyle, greenStyle, blueStyle);
+        setCell(cell, town, roseStyle, greenStyle, blueStyle, set);
 
         /**
          * 村 社区代码
          */
         OrgAll village = data.getVillage();
         cell = row.createCell(cellNum++);
-        setCell(cell, village, roseStyle, greenStyle, blueStyle);
+        setCell(cell, village, roseStyle, greenStyle, blueStyle, set);
     }
 
-    private static void setCell(Cell cell, OrgAll village, CellStyle roseStyle, CellStyle greenStyle, CellStyle blueStyle) {
-        if(village!=null) {
+    private static void setCell(Cell cell, OrgAll village, CellStyle roseStyle, CellStyle greenStyle, CellStyle blueStyle, Set<String> set) {
+        if (village != null) {
             if (village.getCom() <= 1) {
                 cell.setCellValue(village.getOrgName());
                 if (village.getType()) {
@@ -205,6 +235,8 @@ public class ExcelWriter {
                 if (village.getNewOrgName() != null && village.getNewOrgName().length() > 0) {
                     cell.setCellValue(village.getOrgName() + "/" + village.getNewOrgName());
                     cell.setCellStyle(greenStyle);
+                    //获取相似组织机构名称
+                    set.add(village.getId() + "-----" + village.getNewOrgName() + "-----" + village.getOrgName());
                 } else {
                     cell.setCellValue(village.getOrgName());
                 }
@@ -212,4 +244,17 @@ public class ExcelWriter {
         }
     }
 
+
+    private static Boolean errorData(OrgAll village){
+        if (village != null) {
+            if (village.getCom() <= 1) {
+                return true;
+            } else {
+                if (village.getNewOrgName() != null && village.getNewOrgName().length() > 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }
