@@ -3,7 +3,6 @@ package com.cloud.common.mybatis.util;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.cloud.common.mybatis.page.PageParam;
-import com.sun.istack.internal.Nullable;
 
 /**
  * @author liulei
@@ -36,7 +35,7 @@ public class OrderUtil {
     }
 
 
-    private static boolean hasText(@Nullable String str) {
+    private static boolean hasText(String str) {
         return (str != null && !str.isEmpty() && containsText(str));
     }
 
