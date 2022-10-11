@@ -36,9 +36,6 @@ public class Sync {
         props.setProperty("name", "engine");
 
         props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
-        /* 使用本地文件 */
-//        props.setProperty("offset.storage", "org.apache.kafka.connect.storage.FileOffsetBackingStore");
-//        props.setProperty("offset.storage.file.filename", "E:/offsets.dat");
         /* 使用数据库存储 */
         props.setProperty("offset.storage", JdbcOffsetBackingStore.class.getCanonicalName());
 

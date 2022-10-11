@@ -4,9 +4,6 @@ import com.cloud.auto.code.util.StringUtil;
 import com.cloud.common.core.utils.BeanUtil;
 import lombok.Data;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  * @author liulei
  * select COLUMN_NAME as name,IS_NULLABLE as requireds,DATA_TYPE as type,ifnull( CHARACTER_MAXIMUM_LENGTH ,NUMERIC_PRECISION) as length,NUMERIC_SCALE as accuracy,COLUMN_COMMENT as comment
@@ -152,6 +149,39 @@ public class Column {
             default:
                 System.out.println("我没有对应类型:" + type);
                 return "";
+        }
+    }
+
+    public String getPgSqlType(){
+        switch (getJavaType()) {
+            case "String":
+                if (this.getLength() < 200){
+                    return "varchar(" +this.getLength() + ")";
+                }else{
+                    return "text";
+                }
+            case "Long":
+                return "bigint";
+            case "Integer":
+                return "int";
+            case "Date":
+                return "timestamp(6)";
+            case "Double":
+                return "decimal";
+            default:
+                System.out.println("我没有对应类型:" + type);
+                return "";
+        }
+    }
+
+    public String getPgRequired(){
+        switch (required) {
+            //mysql数据中为 非空字段 IS_NULLABLE 所以为相反
+            case "YES":
+                //当为yes 表示不必填
+                return "null";
+            default:
+                return "not null";
         }
     }
 

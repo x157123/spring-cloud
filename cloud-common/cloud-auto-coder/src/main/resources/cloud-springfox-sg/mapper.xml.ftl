@@ -4,7 +4,7 @@
 
 <mapper namespace="${package}.mapper.${table.className}Mapper">
 
-	<resultMap id="${table.className? uncap_first}Result" type="com.tianque.scgrid.service.synchronize.read.dld.entity.Person">
+	<resultMap id="${table.className? uncap_first}Result" type="${package}.entity.${table.className}">
 		<#list table.column as col>
 		<result column="${col.name}" property="${col.nameClass? uncap_first}"/>
 		</#list>
@@ -41,6 +41,6 @@
 			</if>
 		</#list>
 		</#if>
-	</where>
+		</where>
     </select>
 </mapper>

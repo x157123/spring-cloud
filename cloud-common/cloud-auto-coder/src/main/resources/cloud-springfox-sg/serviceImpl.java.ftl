@@ -10,7 +10,7 @@ import ${package}.mapper.${table.className}Mapper;
 import ${package}.query.${table.className}Query;
 import ${package}.service.${table.className}Service;
 import ${package}.param.${table.className}Param;
-import com.tianque.scgrid.service.synchronize.utils.BeanUtil;
+import com.tianque.scgrid.service.issue.result.utils.BeanUtil;
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
         <#if foreignKey.tableNameClass != table.className>
@@ -121,14 +121,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         }
         LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${table.className}::getId, ids);
-        List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
-        //数据转换
-        List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
-		<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
-        //封装关联数据
-		this.setParam(list);
-		</#if>
-		return list;
+        return get${table.className}List(queryWrapper);
     }
 
     /**
@@ -205,15 +198,12 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
      */
     @Override
     public List<${table.className}Vo> findBy${key.columnNameClass}(List<Long> ${key.columnNameClass? uncap_first}s){
-        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() <= 0) {
+        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() == 0) {
             return new ArrayList<>();
         }
 		LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${table.className}::get${key.columnNameClass}, ${key.columnNameClass? uncap_first}s);
-        List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
-        //数据转换
-        List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
-        return list;
+        return get${table.className}List(queryWrapper);
 	}
 	</#list>
 </#if>
@@ -248,4 +238,21 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         }
     }
 </#if>
+
+    /**
+     * 数据查询
+     *
+     * @param queryWrapper
+     * @return
+     */
+    private List<${table.className}Vo> get${table.className}List(LambdaQueryWrapper<${table.className}> queryWrapper) {
+        List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
+        //数据转换
+        List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
+            <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+        //封装关联数据
+        this.setParam(list);
+            </#if>
+        return list;
+    }
 }

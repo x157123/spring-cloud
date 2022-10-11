@@ -37,6 +37,27 @@ public class AutoCodeConfig {
     private String tablePrefix;
 
     /**
+     * 生成启动项目入口
+     */
+    private Boolean startApp;
+
+    /**
+     * mapper 路径
+     */
+    private String mapperPath;
+
+
+    /**
+     * web页面保存路径
+     */
+    private String webPath;
+
+    /**
+     * 服务名称
+     */
+    private String serveName;
+
+    /**
      * 包含表
      */
     private List<Table> tables;

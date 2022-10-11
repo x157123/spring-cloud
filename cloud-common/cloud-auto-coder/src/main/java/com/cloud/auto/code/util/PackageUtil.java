@@ -125,7 +125,9 @@ public class PackageUtil {
     private static String merge(String symbol, String... packs) {
         StringBuffer stringBuffer = new StringBuffer();
         for (String pack : packs) {
-            stringBuffer.append(pack).append(symbol);
+            if (pack != null && pack.trim().length() > 0) {
+                stringBuffer.append(pack).append(symbol);
+            }
         }
         return stringBuffer.toString();
     }

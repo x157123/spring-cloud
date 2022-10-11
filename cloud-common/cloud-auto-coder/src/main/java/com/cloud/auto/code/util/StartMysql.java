@@ -14,8 +14,7 @@ public class StartMysql extends DbComponent {
     /**
      * 默认数据库连接地址
      */
-    private static final String defUrl = "jdbc:mysql://%s:%s/%s?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull" +
-            "&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%%2B8&nullCatalogMeansCurrent=true&useOldAliasMetadataBehavior=true";
+    private static final String defUrl = "jdbc:mysql://%s:%s/%s?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull" + "&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%%2B8&nullCatalogMeansCurrent=true&useOldAliasMetadataBehavior=true";
 
     /**
      * 默认驱动地址
@@ -25,40 +24,47 @@ public class StartMysql extends DbComponent {
     /**
      * 查询表
      */
-    private String queryTable = "SELECT TABLE_NAME as name, TABLE_COMMENT as comment " +
-            "FROM information_schema.TABLES WHERE TABLE_SCHEMA = '%s' order by CREATE_TIME asc";
+    private String queryTable = "SELECT TABLE_NAME as name, TABLE_COMMENT as comment " + "FROM information_schema.TABLES WHERE TABLE_SCHEMA = '%s' order by CREATE_TIME asc";
 
     /**
      * 查询表字段
      */
-    private String queryTableColumn = "select COLUMN_NAME as name,IS_NULLABLE as required,DATA_TYPE as type," +
-            "ifnull( CHARACTER_MAXIMUM_LENGTH ,NUMERIC_PRECISION) as length,COLUMN_KEY as constr," +
-            "NUMERIC_SCALE as accuracy,COLUMN_COMMENT as comment " +
-            "FROM information_schema.COLUMNS WHERE table_schema = '%s' and table_name = '%s' order by ORDINAL_POSITION asc";
+    private String queryTableColumn = "select COLUMN_NAME as name,IS_NULLABLE as required,DATA_TYPE as type," + "ifnull( CHARACTER_MAXIMUM_LENGTH ,NUMERIC_PRECISION) as length,COLUMN_KEY as constr," + "NUMERIC_SCALE as accuracy,COLUMN_COMMENT as comment " + "FROM information_schema.COLUMNS WHERE table_schema = '%s' and table_name = '%s' order by ORDINAL_POSITION asc";
 
     /**
      * 外键关联字段 查询库所有表外键 取消指点表  and REFERENCED_TABLE_NAME='%s'
      */
-    private String queryTableForeignKey = "select table_name,column_name,REFERENCED_TABLE_NAME as referenced_table_name," +
-            "REFERENCED_COLUMN_NAME as referenced_column_name " +
-            "FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE constraint_schema = '%s' and REFERENCED_TABLE_NAME is not null";
+    private String queryTableForeignKey = "select table_name,column_name,REFERENCED_TABLE_NAME as referenced_table_name," + "REFERENCED_COLUMN_NAME as referenced_column_name " + "FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE constraint_schema = '%s' and REFERENCED_TABLE_NAME is not null";
 
 
     public static void main(String[] args) {
+        //数据库
         String schema = "test";
+        //使用生成模版
         String ftlPath;
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
+
 //        ftlPath = "cloud";
 //        autoCodeConfig.setPackagePrefix("com.cloud");
 //        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
 
         ftlPath = "cloud-springfox-sg";
-        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.synchronize.sync");
-        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/tianque-cloud/src/main/");
-
-        List<String> prefix = Arrays.asList("app_","wgh_","sg_");
+        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
+        autoCodeConfig.setProjectPath("D:/tianque/project/service/tq-scgrid-flowengine/tq-scgrid-eventcenter-service/src/main/");
+        autoCodeConfig.setWebPath("C:/Users/liulei/Desktop");
+        //设置服务名称
+        autoCodeConfig.setServeName("tq-scgrid-issue-service");
+        //是否生成启动配置文件
+        autoCodeConfig.setStartApp(Boolean.FALSE);
+        //去除表前缀
+        List<String> prefix = Arrays.asList("app_", "wgh_", "sg_");
+        //设置署名
         autoCodeConfig.setAuthor("lei.liu");
+        //设置创建时间
         autoCodeConfig.setCreateTime(new Date());
+        //设置保存mapper包路径
+        autoCodeConfig.setMapperPath("party");
+
         StartMysql startMysql = new StartMysql();
         startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", schema, "root", "123456");
         //获取所有表
@@ -103,7 +109,7 @@ public class StartMysql extends DbComponent {
             key.setColumnName(foreignKey.getColumnName());
             key.setTableName(foreignKey.getTableName());
             List<Table> tablesTmp = tableMap.get(foreignKey.getReferencedTableName());
-            if(tablesTmp!=null && tablesTmp.size()>0) {
+            if (tablesTmp != null && tablesTmp.size() > 0) {
                 key.setTableComment(tablesTmp.get(0).getComment());
             }
             keys.add(key);
@@ -153,6 +159,26 @@ public class StartMysql extends DbComponent {
         }
         autoCodeConfig.setTables(list);
         CodeUtil.writer(autoCodeConfig, ftlPath);
+        createPgSql(autoCodeConfig);
+    }
+
+
+    private static void createPgSql(AutoCodeConfig autoCodeConfig) {
+        autoCodeConfig.getTables().forEach(table -> {
+            System.out.println("create table " + table.getName() + " (");
+            int i = table.getColumn().size();
+            for (Column column : table.getColumn()) {
+                i--;
+                System.out.println("            " + column.getName() + "                   " + column.getPgSqlType() + "            " + column.getPgRequired() + (i > 0 ? "," : ""));
+            }
+            System.out.println(");");
+
+            System.out.println("comment on table " + table.getName() + " is '" + table.getComment() + "';");
+            table.getColumn().forEach(column -> {
+                System.out.println("comment on column " + table.getName() + "." + column.getName() + " is '" + column.getComment() + "';");
+            });
+
+        });
     }
 
 

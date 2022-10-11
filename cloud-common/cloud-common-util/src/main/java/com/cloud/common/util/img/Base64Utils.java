@@ -1,7 +1,7 @@
 package com.cloud.common.util.img;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
+
+import org.apache.commons.codec.binary.Base64;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -40,10 +40,9 @@ public class Base64Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // 对字节数组Base64编码
-        BASE64Encoder encoder = new BASE64Encoder();
         // 返回Base64编码过的字节数组字符串
-        return encoder.encode(data);
+//        return Base64.encodeBase64String(data);
+        return "";
     }
 
 
@@ -77,8 +76,8 @@ public class Base64Utils {
             e.printStackTrace();
         }
         // 对字节数组Base64编码
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(data.toByteArray());
+//        return ByteArrayOutputStreame64.encodeBase64String(data.toByteArray());
+        return "";
     }
 
     /**
@@ -96,10 +95,9 @@ public class Base64Utils {
             // 图像数据为空
             return false;
         }
-        BASE64Decoder decoder = new BASE64Decoder();
         try {
             // Base64解码
-            byte[] b = decoder.decodeBuffer(imgStr);
+            byte[] b = new byte[2];
             for (int i = 0; i < b.length; ++i) {
                 if (b[i] < 0) {
                     // 调整异常数据
