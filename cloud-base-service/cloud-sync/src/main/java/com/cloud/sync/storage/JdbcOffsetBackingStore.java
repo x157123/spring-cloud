@@ -1,4 +1,4 @@
-package com.cloud.sync.service;
+package com.cloud.sync.storage;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.kafka.connect.errors.ConnectException;

@@ -1,5 +1,6 @@
-package com.cloud.sync.service;
+package com.cloud.sync.builder;
 
+import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
@@ -7,10 +8,7 @@ import io.debezium.engine.format.Json;
 
 import java.util.Properties;
 
-/**
- * @author Administrator
- */
-public class Sync {
+public class DebeziumConnectBuilder {
 
     public static DebeziumEngine<ChangeEvent<String, String>> getMysql() {
 
