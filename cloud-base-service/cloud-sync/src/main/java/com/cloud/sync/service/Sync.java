@@ -48,12 +48,12 @@ public class Sync {
 
         props.setProperty("database.serverTimezone", "UTC");
 
-        props.setProperty("table.whitelist", "test.issue_focus_tag,test.issue_link_person");
+        props.setProperty("table.whitelist", "test.sg_sync_diversified,test.sg_sync_person");
 
         props.setProperty("database.server.id", "1");
         props.setProperty("database.server.name", "my-app-connector");
         props.setProperty("database.history", "io.debezium.relational.history.FileDatabaseHistory");
-        props.setProperty("database.history.file.filename", "E:/dbhistory.dat");
+        props.setProperty("database.history.file.filename", "D:/dbhistory.dat");
         return props;
     }
 }

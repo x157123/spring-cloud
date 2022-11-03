@@ -20,7 +20,7 @@ public class SyncService {
 
     ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("pool-%d").build();
 
-    ThreadPoolExecutor executor = new ThreadPoolExecutor(1, 1, 0, TimeUnit.SECONDS,
+    ThreadPoolExecutor executor = new ThreadPoolExecutor(10, 20, 0, TimeUnit.SECONDS,
             new LinkedBlockingQueue<>(), threadFactory);
 
     Map<String, DebeziumEngine<ChangeEvent<String, String>>> map = new HashMap<>();

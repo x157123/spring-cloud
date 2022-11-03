@@ -4,10 +4,8 @@ import com.cloud.auto.code.util.StringUtil;
 import com.cloud.common.core.utils.BeanUtil;
 import lombok.Data;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author liulei
@@ -57,6 +55,25 @@ public class Table {
      */
     private List<String> prefix;
 
+
+    public void setForeignKeys(List<ForeignKey> foreignKeys) {
+        if (foreignKeys != null && foreignKeys.size() > 0) {
+            List<ForeignKey> uniqueList = foreignKeys.stream().collect(
+                    Collectors.collectingAndThen(
+                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getTableNameClass()))), ArrayList::new));
+            this.foreignKeys = uniqueList;
+        }
+    }
+
+    public void setMergeTables(List<MergeTable> mergeTables) {
+        if (mergeTables != null && mergeTables.size() > 0) {
+            List<MergeTable> uniqueList = mergeTables.stream().collect(
+                    Collectors.collectingAndThen(
+                            Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getTableNameClass()))), ArrayList::new));
+            this.mergeTables = uniqueList;
+        }
+    }
+
     /**
      * 获取ClassName
      *
@@ -67,7 +84,7 @@ public class Table {
         if (prefix != null && prefix.size() > 0) {
             for (String pre : prefix) {
                 int i = className.indexOf(pre);
-                if(i == 0){
+                if (i == 0) {
                     className = className.substring(pre.length());
                 }
             }

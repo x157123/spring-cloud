@@ -14,8 +14,8 @@ public class DataVersionUtils {
      * @return
      */
     public static Integer next() {
-        int num = random.nextInt(999999);
-        return (num < 100000 ? num + 100000 : num);
+        int num = random.nextInt(9999999);
+        return (num < 1000000 ? num + 1000000 : num);
     }
 
 }

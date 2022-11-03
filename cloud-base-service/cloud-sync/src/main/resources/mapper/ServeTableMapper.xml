@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cloud.sync.mapper.ServeTableMapper">
+
+    <select id="queryPage" resultType="com.cloud.sync.entity.ServeTable"
+            parameterType="com.cloud.sync.query.ServeTableQuery">
+        select * from sync_serve_table
+		<where>
+			<if test="param.id != null">
+				and id = #{param.id}
+			</if>
+			<if test="param.serveId != null">
+				and serve_id = #{param.serveId}
+			</if>
+			<if test="param.tableMapId != null">
+				and table_map_id = #{param.tableMapId}
+			</if>
+		</where>
+    </select>
+</mapper>

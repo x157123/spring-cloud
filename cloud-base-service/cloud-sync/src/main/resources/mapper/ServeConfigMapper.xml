@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cloud.sync.mapper.ServeConfigMapper">
+
+    <select id="queryPage" resultType="com.cloud.sync.entity.ServeConfig"
+            parameterType="com.cloud.sync.query.ServeConfigQuery">
+        select * from sync_serve_config
+		<where>
+			<if test="param.id != null">
+				and id = #{param.id}
+			</if>
+			<if test="param.readConnectId != null">
+				and read_connect_id = #{param.readConnectId}
+			</if>
+			<if test="param.state != null">
+				and state = #{param.state}
+			</if>
+			<if test="param.offSet != null and param.offSet != ''">
+				and off_set like concat('%',#{param.offSet},'%')
+			</if>
+		</where>
+    </select>
+</mapper>

@@ -39,31 +39,33 @@ public class StartMysql extends DbComponent {
 
     public static void main(String[] args) {
         //数据库
-        String schema = "test";
+        String schema = "cloud_sync";
         //使用生成模版
         String ftlPath;
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
 
-//        ftlPath = "cloud";
-//        autoCodeConfig.setPackagePrefix("com.cloud");
-//        autoCodeConfig.setProjectPath("F:/code/cloud/spring-cloud/cloud-apps/test/src/main/");
+        ftlPath = "cloud";
+        autoCodeConfig.setPackagePrefix("com.cloud.sync");
+        autoCodeConfig.setProjectPath("D:/me/project/springCloud/service/spring-cloud/cloud-base-service/cloud-sync/src/main/");
 
-        ftlPath = "cloud-springfox-sg";
-        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
-        autoCodeConfig.setProjectPath("D:/tianque/project/service/tq-scgrid-flowengine/tq-scgrid-eventcenter-service/src/main/");
+//        ftlPath = "cloud-springfox-sg";
+//        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
+//        autoCodeConfig.setProjectPath("D:/tianque/project/service/tq-scgrid-flowengine/tq-scgrid-eventcenter-service/src/main/");
+
+        //web页面保存路径
         autoCodeConfig.setWebPath("C:/Users/liulei/Desktop");
         //设置服务名称
         autoCodeConfig.setServeName("tq-scgrid-issue-service");
         //是否生成启动配置文件
         autoCodeConfig.setStartApp(Boolean.FALSE);
         //去除表前缀
-        List<String> prefix = Arrays.asList("app_", "wgh_", "sg_");
+        List<String> prefix = Arrays.asList("app_", "wgh_", "sg_", "sync_");
         //设置署名
         autoCodeConfig.setAuthor("lei.liu");
         //设置创建时间
         autoCodeConfig.setCreateTime(new Date());
         //设置保存mapper包路径
-        autoCodeConfig.setMapperPath("party");
+        autoCodeConfig.setMapperPath("");
 
         StartMysql startMysql = new StartMysql();
         startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", schema, "root", "123456");
