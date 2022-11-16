@@ -1,7 +1,7 @@
 package ${package}.controller;
 
 import com.tianque.doraemon.core.tool.api.Result;
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.tianque.doraemon.mybatis.support.GridPage;
 import com.tianque.doraemon.mybatis.support.PageParam;
 import ${package}.param.${table.className}Param;
 import ${package}.query.${table.className}Query;
@@ -102,8 +102,8 @@ public class ${table.className}Controller {
      */
     @PostMapping(value = "/queryPage")
     @ApiOperation(value = "数据分页查询", notes = "${table.comment}")
-    public Result<IPage<${table.className}Vo>> queryPage(${table.className}Query ${table.className? uncap_first}Query, PageParam pageParam) {
-        return Result.data(${table.className? uncap_first}Service.queryPage(${table.className? uncap_first}Query, pageParam));
+    public Result<GridPage<${table.className}Vo>> queryPage(${table.className}Query ${table.className? uncap_first}Query, PageParam pageParam) {
+        return Result.data(new GridPage(${table.className? uncap_first}Service.queryPage(${table.className? uncap_first}Query, pageParam)));
     }
 
 }

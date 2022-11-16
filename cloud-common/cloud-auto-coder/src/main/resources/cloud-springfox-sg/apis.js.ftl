@@ -2,22 +2,36 @@ import requstFactory from '@/lib/http/requstFactory'
 const requstData = requstFactory()
 
 export default {
-<#list autoCodeConfig.tables as tab>
-  //${tab.comment}列表
-  ${tab.className? uncap_first}QueryPage: async (payload) => {
+  //列表
+  getPage: async (payload) => {
     return await requstData.post(
-      '/${autoCodeConfig.serveName}/${tab.className? uncap_first}/queryPage',
+      '/${autoCodeConfig.serveName}/${table.className? uncap_first}/queryPage',
       payload,
       false,
     )
   },
-  //${tab.comment}详情
-  ${tab.className? uncap_first}GetById: async (payload) => {
-    return await requstData.post(
-      '/${autoCodeConfig.serveName}/${tab.className? uncap_first}/findById',
+  //详情
+  getById: async (payload) => {
+    return await requstData.get(
+      '/${autoCodeConfig.serveName}/${table.className? uncap_first}/findById',
       payload,
       false,
     )
   },
-</#list>
+  //新增修改
+  addData: async (payload) => {
+    return await requstData.post(
+      '/${autoCodeConfig.serveName}/${table.className? uncap_first}/save',
+      payload,
+      false,
+    )
+  },
+  //删除
+  delById: async (payload) => {
+    return await requstData.post(
+      '/${autoCodeConfig.serveName}/${table.className? uncap_first}/removeByIds',
+      payload,
+      false,
+    )
+  },
 }

@@ -61,4 +61,11 @@ public class AutoCodeConfig {
      * 包含表
      */
     private List<Table> tables;
+
+    public AutoCodeConfig(){
+        //设置署名
+        this.author = "lei.liu";
+        //设置创建时间
+        this.createTime = new Date();
+    }
 }

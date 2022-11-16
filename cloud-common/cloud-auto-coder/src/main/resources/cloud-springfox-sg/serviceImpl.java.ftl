@@ -1,5 +1,7 @@
 package ${package}.service.impl;
 
+import com.tianque.doraemon.core.jwt.DoraemonUser;
+import com.tianque.doraemon.core.jwt.util.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.tianque.doraemon.mybatis.support.Condition;
@@ -29,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 </#if>
+import java.util.Optional;
 
 /**
  *  ${table.comment}
@@ -86,9 +89,18 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     @Override
     public Boolean save(${table.className}Param ${table.className? uncap_first}Param) {
         ${table.className} ${table.className? uncap_first} = BeanUtil.copyProperties(${table.className? uncap_first}Param, ${table.className}::new);
+        String userName;
+        DoraemonUser currentUser = SecureUtil.getUser();
+        if(!Optional.ofNullable(currentUser).isPresent()){
+            userName = "admin";
+        }else{
+            userName = currentUser.getUserName();
+        }
+        ${table.className? uncap_first}.setUpdateUser(userName);
         if (${table.className? uncap_first}Param.getId() != null) {
             return this.updateById(${table.className? uncap_first});
         }
+        ${table.className? uncap_first}.setCreateUser(userName);
         ${table.className? uncap_first}Mapper.insert(${table.className? uncap_first});
         return Boolean.TRUE;
     }
@@ -168,10 +180,10 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         IPage<${table.className}> iPage = ${table.className? uncap_first}Mapper.queryPage(Condition.getPage(pageParam), ${table.className? uncap_first}Query);
         //数据转换
         IPage<${table.className}Vo> page = iPage.convert(${table.className? uncap_first} -> BeanUtil.copyProperties(${table.className? uncap_first}, ${table.className}Vo::new));
-		<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
         //封装关联数据
 		this.setParam(page.getRecords());
-		</#if>
+</#if>
         return page;
     }
 
@@ -189,7 +201,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     }
 
 <#if table.keys?? && (table.keys?size > 0) >
-	<#list table.keys as key>
+<#list table.keys as key>
 	
 	/**
      * 传入多个${key.tableComment}业务Id 查询数据
@@ -205,7 +217,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         queryWrapper.in(${table.className}::get${key.columnNameClass}, ${key.columnNameClass? uncap_first}s);
         return get${table.className}List(queryWrapper);
 	}
-	</#list>
+</#list>
 </#if>
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
 
@@ -217,23 +229,23 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     private void setParam(List<${table.className}Vo> list) {
         if (!CollectionUtils.isEmpty(list)) {
             List<Long> ids = list.stream().map(${table.className}Vo::getId).collect(Collectors.toList());
-	<#list table.foreignKeys as foreignKey>
+<#list table.foreignKeys as foreignKey>
             //查询 ${foreignKey.comment} 数据
             Map<Long, List<${foreignKey.tableNameClass}Vo>> ${foreignKey.tableNameClass? uncap_first}Map = <#if foreignKey.tableNameClass != table.className>${foreignKey.tableNameClass? uncap_first}Service.</#if>findBy${foreignKey.columnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.tableNameClass}Vo::get${foreignKey.columnNameClass}));
-	</#list>
+</#list>
             for (${table.className}Vo ${table.className? uncap_first} : list) {
-	<#list table.foreignKeys as foreignKey>
-        <#if foreignKey.uni>
+<#list table.foreignKeys as foreignKey>
+<#if foreignKey.uni>
                 //设置 ${foreignKey.comment} 数据
                 List<${foreignKey.tableNameClass}Vo> ${foreignKey.tableNameClass? uncap_first}Vos = ${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId());
                 if (${foreignKey.tableNameClass? uncap_first}Vos != null && ${foreignKey.tableNameClass? uncap_first}Vos.size() > 0) {
                     ${table.className? uncap_first}.set${foreignKey.tableNameClass}VO(${foreignKey.tableNameClass? uncap_first}Vos.get(0));
                 }
-        <#else>
+<#else>
                 //设置 ${foreignKey.comment} 数据
                 ${table.className? uncap_first}.set${foreignKey.tableNameClass}VOList(${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId()));
-        </#if>
-    </#list>
+</#if>
+</#list>
             }
         }
     }
@@ -249,10 +261,10 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
         //数据转换
         List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
-            <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
+<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
         //封装关联数据
         this.setParam(list);
-            </#if>
+</#if>
         return list;
     }
 }

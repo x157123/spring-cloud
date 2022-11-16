@@ -38,34 +38,45 @@ public class StartMysql extends DbComponent {
 
 
     public static void main(String[] args) {
+        //社管
+        Boolean sg = true;
         //数据库
-        String schema = "cloud_sync";
+        String schema;
         //使用生成模版
         String ftlPath;
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
 
-        ftlPath = "cloud";
-        autoCodeConfig.setPackagePrefix("com.cloud.sync");
-        autoCodeConfig.setProjectPath("D:/me/project/springCloud/service/spring-cloud/cloud-base-service/cloud-sync/src/main/");
-
-//        ftlPath = "cloud-springfox-sg";
-//        autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
-//        autoCodeConfig.setProjectPath("D:/tianque/project/service/tq-scgrid-flowengine/tq-scgrid-eventcenter-service/src/main/");
-
-        //web页面保存路径
-        autoCodeConfig.setWebPath("C:/Users/liulei/Desktop");
-        //设置服务名称
-        autoCodeConfig.setServeName("tq-scgrid-issue-service");
-        //是否生成启动配置文件
-        autoCodeConfig.setStartApp(Boolean.FALSE);
         //去除表前缀
         List<String> prefix = Arrays.asList("app_", "wgh_", "sg_", "sync_");
-        //设置署名
-        autoCodeConfig.setAuthor("lei.liu");
-        //设置创建时间
-        autoCodeConfig.setCreateTime(new Date());
-        //设置保存mapper包路径
-        autoCodeConfig.setMapperPath("");
+
+        if (sg) {
+            /** 社管配置 */
+            schema = "test";
+            ftlPath = "cloud-springfox-sg";
+            autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
+            autoCodeConfig.setProjectPath("D:/tianque/tests/src/main/");
+            //web页面保存路径
+            autoCodeConfig.setWebPath("D:/tianque/tests/web");
+            //设置保存mapper包路径
+            autoCodeConfig.setMapperPath("party");
+            //设置服务名称
+            autoCodeConfig.setServeName("tq-scgrid-issue-service-liulei");
+            //是否生成启动配置文件
+            autoCodeConfig.setStartApp(Boolean.FALSE);
+        } else {
+            schema = "cloud_sync";
+            ftlPath = "cloud";
+            autoCodeConfig.setPackagePrefix("com.cloud.sync");
+            autoCodeConfig.setProjectPath("D:/me/project/springCloud/service/spring-cloud/cloud-base-service/cloud-sync/src/main/");
+            //web页面保存路径
+            autoCodeConfig.setWebPath("C:/Users/liulei/Desktop");
+            //设置保存mapper包路径
+            autoCodeConfig.setMapperPath("");
+            //设置服务名称
+            autoCodeConfig.setServeName("cloud-sync");
+            //是否生成启动配置文件
+            autoCodeConfig.setStartApp(Boolean.FALSE);
+        }
 
         StartMysql startMysql = new StartMysql();
         startMysql.initConnection(defDriver, defUrl, "127.0.0.1", "3306", schema, "root", "123456");
@@ -171,14 +182,26 @@ public class StartMysql extends DbComponent {
             int i = table.getColumn().size();
             for (Column column : table.getColumn()) {
                 i--;
-                System.out.println("            " + column.getName() + "                   " + column.getPgSqlType() + "            " + column.getPgRequired() + (i > 0 ? "," : ""));
+//                System.out.println("            " + column.getName() + "                   " + column.getPgSqlType() + "            " + column.getPgRequired() + (i > 0 ? "," : ""));
+                System.out.println("            " + column.getName() + "                   " + column.getPgSqlType() + "            " + column.getPgRequired() + ",");
             }
+            System.out.println("            create_user            varchar(32)            NOT NULL,");
+            System.out.println("            create_date            timestamp(6)            NOT NULL,");
+            System.out.println("            update_user            varchar(32)            NULL,");
+            System.out.println("            update_date            timestamp(6)            NULL,");
+            System.out.println("            is_deleted            int2            NOT NULL DEFAULT 0,");
+            System.out.println("CONSTRAINT "+table.getName()+"_pk PRIMARY KEY (id)");
             System.out.println(");");
 
             System.out.println("comment on table " + table.getName() + " is '" + table.getComment() + "';");
             table.getColumn().forEach(column -> {
                 System.out.println("comment on column " + table.getName() + "." + column.getName() + " is '" + column.getComment() + "';");
             });
+            System.out.println("comment on column " + table.getName() + ".create_user is '创建人';");
+            System.out.println("comment on column " + table.getName() + ".create_date is '创建时间';");
+            System.out.println("comment on column " + table.getName() + ".update_user is '跟新用户';");
+            System.out.println("comment on column " + table.getName() + ".update_date is '更新时间';");
+            System.out.println("comment on column " + table.getName() + ".is_deleted is '是否删除';");
 
         });
     }

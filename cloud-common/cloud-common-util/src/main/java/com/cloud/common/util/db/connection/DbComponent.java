@@ -1,10 +1,10 @@
 package com.cloud.common.util.db.connection;
 
 
+import com.cloud.common.core.utils.BeanUtil;
 import com.cloud.common.util.db.bo.ColumnEntity;
 import com.cloud.common.util.db.bo.TableEntity;
 import com.cloud.common.util.db.functional.DbReadDataCallBack;
-import com.cloud.common.core.utils.BeanUtil;
 import com.cloud.common.util.db.functional.DbReadDataCallBackFun;
 
 import java.sql.*;
@@ -184,7 +184,7 @@ public abstract class DbComponent {
                                 value = Long.parseLong(value.toString());
                             }
                         }
-                        map.put(name,value);
+                        map.put(name, value);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -245,7 +245,7 @@ public abstract class DbComponent {
                             if ("java.math.BigDecimal".equals(value.getClass().getName())) {
                                 value = Long.parseLong(value.toString());
                             }
-                            if("java.math.BigInteger".equals(value.getClass().getName())) {
+                            if ("java.math.BigInteger".equals(value.getClass().getName())) {
                                 value = Long.parseLong(value.toString());
                             }
                             BeanUtil.setProperties(t, properties, value);
@@ -315,6 +315,43 @@ public abstract class DbComponent {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 插入数据
+     *
+     * @param tableName
+     * @param columnList
+     * @param listData
+     * @return
+     */
+    public boolean insert(String tableName, List<ColumnEntity> columnList, List<Map<String, Object>> listData) {
+        String insertSql = getJDBCInsert(tableName, columnList);
+        Connection connection = this.getJdbcConnection();
+        try {
+            PreparedStatement prest = connection
+                    .prepareStatement(insertSql, ResultSet.TYPE_SCROLL_SENSITIVE,
+                            ResultSet.CONCUR_READ_ONLY);
+            connection.setAutoCommit(false);
+            Integer index;
+            for (Map<String, Object> map : listData) {
+                index = 1;
+                for (ColumnEntity columnEntity : columnList) {
+                    prest.setString(index, map.get(columnEntity.getColumnName()).toString());
+                    prest.setObject(index, map.get(columnEntity.getColumnName()));
+                    index++;
+                }
+                prest.addBatch();
+            }
+            prest.executeBatch();
+            connection.commit();
+            connection.close();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 
     /**

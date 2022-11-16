@@ -10,16 +10,14 @@ server:
 spring:
   kafka:
     #本地虚拟机kafka伪集群
-    bootstrap-servers: 192.168.10.176:9092
+    bootstrap-servers: 192.168.10.178:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       batch-size: 65536
       buffer-memory: 524288
       #自定义的topic .*模糊匹配
-      myTopic: publicall.*
-      myTopic1: DBTestServer.public.p_sg_com_pub_edu_2020
-      myTopic2: DBTestServer.public.p_sg_com_pub_edu_2021
+      myTopic: openapi-population-save2
     consumer:
       group-id: default-group   #默认组id  后面会配置多个消费者组
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer

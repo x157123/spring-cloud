@@ -47,16 +47,4 @@ public class KafkaConfiguration {
     @Value("${spring.kafka.consumer.max-poll-records}")
     private String maxPollRecords;
 
-    /**
-     * 自定义的topic1
-     */
-    @Value("${spring.kafka.producer.myTopic1}")
-    private String myTopic1;
-
-    /**
-     * 自定义的topic2
-     */
-    @Value("${spring.kafka.producer.myTopic2}")
-    private String myTopic2;
- 
 }

@@ -48,16 +48,18 @@ public class CodeUtil {
             map.put("expandPackage", PackageUtil.mergePack(table.getPackagePath()));
             map.put("package", PackageUtil.mergePack(autoCodeConfig.getPackagePrefix(), table.getPackagePath()));
             ftps.forEach(ftlName -> {
-                if(!Arrays.asList("apis.js.ftl","application.java.ftl","mybatisPlusConfig.java.ftl","swaggerConfig.java.ftl").contains(ftlName)){
+                if (!Arrays.asList("apis.js.ftl", "edit.vue.ftl", "index.vue.ftl",
+                        "application.java.ftl", "mybatisPlusConfig.java.ftl", "swaggerConfig.java.ftl").contains(ftlName)) {
                     createFile(ftlName, map, autoCodeConfig.getProjectPath(), ftlPath, table.getClassName(), autoCodeConfig.getMapperPath());
+                } else if (Arrays.asList("apis.js.ftl", "edit.vue.ftl", "index.vue.ftl").contains(ftlName)) {
+                    if (autoCodeConfig.getWebPath() != null && autoCodeConfig.getWebPath().trim().length() > 0) {
+                        //web页面api 生成
+                        createFile(ftlName, map, PackageUtil.packToFilePath(PackageUtil.mergePack(autoCodeConfig.getWebPath(), StringUtil.toLowerCaseFirstOne(table.getClassName()))), ftlPath, "", "");
+                    }
                 }
             });
         });
 
-        if (autoCodeConfig.getWebPath() != null && autoCodeConfig.getWebPath().trim().length() > 0) {
-            //web页面api 生成
-            createFile("apis.js.ftl", map, autoCodeConfig.getWebPath(), ftlPath, "", "");
-        }
 
         if (autoCodeConfig.getStartApp() != null && autoCodeConfig.getStartApp()) {
             map.put("expandPackage", "");
@@ -90,9 +92,10 @@ public class CodeUtil {
             //获取模板
             Template template = configuration.getTemplate(templateName);
 
+            String file = StringUtil.dbToClassName(fileName) + getSuffix(templateName);
+
             //默认保存路径 包+扩展包+文件名
             String saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", dataMap.get("basePackage").toString(), dataMap.get("expandPackage").toString(), getPack(templateName)));
-
             //当出现mapper.xml 统一保存到某个目录
             if (templateName.startsWith("mapper.xml")) {
                 //保存到 xml+扩展包
@@ -105,20 +108,19 @@ public class CodeUtil {
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", dataMap.get("basePackage").toString(), dataMap.get("expandPackage").toString(), "config"));
             } else if (templateName.startsWith("entity.java")) {
                 templateName = ".java.ftl";
-            } else if (templateName.startsWith("list.vue")) {
-
-            } else if (templateName.startsWith("details.vue")) {
-
-            } else if (templateName.startsWith("add.vue")) {
-
-            } else if (templateName.startsWith("statement.js")) {
-
+                file = StringUtil.dbToClassName(fileName) + getSuffix(templateName);
+            } else if (templateName.startsWith("edit.vue")) {
+                saveFilePath = savePath;
+                file = "components" + File.separator + StringUtil.toLowerCaseFirstOne(getSuffix(templateName));
+            } else if (templateName.startsWith("index.vue")) {
+                saveFilePath = savePath;
+                file = StringUtil.toLowerCaseFirstOne(getSuffix(templateName));
             } else if (templateName.startsWith("apis.js")) {
                 saveFilePath = savePath;
-                fileName = "all";
+                file = StringUtil.toLowerCaseFirstOne(getSuffix(templateName));
             }
             //输出文件
-            File outFile = new File(saveFilePath + File.separator + StringUtil.dbToClassName(fileName) + getSuffix(templateName));
+            File outFile = new File(saveFilePath + File.separator + file);
 
             //如果输出目标文件夹不存在，则创建
             if (!outFile.getParentFile().exists()) {
