@@ -1,5 +1,6 @@
 package com.cloud.common.core.entity;
 
+import com.baomidou.mybatisplus.annotation.Version;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -31,5 +32,6 @@ public class BaseEntity implements Serializable {
     /**
      * 版本
      */
+    @Version
     private Integer version;
 }

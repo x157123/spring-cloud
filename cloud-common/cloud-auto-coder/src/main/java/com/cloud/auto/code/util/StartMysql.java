@@ -39,7 +39,7 @@ public class StartMysql extends DbComponent {
 
     public static void main(String[] args) {
         //社管
-        Boolean sg = true;
+        Boolean sg = false;
         //数据库
         String schema;
         //使用生成模版

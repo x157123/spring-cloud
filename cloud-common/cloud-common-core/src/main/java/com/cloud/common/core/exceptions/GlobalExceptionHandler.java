@@ -95,6 +95,11 @@ public class GlobalExceptionHandler {
         return resultBody;
     }
 
+    /**
+     * 封装数据信息
+     * @param resultBody
+     * @param response
+     */
     private void setError(ResultBody resultBody, HttpServletResponse response) {
         try {
             //设置指定错误码

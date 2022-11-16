@@ -16,13 +16,13 @@ import java.util.List;
 public class DateConverterConfig implements Converter<String, Date> {
 
 
-    private static final List<String> formarts = new ArrayList<>(4);
+    private static final List<String> dateFormatList = new ArrayList<>(4);
 
     static {
-        formarts.add("yyyy-MM");
-        formarts.add("yyyy-MM-dd");
-        formarts.add("yyyy-MM-dd hh:mm");
-        formarts.add("yyyy-MM-dd hh:mm:ss");
+        dateFormatList.add("yyyy-MM");
+        dateFormatList.add("yyyy-MM-dd");
+        dateFormatList.add("yyyy-MM-dd hh:mm");
+        dateFormatList.add("yyyy-MM-dd hh:mm:ss");
     }
 
     @Override
@@ -32,13 +32,13 @@ public class DateConverterConfig implements Converter<String, Date> {
             return null;
         }
         if (source.matches("^\\d{4}-\\d{1,2}$")) {
-            return parseDate(source, formarts.get(0));
+            return parseDate(source, dateFormatList.get(0));
         } else if (source.matches("^\\d{4}-\\d{1,2}-\\d{1,2}$")) {
-            return parseDate(source, formarts.get(1));
+            return parseDate(source, dateFormatList.get(1));
         } else if (source.matches("^\\d{4}-\\d{1,2}-\\d{1,2} {1}\\d{1,2}:\\d{1,2}$")) {
-            return parseDate(source, formarts.get(2));
+            return parseDate(source, dateFormatList.get(2));
         } else if (source.matches("^\\d{4}-\\d{1,2}-\\d{1,2} {1}\\d{1,2}:\\d{1,2}:\\d{1,2}$")) {
-            return parseDate(source, formarts.get(3));
+            return parseDate(source, dateFormatList.get(3));
         } else {
             throw new IllegalArgumentException("Invalid boolean value '" + source + "'");
         }
