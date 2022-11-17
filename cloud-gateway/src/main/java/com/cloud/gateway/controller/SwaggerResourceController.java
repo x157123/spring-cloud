@@ -1,7 +1,7 @@
 package com.cloud.gateway.controller;
 
 
-import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONArray;
 import com.cloud.gateway.config.MySwaggerResourceProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,10 +14,10 @@ import org.springframework.web.bind.annotation.RestController;
  * @author liulei
  */
 @RestController
-@RequestMapping("/v3/api-docs")
+@RequestMapping
 public class SwaggerResourceController {
 
-    private MySwaggerResourceProvider swaggerResourceProvider;
+    private final MySwaggerResourceProvider swaggerResourceProvider;
 
     @Autowired
     public SwaggerResourceController(MySwaggerResourceProvider swaggerResourceProvider) {
@@ -26,7 +26,7 @@ public class SwaggerResourceController {
 
 
     @RequestMapping("/swagger-config")
-    public JSONObject getList(){
+    public JSONArray getList(){
         return swaggerResourceProvider.getRoot();
 }
 

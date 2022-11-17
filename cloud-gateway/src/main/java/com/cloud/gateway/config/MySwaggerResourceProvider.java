@@ -52,21 +52,18 @@ public class MySwaggerResourceProvider {
     }
 
 
-    public JSONObject getRoot() {
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("configUrl", "/v3/api-docs/swagger-config");
-        jsonObject.put("oauth2RedirectUrl", "http://localhost:9000/webjars/swagger-ui/oauth2-redirect.html");
-        jsonObject.put("validatorUrl", "");
+    public JSONArray getRoot() {
         Set<String> routeHosts = getServices();
         JSONArray jsonArray = new JSONArray();
         for (String routeHost : routeHosts) {
             JSONObject json = new JSONObject();
             json.put("url", "/" + routeHost + SWAGGER2URL);
+            json.put("location", "/" + routeHost + SWAGGER2URL);
             json.put("name", routeHost);
+            json.put("swaggerVersion", "3.0");
             jsonArray.add(json);
         }
-        jsonObject.put("urls", jsonArray);
-        return jsonObject;
+        return jsonArray;
     }
 
     public List<String> getExclude() {
