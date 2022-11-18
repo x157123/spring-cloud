@@ -5,7 +5,7 @@ import lombok.Data;
 
 /**
  * @author liulei
- * 同步启动服务
+ * 同步表
  */
 @Data
 public class ServeTable extends BaseEntity {

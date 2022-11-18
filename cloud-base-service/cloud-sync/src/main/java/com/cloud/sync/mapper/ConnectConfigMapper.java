@@ -17,9 +17,9 @@ public interface ConnectConfigMapper extends BaseMapper<ConnectConfig> {
     /**
      * 分页查询
      *
-     * @param page
-     * @param connectConfigQuery
-     * @return
+     * @param page 分页参数
+     * @param connectConfigQuery 查询条件
+     * @return  分页数据
      */
     IPage<ConnectConfig> queryPage(IPage<ConnectConfig> page, @Param("param") ConnectConfigQuery connectConfigQuery);
 

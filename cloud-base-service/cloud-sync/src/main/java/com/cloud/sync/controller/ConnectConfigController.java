@@ -21,12 +21,12 @@ import java.util.List;
 @Tag(description = "数据库配置", name = "数据库配置")
 public class ConnectConfigController {
 
-    private ConnectConfigService connectConfigService;
+    private final ConnectConfigService connectConfigService;
 
     /**
      * 使用构造方法注入
      *
-     * @param connectConfigService
+     * @param connectConfigService    注册数据库配置
      */
     public ConnectConfigController(ConnectConfigService connectConfigService){
         this.connectConfigService= connectConfigService;
@@ -35,8 +35,8 @@ public class ConnectConfigController {
     /**
      * 保存对象
      *
-     * @param connectConfigParam
-     * @return
+     * @param connectConfigParam  数据库配置参数
+     * @return  返回是否成功
      */
     @PostMapping(value = "/save")
     @Operation(summary = "保存", description = "数据库配置")
@@ -47,8 +47,8 @@ public class ConnectConfigController {
     /**
      * 通过Id查询数据
      *
-     * @param id
-     * @return
+     * @param id   查询ID
+     * @return  返回查询结果
      */
     @GetMapping(value = "/findById")
     @Operation(summary = "通过Id查询数据", description = "数据库配置")
@@ -59,8 +59,8 @@ public class ConnectConfigController {
     /**
      * 传入多个Id查询数据
      *
-     * @param ids
-     * @return
+     * @param ids  查询多个Id
+     * @return  返回List结果集
      */
     @PostMapping(value = "/findByIds")
     @Operation(summary = "传入多个Id查询数据", description = "数据库配置")
@@ -72,8 +72,8 @@ public class ConnectConfigController {
     /**
      * 根据查询条件查询列表
      *
-     * @param connectConfigQuery
-     * @return
+     * @param connectConfigQuery 查询条件
+     * @return  返回List结果集
      */
     @PostMapping(value = "/findByList")
     @Operation(summary = "根据查询条件查询列表", description = "数据库配置")
@@ -84,8 +84,8 @@ public class ConnectConfigController {
     /**
      * 传入多个Id 并删除
      *
-     * @param ids
-     * @return
+     * @param ids  删除多个Id
+     * @return  返回是否成功
      */
     @PostMapping(value = "/removeByIds")
     @Operation(summary = "传入多个Id并删除", description = "数据库配置")
@@ -96,9 +96,9 @@ public class ConnectConfigController {
     /**
      * 数据分页查询
      *
-     * @param connectConfigQuery
-     * @param pageParam
-     * @return
+     * @param connectConfigQuery  分页查询条件
+     * @param pageParam    分页参数
+     * @return  返回分页结果
      */
     @PostMapping(value = "/queryPage")
     @Operation(summary = "数据分页查询", description = "数据库配置")

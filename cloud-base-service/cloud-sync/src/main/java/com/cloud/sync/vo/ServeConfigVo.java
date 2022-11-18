@@ -41,8 +41,8 @@ public class ServeConfigVo {
     private String offSet;
 
 	/**
-     * 同步启动服务
+     * 同步表
      */
-    @Schema(description = "同步启动服务同步启动服务")
+    @Schema(description = "同步启动服务同步表")
     private List<ServeTableVo> serveTableVOList;
 }

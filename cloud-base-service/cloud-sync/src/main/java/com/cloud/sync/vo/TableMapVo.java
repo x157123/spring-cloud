@@ -49,8 +49,8 @@ public class TableMapVo {
     private Long writeTableId;
 
 	/**
-     * 同步启动服务
+     * 同步表
      */
-    @Schema(description = "表映射同步启动服务")
+    @Schema(description = "表映射同步表")
     private List<ServeTableVo> serveTableVOList;
 }

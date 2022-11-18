@@ -27,12 +27,12 @@ import java.util.List;
 @Service
 public class ServeTableServiceImpl implements ServeTableService {
 
-    private ServeTableMapper serveTableMapper;
+    private final ServeTableMapper serveTableMapper;
 
     /**
      * 使用构造方法注入
      *
-     * @param serveTableMapper
+     * @param serveTableMapper 同步表Mapper服务
      */
     public ServeTableServiceImpl(ServeTableMapper serveTableMapper){
         this.serveTableMapper = serveTableMapper;
@@ -48,8 +48,12 @@ public class ServeTableServiceImpl implements ServeTableService {
     public Boolean save(ServeTableParam serveTableParam) {
         ValidationUtils.validate(serveTableParam);
         ServeTable serveTable = BeanUtil.copyProperties(serveTableParam, ServeTable::new);
-        if (serveTableParam.getId() != null) {
-            return this.updateById(serveTable);
+        if (serveTable != null && serveTable.getId() != null) {
+            LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ServeTable::getId, serveTable.getId())
+                    .eq(ServeTable::getVersion, serveTable.getVersion());
+            serveTable.setVersion(DataVersionUtils.next());
+            return this.update(queryWrapper, serveTable);
         }
         serveTableMapper.insert(serveTable);
         return Boolean.TRUE;
@@ -80,9 +84,7 @@ public class ServeTableServiceImpl implements ServeTableService {
     public List<ServeTableVo> findByIds(List<Long> ids) {
         LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ServeTable::getId, ids);
-        List<ServeTable> serveTableEntities = serveTableMapper.selectList(queryWrapper);
-        //数据转换
-        List<ServeTableVo> list = BeanUtil.copyListProperties(serveTableEntities, ServeTableVo::new);
+        List<ServeTableVo> list = queryWrapper(queryWrapper);
 		return list;
     }
 
@@ -122,9 +124,40 @@ public class ServeTableServiceImpl implements ServeTableService {
     @Override
     public IPage<ServeTableVo> queryPage(ServeTableQuery serveTableQuery, PageParam pageParam) {
         IPage<ServeTable> iPage = serveTableMapper.queryPage(OrderUtil.getPage(pageParam), serveTableQuery);
-        IPage<ServeTableVo> page = iPage.convert(serveTable -> BeanUtil.copyProperties(serveTable, ServeTableVo::new));
-        return page;
+        return iPage.convert(serveTable -> BeanUtil.copyProperties(serveTable, ServeTableVo::new));
     }
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param serveIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<ServeTableVo> findByServeId(List<Long> serveIds){
+        if (serveIds == null || serveIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ServeTable::getServeId, serveIds);
+        return queryWrapper(queryWrapper);
+	}
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param tableMapIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<ServeTableVo> findByTableMapId(List<Long> tableMapIds){
+        if (tableMapIds == null || tableMapIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ServeTable::getTableMapId, tableMapIds);
+        return queryWrapper(queryWrapper);
+	}
 
     /**
      * 通过Id 更新数据
@@ -132,10 +165,7 @@ public class ServeTableServiceImpl implements ServeTableService {
      * @param serveTable 前端更新集合
      * @return  更新成功状态
      */
-    private Boolean updateById(ServeTable serveTable) {
-        LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ServeTable::getId, serveTable.getId())
-                .eq(ServeTable::getVersion, serveTable.getVersion());
+    private Boolean update(LambdaQueryWrapper<ServeTable> queryWrapper, ServeTable serveTable) {
         serveTable.setVersion(DataVersionUtils.next());
         int count = serveTableMapper.update(serveTable, queryWrapper);
         if (count <= 0) {
@@ -144,42 +174,16 @@ public class ServeTableServiceImpl implements ServeTableService {
         return Boolean.TRUE;
     }
 
-	
-	/**
-     * 传入多个Id 查询数据
+    /**
+     * 查询数据列表
      *
-     * @param serveIds
-     * @return
+     * @param queryWrapper 查询条件
+     * @return  返回转化后的数据
      */
-    @Override
-    public List<ServeTableVo> findByServeId(List<Long> serveIds){
-        if (serveIds == null || serveIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ServeTable::getServeId, serveIds);
+    private List<ServeTableVo> queryWrapper(LambdaQueryWrapper<ServeTable> queryWrapper){
+        // 数据查询
         List<ServeTable> serveTableEntities = serveTableMapper.selectList(queryWrapper);
-        //数据转换
-        List<ServeTableVo> list = BeanUtil.copyListProperties(serveTableEntities, ServeTableVo::new);
-        return list;
-	}
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param tableMapIds
-     * @return
-     */
-    @Override
-    public List<ServeTableVo> findByTableMapId(List<Long> tableMapIds){
-        if (tableMapIds == null || tableMapIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<ServeTable> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ServeTable::getTableMapId, tableMapIds);
-        List<ServeTable> serveTableEntities = serveTableMapper.selectList(queryWrapper);
-        //数据转换
-        List<ServeTableVo> list = BeanUtil.copyListProperties(serveTableEntities, ServeTableVo::new);
-        return list;
-	}
+        // 数据转换
+        return BeanUtil.copyListProperties(serveTableEntities, ServeTableVo::new);
+    }
 }

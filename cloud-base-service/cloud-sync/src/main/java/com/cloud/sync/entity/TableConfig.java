@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * @author liulei
- * 
+ * 同步表配置
  */
 @Data
 public class TableConfig extends BaseEntity {

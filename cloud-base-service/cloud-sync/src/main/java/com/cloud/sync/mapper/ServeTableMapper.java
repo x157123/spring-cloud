@@ -17,9 +17,9 @@ public interface ServeTableMapper extends BaseMapper<ServeTable> {
     /**
      * 分页查询
      *
-     * @param page
-     * @param serveTableQuery
-     * @return
+     * @param page 分页参数
+     * @param serveTableQuery 查询条件
+     * @return  分页数据
      */
     IPage<ServeTable> queryPage(IPage<ServeTable> page, @Param("param") ServeTableQuery serveTableQuery);
 

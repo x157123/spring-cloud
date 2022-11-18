@@ -32,7 +32,9 @@ import ${basePackage}${foreignKey.packagePath}.service.${foreignKey.tableNameCla
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+<#if table.keys?? && (table.keys?size > 0) >
 import java.util.ArrayList;
+</#if>
 import java.util.Collections;
 import java.util.List;
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
@@ -46,12 +48,12 @@ import java.util.stream.Collectors;
 @Service
 public class ${table.className}ServiceImpl implements ${table.className}Service {
 
-    private ${table.className}Mapper ${table.className? uncap_first}Mapper;
+    private final ${table.className}Mapper ${table.className? uncap_first}Mapper;
 
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
 <#if foreignKey.tableNameClass != table.className>
-    private ${foreignKey.tableNameClass}Service ${foreignKey.tableNameClass? uncap_first}Service;
+    private final ${foreignKey.tableNameClass}Service ${foreignKey.tableNameClass? uncap_first}Service;
 
 </#if>
     </#list>
@@ -59,11 +61,11 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     /**
      * 使用构造方法注入
      *
-     * @param ${table.className? uncap_first}Mapper
+     * @param ${table.className? uncap_first}Mapper ${table.comment}Mapper服务
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
         <#if foreignKey.tableNameClass != table.className>
-     * @param ${foreignKey.tableNameClass? uncap_first}Service;
+     * @param ${foreignKey.tableNameClass? uncap_first}Service  ${foreignKey.comment}Mapper服务
         </#if>
     </#list>
 </#if>
@@ -73,7 +75,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
         <#if foreignKey.tableNameClass != table.className>
-        this.${foreignKey.tableNameClass? uncap_first}Service=${foreignKey.tableNameClass? uncap_first}Service;
+        this.${foreignKey.tableNameClass? uncap_first}Service = ${foreignKey.tableNameClass? uncap_first}Service;
         </#if>
     </#list>
 </#if>
@@ -89,8 +91,17 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     public Boolean save(${table.className}Param ${table.className? uncap_first}Param) {
         ValidationUtils.validate(${table.className? uncap_first}Param);
         ${table.className} ${table.className? uncap_first} = BeanUtil.copyProperties(${table.className? uncap_first}Param, ${table.className}::new);
-        if (${table.className? uncap_first}Param.getId() != null) {
-            return this.updateById(${table.className? uncap_first});
+        if (${table.className? uncap_first} != null && ${table.className? uncap_first}.getId() != null) {
+            LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
+<#if showVersion==0 >
+            queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId());
+</#if>
+<#if showVersion==1 >
+            queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId())
+                    .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
+            ${table.className? uncap_first}.setVersion(DataVersionUtils.next());
+</#if>
+            return this.update(queryWrapper, ${table.className? uncap_first});
         }
         ${table.className? uncap_first}Mapper.insert(${table.className? uncap_first});
         return Boolean.TRUE;
@@ -121,9 +132,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     public List<${table.className}Vo> findByIds(List<Long> ids) {
         LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${table.className}::getId, ids);
-        List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
-        //数据转换
-        List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
+        List<${table.className}Vo> list = queryWrapper(queryWrapper);
 		<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
         //封装关联数据
 		this.setParam(list);
@@ -171,12 +180,34 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
     @Override
     public IPage<${table.className}Vo> queryPage(${table.className}Query ${table.className? uncap_first}Query, PageParam pageParam) {
         IPage<${table.className}> iPage = ${table.className? uncap_first}Mapper.queryPage(OrderUtil.getPage(pageParam), ${table.className? uncap_first}Query);
+<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
         IPage<${table.className}Vo> page = iPage.convert(${table.className? uncap_first} -> BeanUtil.copyProperties(${table.className? uncap_first}, ${table.className}Vo::new));
-		<#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
 		this.setParam(page.getRecords());
-		</#if>
         return page;
+<#else >
+        return iPage.convert(${table.className? uncap_first} -> BeanUtil.copyProperties(${table.className? uncap_first}, ${table.className}Vo::new));
+</#if>
     }
+<#if table.keys?? && (table.keys?size > 0) >
+	<#list table.keys as key>
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param ${key.columnNameClass? uncap_first}s id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<${table.className}Vo> findBy${key.columnNameClass}(List<Long> ${key.columnNameClass? uncap_first}s){
+        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(${table.className}::get${key.columnNameClass}, ${key.columnNameClass? uncap_first}s);
+        return queryWrapper(queryWrapper);
+	}
+	</#list>
+</#if>
 
     /**
      * 通过Id 更新数据
@@ -184,46 +215,16 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
      * @param ${table.className? uncap_first} 前端更新集合
      * @return  更新成功状态
      */
-    private Boolean updateById(${table.className} ${table.className? uncap_first}) {
-        LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
-<#if showVersion==0 >
-        queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId());
-</#if>
-<#if showVersion==1 >
-        queryWrapper.eq(${table.className}::getId, ${table.className? uncap_first}.getId())
-                .eq(${table.className}::getVersion, ${table.className? uncap_first}.getVersion());
+    private Boolean update(LambdaQueryWrapper<${table.className}> queryWrapper, ${table.className} ${table.className? uncap_first}) {
+    <#if showVersion==1 >
         ${table.className? uncap_first}.setVersion(DataVersionUtils.next());
-</#if>
+    </#if>
         int count = ${table.className? uncap_first}Mapper.update(${table.className? uncap_first}, queryWrapper);
         if (count <= 0) {
             throw new DataException("数据保存异常,未更新到任何数据");
         }
         return Boolean.TRUE;
     }
-
-<#if table.keys?? && (table.keys?size > 0) >
-	<#list table.keys as key>
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param ${key.columnNameClass? uncap_first}s
-     * @return
-     */
-    @Override
-    public List<${table.className}Vo> findBy${key.columnNameClass}(List<Long> ${key.columnNameClass? uncap_first}s){
-        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<${table.className}> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(${table.className}::get${key.columnNameClass}, ${key.columnNameClass? uncap_first}s);
-        List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
-        //数据转换
-        List<${table.className}Vo> list = BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
-        return list;
-	}
-	</#list>
-</#if>
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
 
 	/**
@@ -252,4 +253,17 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
         }
     }
 </#if>
+
+    /**
+     * 查询数据列表
+     *
+     * @param queryWrapper 查询条件
+     * @return  返回转化后的数据
+     */
+    private List<${table.className}Vo> queryWrapper(LambdaQueryWrapper<${table.className}> queryWrapper){
+        // 数据查询
+        List<${table.className}> ${table.className? uncap_first}Entities = ${table.className? uncap_first}Mapper.selectList(queryWrapper);
+        // 数据转换
+        return BeanUtil.copyListProperties(${table.className? uncap_first}Entities, ${table.className}Vo::new);
+    }
 }

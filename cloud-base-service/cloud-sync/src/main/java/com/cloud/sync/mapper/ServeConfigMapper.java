@@ -17,9 +17,9 @@ public interface ServeConfigMapper extends BaseMapper<ServeConfig> {
     /**
      * 分页查询
      *
-     * @param page
-     * @param serveConfigQuery
-     * @return
+     * @param page 分页参数
+     * @param serveConfigQuery 查询条件
+     * @return  分页数据
      */
     IPage<ServeConfig> queryPage(IPage<ServeConfig> page, @Param("param") ServeConfigQuery serveConfigQuery);
 

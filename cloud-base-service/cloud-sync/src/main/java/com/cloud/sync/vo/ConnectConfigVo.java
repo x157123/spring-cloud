@@ -81,9 +81,9 @@ public class ConnectConfigVo {
     private List<ServeConfigVo> serveConfigVOList;
 
 	/**
-     * 
+     * 同步表配置
      */
-    @Schema(description = "数据库配置")
+    @Schema(description = "数据库配置同步表配置")
     private List<TableConfigVo> tableConfigVOList;
 
 	/**

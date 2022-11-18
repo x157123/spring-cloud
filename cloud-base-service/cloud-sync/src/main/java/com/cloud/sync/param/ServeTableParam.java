@@ -6,10 +6,10 @@ import javax.validation.constraints.NotNull;
 
 /**
  * @author liulei
- * 同步启动服务
+ * 同步表
  */
 @Data
-@Schema(name = "同步启动服务响应对象", description = "同步启动服务响应对象")
+@Schema(name = "同步表响应对象", description = "同步表响应对象")
 public class ServeTableParam {
 
 	/**

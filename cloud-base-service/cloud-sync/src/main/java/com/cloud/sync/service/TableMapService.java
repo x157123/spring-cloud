@@ -16,24 +16,24 @@ public interface TableMapService {
     /**
      * 保存对象
      *
-     * @param tableMapParam
-     * @return
+     * @param tableMapParam  前端传入对象
+     * @return  返回保存成功状态
      */
     Boolean save(TableMapParam tableMapParam);
 
     /**
      * 通过Id查询数据
      *
-     * @param id
-     * @return
+     * @param id   业务Id
+     * @return  返回VO对象
      */
     TableMapVo findById(Long id);
 
     /**
      * 传入多个Id 查询数据
      *
-     * @param ids
-     * @return
+     * @param ids  多个id
+     * @return  返回list结果
      */
     List<TableMapVo> findByIds(List<Long> ids);
 
@@ -41,57 +41,57 @@ public interface TableMapService {
     /**
      * 根据查询条件 查询列表
      *
-     * @param tableMapQuery
-     * @return
+     * @param tableMapQuery 查询条件
+     * @return  返回list结果
      */
     List<TableMapVo> findByList(TableMapQuery tableMapQuery);
 
     /**
      * 传入多个Id 并删除
      *
-     * @param ids
-     * @return
+     * @param ids  id集合
+     * @return  删除情况状态
      */
     Boolean removeByIds(List<Long> ids);
 
     /**
      * 数据分页查询
      *
-     * @param tableMapQuery
-     * @param pageParam
-     * @return
+     * @param tableMapQuery 查询条件
+     * @param pageParam    分页条件
+     * @return 分页数据
      */
     IPage<TableMapVo> queryPage(TableMapQuery tableMapQuery, PageParam pageParam);
 	
     /**
      * 传入多个业务Id 查询数据
      *
-     * @param writeConnectIds
-     * @return
+     * @param writeConnectIds  查询结果集
+     * @return 返回结果
      */
     List<TableMapVo> findByWriteConnectId(List<Long> writeConnectIds);
 	
     /**
      * 传入多个业务Id 查询数据
      *
-     * @param writeTableIds
-     * @return
+     * @param writeTableIds  查询结果集
+     * @return 返回结果
      */
     List<TableMapVo> findByWriteTableId(List<Long> writeTableIds);
 	
     /**
      * 传入多个业务Id 查询数据
      *
-     * @param readTableIds
-     * @return
+     * @param readTableIds  查询结果集
+     * @return 返回结果
      */
     List<TableMapVo> findByReadTableId(List<Long> readTableIds);
 	
     /**
      * 传入多个业务Id 查询数据
      *
-     * @param readConnectIds
-     * @return
+     * @param readConnectIds  查询结果集
+     * @return 返回结果
      */
     List<TableMapVo> findByReadConnectId(List<Long> readConnectIds);
 }

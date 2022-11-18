@@ -17,9 +17,9 @@ public interface ColumnConfigMapper extends BaseMapper<ColumnConfig> {
     /**
      * 分页查询
      *
-     * @param page
-     * @param columnConfigQuery
-     * @return
+     * @param page 分页参数
+     * @param columnConfigQuery 查询条件
+     * @return  分页数据
      */
     IPage<ColumnConfig> queryPage(IPage<ColumnConfig> page, @Param("param") ColumnConfigQuery columnConfigQuery);
 

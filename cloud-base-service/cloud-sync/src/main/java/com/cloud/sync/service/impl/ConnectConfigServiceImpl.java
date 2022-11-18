@@ -25,7 +25,6 @@ import com.cloud.sync.service.TableMapService;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -37,31 +36,31 @@ import java.util.stream.Collectors;
 @Service
 public class ConnectConfigServiceImpl implements ConnectConfigService {
 
-    private ConnectConfigMapper connectConfigMapper;
+    private final ConnectConfigMapper connectConfigMapper;
 
-    private ColumnConfigService columnConfigService;
+    private final ColumnConfigService columnConfigService;
 
-    private ServeConfigService serveConfigService;
+    private final ServeConfigService serveConfigService;
 
-    private TableConfigService tableConfigService;
+    private final TableConfigService tableConfigService;
 
-    private TableMapService tableMapService;
+    private final TableMapService tableMapService;
 
     /**
      * 使用构造方法注入
      *
-     * @param connectConfigMapper
-     * @param columnConfigService;
-     * @param serveConfigService;
-     * @param tableConfigService;
-     * @param tableMapService;
+     * @param connectConfigMapper 数据库配置Mapper服务
+     * @param columnConfigService  同步数据库列配置Mapper服务
+     * @param serveConfigService  同步启动服务Mapper服务
+     * @param tableConfigService  同步表配置Mapper服务
+     * @param tableMapService  表映射Mapper服务
      */
     public ConnectConfigServiceImpl(ConnectConfigMapper connectConfigMapper, ColumnConfigService columnConfigService, ServeConfigService serveConfigService, TableConfigService tableConfigService, TableMapService tableMapService){
         this.connectConfigMapper = connectConfigMapper;
-        this.columnConfigService=columnConfigService;
-        this.serveConfigService=serveConfigService;
-        this.tableConfigService=tableConfigService;
-        this.tableMapService=tableMapService;
+        this.columnConfigService = columnConfigService;
+        this.serveConfigService = serveConfigService;
+        this.tableConfigService = tableConfigService;
+        this.tableMapService = tableMapService;
     }
 
     /**
@@ -74,8 +73,12 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     public Boolean save(ConnectConfigParam connectConfigParam) {
         ValidationUtils.validate(connectConfigParam);
         ConnectConfig connectConfig = BeanUtil.copyProperties(connectConfigParam, ConnectConfig::new);
-        if (connectConfigParam.getId() != null) {
-            return this.updateById(connectConfig);
+        if (connectConfig != null && connectConfig.getId() != null) {
+            LambdaQueryWrapper<ConnectConfig> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ConnectConfig::getId, connectConfig.getId())
+                    .eq(ConnectConfig::getVersion, connectConfig.getVersion());
+            connectConfig.setVersion(DataVersionUtils.next());
+            return this.update(queryWrapper, connectConfig);
         }
         connectConfigMapper.insert(connectConfig);
         return Boolean.TRUE;
@@ -106,9 +109,7 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     public List<ConnectConfigVo> findByIds(List<Long> ids) {
         LambdaQueryWrapper<ConnectConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ConnectConfig::getId, ids);
-        List<ConnectConfig> connectConfigEntities = connectConfigMapper.selectList(queryWrapper);
-        //数据转换
-        List<ConnectConfigVo> list = BeanUtil.copyListProperties(connectConfigEntities, ConnectConfigVo::new);
+        List<ConnectConfigVo> list = queryWrapper(queryWrapper);
         //封装关联数据
 		this.setParam(list);
 		return list;
@@ -163,10 +164,7 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
      * @param connectConfig 前端更新集合
      * @return  更新成功状态
      */
-    private Boolean updateById(ConnectConfig connectConfig) {
-        LambdaQueryWrapper<ConnectConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ConnectConfig::getId, connectConfig.getId())
-                .eq(ConnectConfig::getVersion, connectConfig.getVersion());
+    private Boolean update(LambdaQueryWrapper<ConnectConfig> queryWrapper, ConnectConfig connectConfig) {
         connectConfig.setVersion(DataVersionUtils.next());
         int count = connectConfigMapper.update(connectConfig, queryWrapper);
         if (count <= 0) {
@@ -174,7 +172,6 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
         }
         return Boolean.TRUE;
     }
-
 
 	/**
      * 补充关联表数据查询
@@ -195,5 +192,18 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
                 connectConfig.setTableMapVOList(tableMapMap.get(connectConfig.getId()));
             }
         }
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @param queryWrapper 查询条件
+     * @return  返回转化后的数据
+     */
+    private List<ConnectConfigVo> queryWrapper(LambdaQueryWrapper<ConnectConfig> queryWrapper){
+        // 数据查询
+        List<ConnectConfig> connectConfigEntities = connectConfigMapper.selectList(queryWrapper);
+        // 数据转换
+        return BeanUtil.copyListProperties(connectConfigEntities, ConnectConfigVo::new);
     }
 }

@@ -33,23 +33,23 @@ import java.util.stream.Collectors;
 @Service
 public class TableConfigServiceImpl implements TableConfigService {
 
-    private TableConfigMapper tableConfigMapper;
+    private final TableConfigMapper tableConfigMapper;
 
-    private ColumnConfigService columnConfigService;
+    private final ColumnConfigService columnConfigService;
 
-    private TableMapService tableMapService;
+    private final TableMapService tableMapService;
 
     /**
      * 使用构造方法注入
      *
-     * @param tableConfigMapper
-     * @param columnConfigService;
-     * @param tableMapService;
+     * @param tableConfigMapper 同步表配置Mapper服务
+     * @param columnConfigService  同步数据库列配置Mapper服务
+     * @param tableMapService  表映射Mapper服务
      */
     public TableConfigServiceImpl(TableConfigMapper tableConfigMapper, ColumnConfigService columnConfigService, TableMapService tableMapService){
         this.tableConfigMapper = tableConfigMapper;
-        this.columnConfigService=columnConfigService;
-        this.tableMapService=tableMapService;
+        this.columnConfigService = columnConfigService;
+        this.tableMapService = tableMapService;
     }
 
     /**
@@ -62,8 +62,12 @@ public class TableConfigServiceImpl implements TableConfigService {
     public Boolean save(TableConfigParam tableConfigParam) {
         ValidationUtils.validate(tableConfigParam);
         TableConfig tableConfig = BeanUtil.copyProperties(tableConfigParam, TableConfig::new);
-        if (tableConfigParam.getId() != null) {
-            return this.updateById(tableConfig);
+        if (tableConfig != null && tableConfig.getId() != null) {
+            LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(TableConfig::getId, tableConfig.getId())
+                    .eq(TableConfig::getVersion, tableConfig.getVersion());
+            tableConfig.setVersion(DataVersionUtils.next());
+            return this.update(queryWrapper, tableConfig);
         }
         tableConfigMapper.insert(tableConfig);
         return Boolean.TRUE;
@@ -94,9 +98,7 @@ public class TableConfigServiceImpl implements TableConfigService {
     public List<TableConfigVo> findByIds(List<Long> ids) {
         LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TableConfig::getId, ids);
-        List<TableConfig> tableConfigEntities = tableConfigMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableConfigVo> list = BeanUtil.copyListProperties(tableConfigEntities, TableConfigVo::new);
+        List<TableConfigVo> list = queryWrapper(queryWrapper);
         //封装关联数据
 		this.setParam(list);
 		return list;
@@ -144,6 +146,22 @@ public class TableConfigServiceImpl implements TableConfigService {
 		this.setParam(page.getRecords());
         return page;
     }
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param connectIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<TableConfigVo> findByConnectId(List<Long> connectIds){
+        if (connectIds == null || connectIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(TableConfig::getConnectId, connectIds);
+        return queryWrapper(queryWrapper);
+	}
 
     /**
      * 通过Id 更新数据
@@ -151,10 +169,7 @@ public class TableConfigServiceImpl implements TableConfigService {
      * @param tableConfig 前端更新集合
      * @return  更新成功状态
      */
-    private Boolean updateById(TableConfig tableConfig) {
-        LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(TableConfig::getId, tableConfig.getId())
-                .eq(TableConfig::getVersion, tableConfig.getVersion());
+    private Boolean update(LambdaQueryWrapper<TableConfig> queryWrapper, TableConfig tableConfig) {
         tableConfig.setVersion(DataVersionUtils.next());
         int count = tableConfigMapper.update(tableConfig, queryWrapper);
         if (count <= 0) {
@@ -162,26 +177,6 @@ public class TableConfigServiceImpl implements TableConfigService {
         }
         return Boolean.TRUE;
     }
-
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param connectIds
-     * @return
-     */
-    @Override
-    public List<TableConfigVo> findByConnectId(List<Long> connectIds){
-        if (connectIds == null || connectIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(TableConfig::getConnectId, connectIds);
-        List<TableConfig> tableConfigEntities = tableConfigMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableConfigVo> list = BeanUtil.copyListProperties(tableConfigEntities, TableConfigVo::new);
-        return list;
-	}
 
 	/**
      * 补充关联表数据查询
@@ -198,5 +193,18 @@ public class TableConfigServiceImpl implements TableConfigService {
                 tableConfig.setTableMapVOList(tableMapMap.get(tableConfig.getId()));
             }
         }
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @param queryWrapper 查询条件
+     * @return  返回转化后的数据
+     */
+    private List<TableConfigVo> queryWrapper(LambdaQueryWrapper<TableConfig> queryWrapper){
+        // 数据查询
+        List<TableConfig> tableConfigEntities = tableConfigMapper.selectList(queryWrapper);
+        // 数据转换
+        return BeanUtil.copyListProperties(tableConfigEntities, TableConfigVo::new);
     }
 }

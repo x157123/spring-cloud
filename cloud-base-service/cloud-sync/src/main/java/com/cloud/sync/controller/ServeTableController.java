@@ -18,15 +18,15 @@ import java.util.List;
  */
 @RestController
 @RequestMapping("/serveTable")
-@Tag(description = "同步启动服务", name = "同步启动服务")
+@Tag(description = "同步表", name = "同步表")
 public class ServeTableController {
 
-    private ServeTableService serveTableService;
+    private final ServeTableService serveTableService;
 
     /**
      * 使用构造方法注入
      *
-     * @param serveTableService
+     * @param serveTableService    注册同步表
      */
     public ServeTableController(ServeTableService serveTableService){
         this.serveTableService= serveTableService;
@@ -35,11 +35,11 @@ public class ServeTableController {
     /**
      * 保存对象
      *
-     * @param serveTableParam
-     * @return
+     * @param serveTableParam  同步表参数
+     * @return  返回是否成功
      */
     @PostMapping(value = "/save")
-    @Operation(summary = "保存", description = "同步启动服务")
+    @Operation(summary = "保存", description = "同步表")
     public ResultBody save(@RequestBody ServeTableParam serveTableParam) {
         return ResultBody.success(serveTableService.save(serveTableParam));
     }
@@ -47,11 +47,11 @@ public class ServeTableController {
     /**
      * 通过Id查询数据
      *
-     * @param id
-     * @return
+     * @param id   查询ID
+     * @return  返回查询结果
      */
     @GetMapping(value = "/findById")
-    @Operation(summary = "通过Id查询数据", description = "同步启动服务")
+    @Operation(summary = "通过Id查询数据", description = "同步表")
     public ResultBody findById(Long id) {
         return ResultBody.success(serveTableService.findById(id));
     }
@@ -59,11 +59,11 @@ public class ServeTableController {
     /**
      * 传入多个Id查询数据
      *
-     * @param ids
-     * @return
+     * @param ids  查询多个Id
+     * @return  返回List结果集
      */
     @PostMapping(value = "/findByIds")
-    @Operation(summary = "传入多个Id查询数据", description = "同步启动服务")
+    @Operation(summary = "传入多个Id查询数据", description = "同步表")
     public ResultBody findByIds(@RequestParam(value = "ids") List<Long> ids) {
         return ResultBody.success(serveTableService.findByIds(ids));
     }
@@ -72,11 +72,11 @@ public class ServeTableController {
     /**
      * 根据查询条件查询列表
      *
-     * @param serveTableQuery
-     * @return
+     * @param serveTableQuery 查询条件
+     * @return  返回List结果集
      */
     @PostMapping(value = "/findByList")
-    @Operation(summary = "根据查询条件查询列表", description = "同步启动服务")
+    @Operation(summary = "根据查询条件查询列表", description = "同步表")
     public ResultBody findByList(ServeTableQuery serveTableQuery) {
         return ResultBody.success(serveTableService.findByList(serveTableQuery));
     }
@@ -84,11 +84,11 @@ public class ServeTableController {
     /**
      * 传入多个Id 并删除
      *
-     * @param ids
-     * @return
+     * @param ids  删除多个Id
+     * @return  返回是否成功
      */
     @PostMapping(value = "/removeByIds")
-    @Operation(summary = "传入多个Id并删除", description = "同步启动服务")
+    @Operation(summary = "传入多个Id并删除", description = "同步表")
     public ResultBody removeByIds(@RequestParam(value = "ids") List<Long> ids) {
         return ResultBody.success(serveTableService.removeByIds(ids));
     }
@@ -96,12 +96,12 @@ public class ServeTableController {
     /**
      * 数据分页查询
      *
-     * @param serveTableQuery
-     * @param pageParam
-     * @return
+     * @param serveTableQuery  分页查询条件
+     * @param pageParam    分页参数
+     * @return  返回分页结果
      */
     @PostMapping(value = "/queryPage")
-    @Operation(summary = "数据分页查询", description = "同步启动服务")
+    @Operation(summary = "数据分页查询", description = "同步表")
     public ResultBody queryPage(ServeTableQuery serveTableQuery, PageParam pageParam) {
         return ResultBody.success(serveTableService.queryPage(serveTableQuery, pageParam));
     }

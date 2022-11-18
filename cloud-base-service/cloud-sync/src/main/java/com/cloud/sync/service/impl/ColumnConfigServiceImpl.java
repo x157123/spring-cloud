@@ -27,12 +27,12 @@ import java.util.List;
 @Service
 public class ColumnConfigServiceImpl implements ColumnConfigService {
 
-    private ColumnConfigMapper columnConfigMapper;
+    private final ColumnConfigMapper columnConfigMapper;
 
     /**
      * 使用构造方法注入
      *
-     * @param columnConfigMapper
+     * @param columnConfigMapper 同步数据库列配置Mapper服务
      */
     public ColumnConfigServiceImpl(ColumnConfigMapper columnConfigMapper){
         this.columnConfigMapper = columnConfigMapper;
@@ -48,8 +48,12 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
     public Boolean save(ColumnConfigParam columnConfigParam) {
         ValidationUtils.validate(columnConfigParam);
         ColumnConfig columnConfig = BeanUtil.copyProperties(columnConfigParam, ColumnConfig::new);
-        if (columnConfigParam.getId() != null) {
-            return this.updateById(columnConfig);
+        if (columnConfig != null && columnConfig.getId() != null) {
+            LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ColumnConfig::getId, columnConfig.getId())
+                    .eq(ColumnConfig::getVersion, columnConfig.getVersion());
+            columnConfig.setVersion(DataVersionUtils.next());
+            return this.update(queryWrapper, columnConfig);
         }
         columnConfigMapper.insert(columnConfig);
         return Boolean.TRUE;
@@ -80,9 +84,7 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
     public List<ColumnConfigVo> findByIds(List<Long> ids) {
         LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ColumnConfig::getId, ids);
-        List<ColumnConfig> columnConfigEntities = columnConfigMapper.selectList(queryWrapper);
-        //数据转换
-        List<ColumnConfigVo> list = BeanUtil.copyListProperties(columnConfigEntities, ColumnConfigVo::new);
+        List<ColumnConfigVo> list = queryWrapper(queryWrapper);
 		return list;
     }
 
@@ -122,9 +124,40 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
     @Override
     public IPage<ColumnConfigVo> queryPage(ColumnConfigQuery columnConfigQuery, PageParam pageParam) {
         IPage<ColumnConfig> iPage = columnConfigMapper.queryPage(OrderUtil.getPage(pageParam), columnConfigQuery);
-        IPage<ColumnConfigVo> page = iPage.convert(columnConfig -> BeanUtil.copyProperties(columnConfig, ColumnConfigVo::new));
-        return page;
+        return iPage.convert(columnConfig -> BeanUtil.copyProperties(columnConfig, ColumnConfigVo::new));
     }
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param connectIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<ColumnConfigVo> findByConnectId(List<Long> connectIds){
+        if (connectIds == null || connectIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ColumnConfig::getConnectId, connectIds);
+        return queryWrapper(queryWrapper);
+	}
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param tableIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<ColumnConfigVo> findByTableId(List<Long> tableIds){
+        if (tableIds == null || tableIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ColumnConfig::getTableId, tableIds);
+        return queryWrapper(queryWrapper);
+	}
 
     /**
      * 通过Id 更新数据
@@ -132,10 +165,7 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
      * @param columnConfig 前端更新集合
      * @return  更新成功状态
      */
-    private Boolean updateById(ColumnConfig columnConfig) {
-        LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ColumnConfig::getId, columnConfig.getId())
-                .eq(ColumnConfig::getVersion, columnConfig.getVersion());
+    private Boolean update(LambdaQueryWrapper<ColumnConfig> queryWrapper, ColumnConfig columnConfig) {
         columnConfig.setVersion(DataVersionUtils.next());
         int count = columnConfigMapper.update(columnConfig, queryWrapper);
         if (count <= 0) {
@@ -144,42 +174,16 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
         return Boolean.TRUE;
     }
 
-	
-	/**
-     * 传入多个Id 查询数据
+    /**
+     * 查询数据列表
      *
-     * @param connectIds
-     * @return
+     * @param queryWrapper 查询条件
+     * @return  返回转化后的数据
      */
-    @Override
-    public List<ColumnConfigVo> findByConnectId(List<Long> connectIds){
-        if (connectIds == null || connectIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ColumnConfig::getConnectId, connectIds);
+    private List<ColumnConfigVo> queryWrapper(LambdaQueryWrapper<ColumnConfig> queryWrapper){
+        // 数据查询
         List<ColumnConfig> columnConfigEntities = columnConfigMapper.selectList(queryWrapper);
-        //数据转换
-        List<ColumnConfigVo> list = BeanUtil.copyListProperties(columnConfigEntities, ColumnConfigVo::new);
-        return list;
-	}
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param tableIds
-     * @return
-     */
-    @Override
-    public List<ColumnConfigVo> findByTableId(List<Long> tableIds){
-        if (tableIds == null || tableIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ColumnConfig::getTableId, tableIds);
-        List<ColumnConfig> columnConfigEntities = columnConfigMapper.selectList(queryWrapper);
-        //数据转换
-        List<ColumnConfigVo> list = BeanUtil.copyListProperties(columnConfigEntities, ColumnConfigVo::new);
-        return list;
-	}
+        // 数据转换
+        return BeanUtil.copyListProperties(columnConfigEntities, ColumnConfigVo::new);
+    }
 }

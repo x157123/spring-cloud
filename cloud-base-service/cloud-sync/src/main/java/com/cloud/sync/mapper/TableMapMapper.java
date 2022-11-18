@@ -17,9 +17,9 @@ public interface TableMapMapper extends BaseMapper<TableMap> {
     /**
      * 分页查询
      *
-     * @param page
-     * @param tableMapQuery
-     * @return
+     * @param page 分页参数
+     * @param tableMapQuery 查询条件
+     * @return  分页数据
      */
     IPage<TableMap> queryPage(IPage<TableMap> page, @Param("param") TableMapQuery tableMapQuery);
 

@@ -17,9 +17,9 @@ public interface TableConfigMapper extends BaseMapper<TableConfig> {
     /**
      * 分页查询
      *
-     * @param page
-     * @param tableConfigQuery
-     * @return
+     * @param page 分页参数
+     * @param tableConfigQuery 查询条件
+     * @return  分页数据
      */
     IPage<TableConfig> queryPage(IPage<TableConfig> page, @Param("param") TableConfigQuery tableConfigQuery);
 

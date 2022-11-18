@@ -31,19 +31,19 @@ import java.util.stream.Collectors;
 @Service
 public class TableMapServiceImpl implements TableMapService {
 
-    private TableMapMapper tableMapMapper;
+    private final TableMapMapper tableMapMapper;
 
-    private ServeTableService serveTableService;
+    private final ServeTableService serveTableService;
 
     /**
      * 使用构造方法注入
      *
-     * @param tableMapMapper
-     * @param serveTableService;
+     * @param tableMapMapper 表映射Mapper服务
+     * @param serveTableService  同步表Mapper服务
      */
     public TableMapServiceImpl(TableMapMapper tableMapMapper, ServeTableService serveTableService){
         this.tableMapMapper = tableMapMapper;
-        this.serveTableService=serveTableService;
+        this.serveTableService = serveTableService;
     }
 
     /**
@@ -56,8 +56,12 @@ public class TableMapServiceImpl implements TableMapService {
     public Boolean save(TableMapParam tableMapParam) {
         ValidationUtils.validate(tableMapParam);
         TableMap tableMap = BeanUtil.copyProperties(tableMapParam, TableMap::new);
-        if (tableMapParam.getId() != null) {
-            return this.updateById(tableMap);
+        if (tableMap != null && tableMap.getId() != null) {
+            LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(TableMap::getId, tableMap.getId())
+                    .eq(TableMap::getVersion, tableMap.getVersion());
+            tableMap.setVersion(DataVersionUtils.next());
+            return this.update(queryWrapper, tableMap);
         }
         tableMapMapper.insert(tableMap);
         return Boolean.TRUE;
@@ -88,9 +92,7 @@ public class TableMapServiceImpl implements TableMapService {
     public List<TableMapVo> findByIds(List<Long> ids) {
         LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TableMap::getId, ids);
-        List<TableMap> tableMapEntities = tableMapMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableMapVo> list = BeanUtil.copyListProperties(tableMapEntities, TableMapVo::new);
+        List<TableMapVo> list = queryWrapper(queryWrapper);
         //封装关联数据
 		this.setParam(list);
 		return list;
@@ -138,6 +140,70 @@ public class TableMapServiceImpl implements TableMapService {
 		this.setParam(page.getRecords());
         return page;
     }
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param writeConnectIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<TableMapVo> findByWriteConnectId(List<Long> writeConnectIds){
+        if (writeConnectIds == null || writeConnectIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(TableMap::getWriteConnectId, writeConnectIds);
+        return queryWrapper(queryWrapper);
+	}
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param writeTableIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<TableMapVo> findByWriteTableId(List<Long> writeTableIds){
+        if (writeTableIds == null || writeTableIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(TableMap::getWriteTableId, writeTableIds);
+        return queryWrapper(queryWrapper);
+	}
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param readTableIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<TableMapVo> findByReadTableId(List<Long> readTableIds){
+        if (readTableIds == null || readTableIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(TableMap::getReadTableId, readTableIds);
+        return queryWrapper(queryWrapper);
+	}
+	
+	/**
+     * 传入多个Id 查询数据
+     *
+     * @param readConnectIds id集合
+     * @return  返回查询结果
+     */
+    @Override
+    public List<TableMapVo> findByReadConnectId(List<Long> readConnectIds){
+        if (readConnectIds == null || readConnectIds.size() == 0) {
+            return new ArrayList<>();
+        }
+		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(TableMap::getReadConnectId, readConnectIds);
+        return queryWrapper(queryWrapper);
+	}
 
     /**
      * 通过Id 更新数据
@@ -145,10 +211,7 @@ public class TableMapServiceImpl implements TableMapService {
      * @param tableMap 前端更新集合
      * @return  更新成功状态
      */
-    private Boolean updateById(TableMap tableMap) {
-        LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(TableMap::getId, tableMap.getId())
-                .eq(TableMap::getVersion, tableMap.getVersion());
+    private Boolean update(LambdaQueryWrapper<TableMap> queryWrapper, TableMap tableMap) {
         tableMap.setVersion(DataVersionUtils.next());
         int count = tableMapMapper.update(tableMap, queryWrapper);
         if (count <= 0) {
@@ -156,83 +219,6 @@ public class TableMapServiceImpl implements TableMapService {
         }
         return Boolean.TRUE;
     }
-
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param writeConnectIds
-     * @return
-     */
-    @Override
-    public List<TableMapVo> findByWriteConnectId(List<Long> writeConnectIds){
-        if (writeConnectIds == null || writeConnectIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(TableMap::getWriteConnectId, writeConnectIds);
-        List<TableMap> tableMapEntities = tableMapMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableMapVo> list = BeanUtil.copyListProperties(tableMapEntities, TableMapVo::new);
-        return list;
-	}
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param writeTableIds
-     * @return
-     */
-    @Override
-    public List<TableMapVo> findByWriteTableId(List<Long> writeTableIds){
-        if (writeTableIds == null || writeTableIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(TableMap::getWriteTableId, writeTableIds);
-        List<TableMap> tableMapEntities = tableMapMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableMapVo> list = BeanUtil.copyListProperties(tableMapEntities, TableMapVo::new);
-        return list;
-	}
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param readTableIds
-     * @return
-     */
-    @Override
-    public List<TableMapVo> findByReadTableId(List<Long> readTableIds){
-        if (readTableIds == null || readTableIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(TableMap::getReadTableId, readTableIds);
-        List<TableMap> tableMapEntities = tableMapMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableMapVo> list = BeanUtil.copyListProperties(tableMapEntities, TableMapVo::new);
-        return list;
-	}
-	
-	/**
-     * 传入多个Id 查询数据
-     *
-     * @param readConnectIds
-     * @return
-     */
-    @Override
-    public List<TableMapVo> findByReadConnectId(List<Long> readConnectIds){
-        if (readConnectIds == null || readConnectIds.size() <= 0) {
-            return new ArrayList<>();
-        }
-		LambdaQueryWrapper<TableMap> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(TableMap::getReadConnectId, readConnectIds);
-        List<TableMap> tableMapEntities = tableMapMapper.selectList(queryWrapper);
-        //数据转换
-        List<TableMapVo> list = BeanUtil.copyListProperties(tableMapEntities, TableMapVo::new);
-        return list;
-	}
 
 	/**
      * 补充关联表数据查询
@@ -247,5 +233,18 @@ public class TableMapServiceImpl implements TableMapService {
                 tableMap.setServeTableVOList(serveTableMap.get(tableMap.getId()));
             }
         }
+    }
+
+    /**
+     * 查询数据列表
+     *
+     * @param queryWrapper 查询条件
+     * @return  返回转化后的数据
+     */
+    private List<TableMapVo> queryWrapper(LambdaQueryWrapper<TableMap> queryWrapper){
+        // 数据查询
+        List<TableMap> tableMapEntities = tableMapMapper.selectList(queryWrapper);
+        // 数据转换
+        return BeanUtil.copyListProperties(tableMapEntities, TableMapVo::new);
     }
 }

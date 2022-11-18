@@ -16,24 +16,24 @@ public interface ServeConfigService {
     /**
      * 保存对象
      *
-     * @param serveConfigParam
-     * @return
+     * @param serveConfigParam  前端传入对象
+     * @return  返回保存成功状态
      */
     Boolean save(ServeConfigParam serveConfigParam);
 
     /**
      * 通过Id查询数据
      *
-     * @param id
-     * @return
+     * @param id   业务Id
+     * @return  返回VO对象
      */
     ServeConfigVo findById(Long id);
 
     /**
      * 传入多个Id 查询数据
      *
-     * @param ids
-     * @return
+     * @param ids  多个id
+     * @return  返回list结果
      */
     List<ServeConfigVo> findByIds(List<Long> ids);
 
@@ -41,33 +41,33 @@ public interface ServeConfigService {
     /**
      * 根据查询条件 查询列表
      *
-     * @param serveConfigQuery
-     * @return
+     * @param serveConfigQuery 查询条件
+     * @return  返回list结果
      */
     List<ServeConfigVo> findByList(ServeConfigQuery serveConfigQuery);
 
     /**
      * 传入多个Id 并删除
      *
-     * @param ids
-     * @return
+     * @param ids  id集合
+     * @return  删除情况状态
      */
     Boolean removeByIds(List<Long> ids);
 
     /**
      * 数据分页查询
      *
-     * @param serveConfigQuery
-     * @param pageParam
-     * @return
+     * @param serveConfigQuery 查询条件
+     * @param pageParam    分页条件
+     * @return 分页数据
      */
     IPage<ServeConfigVo> queryPage(ServeConfigQuery serveConfigQuery, PageParam pageParam);
 	
     /**
      * 传入多个业务Id 查询数据
      *
-     * @param readConnectIds
-     * @return
+     * @param readConnectIds  查询结果集
+     * @return 返回结果
      */
     List<ServeConfigVo> findByReadConnectId(List<Long> readConnectIds);
 }
