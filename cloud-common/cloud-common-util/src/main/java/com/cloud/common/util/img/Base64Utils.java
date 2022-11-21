@@ -1,7 +1,6 @@
 package com.cloud.common.util.img;
 
 
-import org.apache.commons.codec.binary.Base64;
 
 import java.io.*;
 import java.net.HttpURLConnection;

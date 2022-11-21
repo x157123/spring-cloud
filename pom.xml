@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.cloud</groupId>
-    <artifactId>spring cloud3.0</artifactId>
-    <name>spring cloud3.0</name>
+    <artifactId>spring-cloud3.0</artifactId>
+    <name>spring-cloud3.0</name>
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
@@ -35,12 +35,15 @@
         <spring-cloud.version>2021.0.0</spring-cloud.version>
         <lombok.version>1.18.12</lombok.version>
 
-        <mysql.version>8.0.28</mysql.version>
-        <postgresql.version>42.4.2</postgresql.version>
+        <mysql.version>8.0.30</mysql.version>
+        <postgresql.version>42.5.0</postgresql.version>
         <clickhouse.version>0.2.4</clickhouse.version>
         <oracle.version>11.2.0.4</oracle.version>
 
         <mybatis-plus.version>3.4.2</mybatis-plus.version>
+
+
+        <okhttp.version>4.10.0</okhttp.version>
 
         <swagger.version>3.0.0</swagger.version>
         <swagger-ui.version>2.9.2</swagger-ui.version>

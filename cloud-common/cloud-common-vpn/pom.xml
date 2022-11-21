@@ -3,18 +3,18 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>spring-cloud3.0</artifactId>
+        <artifactId>cloud-common</artifactId>
         <groupId>org.cloud</groupId>
         <version>1.0-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cloud-auth</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>cloud-common-vpn</artifactId>
 
-    <description>认证服务</description>
-    <modules>
-        <module>cloud-auth-server</module>
-        <module>cloud-auth-client</module>
-    </modules>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
 </project>

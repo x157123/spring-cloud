@@ -190,7 +190,7 @@ public class StartMysql extends DbComponent {
             System.out.println("            update_user            varchar(32)            NULL,");
             System.out.println("            update_date            timestamp(6)            NULL,");
             System.out.println("            is_deleted            int2            NOT NULL DEFAULT 0,");
-            System.out.println("CONSTRAINT "+table.getName()+"_pk PRIMARY KEY (id)");
+            System.out.println("CONSTRAINT " + table.getName() + "_pk PRIMARY KEY (id)");
             System.out.println(");");
 
             System.out.println("comment on table " + table.getName() + " is '" + table.getComment() + "';");
