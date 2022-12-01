@@ -37,7 +37,7 @@
 
         <mysql.version>8.0.30</mysql.version>
         <postgresql.version>42.5.0</postgresql.version>
-        <clickhouse.version>0.2.4</clickhouse.version>
+        <clickhouse.version>0.3.2-patch11</clickhouse.version>
         <oracle.version>11.2.0.4</oracle.version>
 
         <mybatis-plus.version>3.4.2</mybatis-plus.version>
