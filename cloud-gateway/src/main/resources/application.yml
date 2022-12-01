@@ -36,3 +36,8 @@ management:
 api:
   server:
     exclude: [eureka,gateway,cloud-config]
+knife4j:
+  enable: true
+  setting:
+    # 是否启用Host
+    enableHost: true

@@ -20,10 +20,10 @@ spring:
           password: xujia4209
           force-pull: true
       label: master
-  # http://127.0.0.1:15672 管理地址端口
+  # http://150.109.5.143:15672 管理地址端口
   rabbitmq:
-    host: 127.0.0.1
-    port: 5672
+    host: 150.109.5.143
+    port: 5673
     username: liulei
     password: liulei
 # 指定注册中心的地址

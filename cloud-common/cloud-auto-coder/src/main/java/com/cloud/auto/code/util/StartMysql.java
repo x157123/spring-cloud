@@ -39,7 +39,7 @@ public class StartMysql extends DbComponent {
 
     public static void main(String[] args) {
         //社管
-        Boolean sg = false;
+        Boolean sg = true;
         //数据库
         String schema;
         //使用生成模版
@@ -53,14 +53,14 @@ public class StartMysql extends DbComponent {
             /** 社管配置 */
             schema = "test";
             ftlPath = "cloud-springfox-sg";
-            autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
-            autoCodeConfig.setProjectPath("D:/tianque/tests/src/main/");
+            autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.handle");
+            autoCodeConfig.setProjectPath("C:\\Users\\liulei\\Desktop\\");
             //web页面保存路径
-            autoCodeConfig.setWebPath("D:/tianque/tests/web");
+            autoCodeConfig.setWebPath("C:\\Users\\liulei\\Desktop\\");
             //设置保存mapper包路径
-            autoCodeConfig.setMapperPath("party");
+            autoCodeConfig.setMapperPath("handle");
             //设置服务名称
-            autoCodeConfig.setServeName("tq-scgrid-issue-service-liulei");
+            autoCodeConfig.setServeName("tq-nanxi-service");
             //是否生成启动配置文件
             autoCodeConfig.setStartApp(Boolean.FALSE);
         } else {

@@ -99,7 +99,7 @@ public class CodeUtil {
             //当出现mapper.xml 统一保存到某个目录
             if (templateName.startsWith("mapper.xml")) {
                 //保存到 xml+扩展包
-                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("resources.mapper", getPack(templateName), dataMap.get("expandPackage").toString(), mapperPath));
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("resources.mapper", getPack(templateName), mapperPath, dataMap.get("expandPackage").toString()));
             } else if (templateName.startsWith("application.java")) {
                 //保存到 跟目录
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", dataMap.get("basePackage").toString(), dataMap.get("expandPackage").toString()));
