@@ -1,9 +1,9 @@
 package com.cloud.sync.param;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author liulei
@@ -16,14 +16,14 @@ public class TableConfigParam {
 	/**
      * id
      */
-    @Schema(description = "id", example = "1")
+    @Schema(description = "id")
     private Long id;
 
 	/**
      * 数据库id
      */
     @NotNull(message = "同步表配置数据库id[TableConfigVo.connectId]不能为null")
-    @Schema(description = "数据库id", required = true, example = "1")
+    @Schema(description = "数据库id")
     private Long connectId;
 
 	/**
@@ -43,6 +43,6 @@ public class TableConfigParam {
 	/**
      * 版本
      */
-    @Schema(description = "版本", example = "1")
+    @Schema(description = "版本")
     private Long version;
 }

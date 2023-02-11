@@ -1,10 +1,9 @@
-import requstFactory from '@/lib/http/requstFactory'
-const requstData = requstFactory()
+import { http } from '@/lib/http'
 
 export default {
   //列表
   getPage: async (payload) => {
-    return await requstData.post(
+    return await http.post(
       '/${autoCodeConfig.serveName}/${table.className? uncap_first}/queryPage',
       payload,
       false,
@@ -12,7 +11,7 @@ export default {
   },
   //详情
   getById: async (payload) => {
-    return await requstData.get(
+    return await http.get(
       '/${autoCodeConfig.serveName}/${table.className? uncap_first}/findById',
       payload,
       false,
@@ -20,7 +19,7 @@ export default {
   },
   //新增修改
   addData: async (payload) => {
-    return await requstData.post(
+    return await http.post(
       '/${autoCodeConfig.serveName}/${table.className? uncap_first}/save',
       payload,
       false,
@@ -28,7 +27,7 @@ export default {
   },
   //删除
   delById: async (payload) => {
-    return await requstData.post(
+    return await http.post(
       '/${autoCodeConfig.serveName}/${table.className? uncap_first}/removeByIds',
       payload,
       false,

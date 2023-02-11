@@ -3,7 +3,6 @@ package com.cloud.sync.param;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author liulei
@@ -16,19 +15,19 @@ public class ColumnConfigParam {
 	/**
      * 
      */
-    @Schema(description = "", example = "1")
+    @Schema(description = "")
     private Long id;
 
 	/**
      * 数据库Id
      */
-    @Schema(description = "数据库Id", example = "1")
+    @Schema(description = "数据库Id")
     private Long connectId;
 
 	/**
      * 表Id
      */
-    @Schema(description = "表Id", example = "1")
+    @Schema(description = "表Id")
     private Long tableId;
 
 	/**
@@ -55,24 +54,24 @@ public class ColumnConfigParam {
 	/**
      * 长度
      */
-    @Schema(description = "长度", example = "1")
+    @Schema(description = "长度")
     private Integer columnLength;
 
 	/**
      * 是否必填
      */
-    @Schema(description = "是否必填", example = "1")
+    @Schema(description = "是否必填")
     private Integer columnRequired;
 
 	/**
      * 主键
      */
-    @Schema(description = "主键", example = "1")
+    @Schema(description = "主键")
     private Integer columnPrimaryKey;
 
 	/**
      * 版本
      */
-    @Schema(description = "版本", example = "1")
+    @Schema(description = "版本")
     private Long version;
 }

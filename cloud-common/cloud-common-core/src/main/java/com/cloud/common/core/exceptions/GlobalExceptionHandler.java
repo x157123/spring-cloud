@@ -2,6 +2,7 @@ package com.cloud.common.core.exceptions;
 
 import com.cloud.common.core.result.ResultBody;
 import com.cloud.common.core.result.ResultEnum;
+import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.converter.HttpMessageNotReadableException;
@@ -9,7 +10,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author liulei

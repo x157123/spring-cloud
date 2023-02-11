@@ -1,12 +1,13 @@
 package com.cloud.common.kafka.service.impl;
 
+import com.cloud.common.kafka.service.KafkaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
-import org.springframework.util.concurrent.ListenableFuture;
-import com.cloud.common.kafka.service.KafkaService;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * KafkaService实现类
@@ -21,9 +22,6 @@ public class KafkaServiceImpl implements KafkaService {
  
     @Override
     public void send(String topic, String value) {
-        ListenableFuture<SendResult<String, String>> resultListenableFuture = kafkaTemplate.send(topic, value);
-        resultListenableFuture.addCallback(
-                successCallback -> log.info("发送成功：topic= " + topic + " value= " + value),
-                failureCallback -> log.info("发送失败：topic= " + topic + " value= " + value));
+        CompletableFuture<SendResult<String, String>> completableFuture = kafkaTemplate.send(topic, value);
     }
 }

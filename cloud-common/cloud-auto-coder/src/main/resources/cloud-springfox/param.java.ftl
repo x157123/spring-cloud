@@ -48,7 +48,7 @@ public class ${table.className}Param {
     @Length(max = ${col.length?c}, message = "${table.comment}${col.comment}[${table.className}Vo.${col.nameClass? uncap_first}]长度不能大于${col.length}")
 </#if>
 </#if>
-    @ApiModelProperty(value = "${col.comment}"<#if col.requiredType == 'true' && col.nameClass != "Id">, required = true</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'>, example = "1"</#if>)
+    @ApiModelProperty(value = "${col.comment}"<#if col.requiredType == 'true' && col.nameClass != "Id">, required = true</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'></#if>)
     private ${col.javaType} ${col.nameClass? uncap_first};
     </#if>
     </#list>

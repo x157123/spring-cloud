@@ -3,7 +3,6 @@ package com.cloud.sync.param;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author liulei
@@ -16,19 +15,19 @@ public class ServeConfigParam {
 	/**
      * id
      */
-    @Schema(description = "id", example = "1")
+    @Schema(description = "id")
     private Long id;
 
 	/**
      * 采集数据库Id
      */
-    @Schema(description = "采集数据库Id", example = "1")
+    @Schema(description = "采集数据库Id")
     private Long readConnectId;
 
 	/**
      * 状态0未启动，1停用中，5待启动，10启动
      */
-    @Schema(description = "状态0未启动，1停用中，5待启动，10启动", example = "1")
+    @Schema(description = "状态0未启动，1停用中，5待启动，10启动")
     private Integer state;
 
 	/**
@@ -41,6 +40,6 @@ public class ServeConfigParam {
 	/**
      * 版本
      */
-    @Schema(description = "版本", example = "1")
+    @Schema(description = "版本")
     private Long version;
 }

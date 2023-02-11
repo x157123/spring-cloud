@@ -1,13 +1,13 @@
 package com.cloud.common.core.utils;
 
+import com.cloud.common.core.exceptions.DataValidationException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import org.hibernate.validator.HibernateValidator;
+
 import java.util.HashSet;
 import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validation;
-import javax.validation.Validator;
-
-import com.cloud.common.core.exceptions.DataValidationException;
-import org.hibernate.validator.HibernateValidator;
 
 /**
  * @author liulei

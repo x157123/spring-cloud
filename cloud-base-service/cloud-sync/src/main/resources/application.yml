@@ -21,9 +21,6 @@ eureka:
   instance:
     preferIpAddress: true
 
-mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
 logging:
   level:
     learning: error

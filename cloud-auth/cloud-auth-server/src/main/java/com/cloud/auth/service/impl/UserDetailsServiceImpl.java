@@ -1,23 +1,17 @@
 package com.cloud.auth.service.impl;
 
-import com.cloud.auth.service.UserDetailsService;
+import com.cloud.auth.dto.OauthUser;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
-import java.util.Map;
-
-/**
- * @author liulei
- */
 public class UserDetailsServiceImpl implements UserDetailsService {
-
-    /**
-     * 获取用户信息
-     *
-     * @param userName
-     * @param password
-     * @return
-     */
     @Override
-    public Map<String, Object> getUserDetail(String userName, String password) {
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        OauthUser oauthUser = new OauthUser();
+        oauthUser.setUsername("");
+        oauthUser.setPassword("");
         return null;
     }
 }

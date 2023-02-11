@@ -34,6 +34,7 @@
             <version>${knife4j-springdoc-ui.version}</version>
         </dependency>
 
+
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>

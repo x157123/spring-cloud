@@ -1,9 +1,9 @@
 package com.cloud.sync.param;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
-import javax.validation.constraints.NotNull;
 
 /**
  * @author liulei
@@ -16,14 +16,14 @@ public class ConnectConfigParam {
 	/**
      * id
      */
-    @Schema(description = "id", example = "1")
+    @Schema(description = "id")
     private Long id;
 
 	/**
      * 数据库类型
      */
     @NotNull(message = "数据库配置数据库类型[ConnectConfigVo.type]不能为null")
-    @Schema(description = "数据库类型", required = true, example = "1")
+    @Schema(description = "数据库类型")
     private Long type;
 
 	/**
@@ -36,7 +36,7 @@ public class ConnectConfigParam {
 	/**
      * 端口
      */
-    @Schema(description = "端口", example = "1")
+    @Schema(description = "端口")
     private Integer port;
 
 	/**
@@ -77,6 +77,6 @@ public class ConnectConfigParam {
 	/**
      * 版本
      */
-    @Schema(description = "版本", example = "1")
+    @Schema(description = "版本")
     private Long version;
 }

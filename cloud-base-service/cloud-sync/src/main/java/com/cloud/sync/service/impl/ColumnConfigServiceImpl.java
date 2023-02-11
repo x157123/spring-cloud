@@ -9,11 +9,11 @@ import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import com.cloud.sync.entity.ColumnConfig;
-import com.cloud.sync.vo.ColumnConfigVo;
 import com.cloud.sync.mapper.ColumnConfigMapper;
+import com.cloud.sync.param.ColumnConfigParam;
 import com.cloud.sync.query.ColumnConfigQuery;
 import com.cloud.sync.service.ColumnConfigService;
-import com.cloud.sync.param.ColumnConfigParam;
+import com.cloud.sync.vo.ColumnConfigVo;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
