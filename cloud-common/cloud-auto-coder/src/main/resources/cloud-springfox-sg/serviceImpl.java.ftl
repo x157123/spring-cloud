@@ -12,7 +12,7 @@ import ${package}.mapper.${table.className}Mapper;
 import ${package}.query.${table.className}Query;
 import ${package}.service.${table.className}Service;
 import ${package}.param.${table.className}Param;
-import com.tianque.scgrid.service.issue.result.utils.BeanUtil;
+import com.tianque.scgrid.service.utils.BeanUtil;
 <#if table.foreignKeys?? && (table.foreignKeys?size > 0) >
     <#list table.foreignKeys as foreignKey>
         <#if foreignKey.tableNameClass != table.className>

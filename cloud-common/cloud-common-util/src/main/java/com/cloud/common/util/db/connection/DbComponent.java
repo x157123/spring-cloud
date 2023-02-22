@@ -244,9 +244,10 @@ public abstract class DbComponent {
                             // 将结果集中的值赋给相应的对象实体的属性
                             if ("java.math.BigDecimal".equals(value.getClass().getName())) {
                                 value = Long.parseLong(value.toString());
-                            }
-                            if ("java.math.BigInteger".equals(value.getClass().getName())) {
+                            }else if ("java.math.BigInteger".equals(value.getClass().getName())) {
                                 value = Long.parseLong(value.toString());
+                            }else{
+                                value = value.toString();
                             }
                             BeanUtil.setProperties(t, properties, value);
                         }

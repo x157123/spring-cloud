@@ -47,18 +47,18 @@ public class StartMysql extends DbComponent {
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
 
         //去除表前缀
-        List<String> prefix = Arrays.asList("app_", "wgh_", "sg_", "sync_");
+        List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_");
 
         if (sg) {
             /** 社管配置 */
             schema = "test";
             ftlPath = "cloud-springfox-sg";
-            autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service.issue.party");
-            autoCodeConfig.setProjectPath("D:/tianque/tests/src/main/");
+            autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service");
+            autoCodeConfig.setProjectPath("D:/tianque/project/service/tq-project-zongzhi/tq-project-zongzhi-service/src/main/");
             //web页面保存路径
             autoCodeConfig.setWebPath("D:/tianque/tests/web");
             //设置保存mapper包路径
-            autoCodeConfig.setMapperPath("party");
+//            autoCodeConfig.setMapperPath("video");
             //设置服务名称
             autoCodeConfig.setServeName("tq-scgrid-issue-service-liulei");
             //是否生成启动配置文件
