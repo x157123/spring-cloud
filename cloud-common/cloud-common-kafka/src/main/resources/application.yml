@@ -16,8 +16,6 @@ spring:
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
       batch-size: 65536
       buffer-memory: 524288
-      #自定义的topic .*模糊匹配
-      myTopic: openapi-population-save2
     consumer:
       group-id: default-group   #默认组id  后面会配置多个消费者组
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -25,5 +23,11 @@ spring:
       auto-offset-reset: latest
       enable-auto-commit: false   #关闭自动提交 改由spring-kafka提交
       auto-commit-interval: 100
-      max-poll-records: 20      #批量消费 一次接收的最大数量
-
+      max-poll-records: 2000      #批量消费 一次接收的最大数量
+    listener:
+      type: batch # 开启批量监听
+      concurrency: 3 # 设置并发数
+    topic:
+      #自定义的topic .*模糊匹配
+      myTopic: topic.*
+      myTopics: topic-saves

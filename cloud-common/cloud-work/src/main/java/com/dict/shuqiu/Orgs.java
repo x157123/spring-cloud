@@ -1,4 +1,4 @@
-package com.shuqiu;
+package com.dict.shuqiu;
 
 import lombok.Data;
 
