@@ -3,10 +3,10 @@ package com.cloud.sync.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.result.ResultBody;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.ColumnConfigParam;
-import com.cloud.sync.query.ColumnConfigQuery;
-import com.cloud.sync.service.ColumnConfigService;
-import com.cloud.sync.vo.ColumnConfigVo;
+import com.cloud.sync.param.columnConfigParam;
+import com.cloud.sync.query.columnConfigQuery;
+import com.cloud.sync.service.columnConfigService;
+import com.cloud.sync.vo.columnConfigVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +19,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/columnConfig")
 @Tag(description = "同步数据库列配置", name = "同步数据库列配置")
-public class ColumnConfigController {
+public class columnConfigController {
 
-    private final ColumnConfigService columnConfigService;
+    private final columnConfigService columnConfigService;
 
     /**
      * 使用构造方法注入
      *
      * @param columnConfigService    注册同步数据库列配置
      */
-    public ColumnConfigController(ColumnConfigService columnConfigService){
+    public columnConfigController(columnConfigService columnConfigService){
         this.columnConfigService= columnConfigService;
     }
 
@@ -40,7 +40,7 @@ public class ColumnConfigController {
      */
     @PostMapping(value = "/save")
     @Operation(summary = "保存", description = "同步数据库列配置")
-    public ResultBody save(@RequestBody ColumnConfigParam columnConfigParam) {
+    public ResultBody save(@RequestBody columnConfigParam columnConfigParam) {
         return ResultBody.success(columnConfigService.save(columnConfigParam));
     }
 
@@ -77,7 +77,7 @@ public class ColumnConfigController {
      */
     @PostMapping(value = "/findByList")
     @Operation(summary = "根据查询条件查询列表", description = "同步数据库列配置")
-    public ResultBody findByList(ColumnConfigQuery columnConfigQuery) {
+    public ResultBody findByList(columnConfigQuery columnConfigQuery) {
         return ResultBody.success(columnConfigService.findByList(columnConfigQuery));
     }
 
@@ -102,7 +102,7 @@ public class ColumnConfigController {
      */
     @PostMapping(value = "/queryPage")
     @Operation(summary = "数据分页查询", description = "同步数据库列配置")
-    public ResultBody queryPage(ColumnConfigQuery columnConfigQuery, PageParam pageParam) {
+    public ResultBody queryPage(columnConfigQuery columnConfigQuery, PageParam pageParam) {
         return ResultBody.success(columnConfigService.queryPage(columnConfigQuery, pageParam));
     }
 

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
-import com.cloud.sync.vo.ServeTableVo;
+import com.cloud.sync.vo.serveTableVo;
 
 /**
  * @author liulei
@@ -16,7 +16,7 @@ import com.cloud.sync.vo.ServeTableVo;
  */
 @Data
 @Schema(name = "表映射响应对象", description = "表映射响应对象")
-public class TableMapVo {
+public class tableMapVo {
 	/**
      * id
      */
@@ -47,10 +47,16 @@ public class TableMapVo {
     @Schema(description = "表映射写入表Id")
     @JsonSerialize(using = ToStringSerializer.class)
     private Long writeTableId;
+	/**
+     * 版本
+     */
+    @Schema(description = "表映射版本")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long version;
 
 	/**
      * 同步表
      */
     @Schema(description = "表映射同步表")
-    private List<ServeTableVo> serveTableVOList;
+    private List<serveTableVo> serveTableVOList;
 }

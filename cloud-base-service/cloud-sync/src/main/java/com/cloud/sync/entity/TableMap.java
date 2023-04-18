@@ -9,7 +9,12 @@ import java.util.List;
  * 表映射
  */
 @Data
-public class TableMap extends BaseEntity {
+public class tableMap extends BaseEntity {
+
+	/**
+     * id
+     */
+    private Long id;
 
 	/**
      * 采集数据Id
@@ -30,4 +35,9 @@ public class TableMap extends BaseEntity {
      * 写入表Id
      */
     private Long writeTableId;
+
+	/**
+     * 版本
+     */
+    private Long version;
 }

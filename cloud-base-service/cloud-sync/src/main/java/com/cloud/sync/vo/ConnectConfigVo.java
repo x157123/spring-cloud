@@ -8,10 +8,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
-import com.cloud.sync.vo.ColumnConfigVo;
-import com.cloud.sync.vo.ServeConfigVo;
-import com.cloud.sync.vo.TableConfigVo;
-import com.cloud.sync.vo.TableMapVo;
+import com.cloud.sync.vo.columnConfigVo;
+import com.cloud.sync.vo.serveConfigVo;
+import com.cloud.sync.vo.tableConfigVo;
+import com.cloud.sync.vo.tableMapVo;
 
 /**
  * @author liulei
@@ -19,7 +19,7 @@ import com.cloud.sync.vo.TableMapVo;
  */
 @Data
 @Schema(name = "数据库配置响应对象", description = "数据库配置响应对象")
-public class ConnectConfigVo {
+public class connectConfigVo {
 	/**
      * id
      */
@@ -67,28 +67,34 @@ public class ConnectConfigVo {
      */
     @Schema(description = "数据库配置备注")
     private String remark;
+	/**
+     * 版本
+     */
+    @Schema(description = "数据库配置版本")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long version;
 
 	/**
      * 同步数据库列配置
      */
     @Schema(description = "数据库配置同步数据库列配置")
-    private List<ColumnConfigVo> columnConfigVOList;
+    private List<columnConfigVo> columnConfigVOList;
 
 	/**
      * 同步启动服务
      */
     @Schema(description = "数据库配置同步启动服务")
-    private List<ServeConfigVo> serveConfigVOList;
+    private List<serveConfigVo> serveConfigVOList;
 
 	/**
      * 同步表配置
      */
     @Schema(description = "数据库配置同步表配置")
-    private List<TableConfigVo> tableConfigVOList;
+    private List<tableConfigVo> tableConfigVOList;
 
 	/**
      * 表映射
      */
     @Schema(description = "数据库配置表映射")
-    private List<TableMapVo> tableMapVOList;
+    private List<tableMapVo> tableMapVOList;
 }

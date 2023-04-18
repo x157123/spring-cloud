@@ -3,10 +3,10 @@ package com.cloud.sync.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.result.ResultBody;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.ConnectConfigParam;
-import com.cloud.sync.query.ConnectConfigQuery;
-import com.cloud.sync.service.ConnectConfigService;
-import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.param.connectConfigParam;
+import com.cloud.sync.query.connectConfigQuery;
+import com.cloud.sync.service.connectConfigService;
+import com.cloud.sync.vo.connectConfigVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +19,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/connectConfig")
 @Tag(description = "数据库配置", name = "数据库配置")
-public class ConnectConfigController {
+public class connectConfigController {
 
-    private final ConnectConfigService connectConfigService;
+    private final connectConfigService connectConfigService;
 
     /**
      * 使用构造方法注入
      *
      * @param connectConfigService    注册数据库配置
      */
-    public ConnectConfigController(ConnectConfigService connectConfigService){
+    public connectConfigController(connectConfigService connectConfigService){
         this.connectConfigService= connectConfigService;
     }
 
@@ -40,7 +40,7 @@ public class ConnectConfigController {
      */
     @PostMapping(value = "/save")
     @Operation(summary = "保存", description = "数据库配置")
-    public ResultBody save(@RequestBody ConnectConfigParam connectConfigParam) {
+    public ResultBody save(@RequestBody connectConfigParam connectConfigParam) {
         return ResultBody.success(connectConfigService.save(connectConfigParam));
     }
 
@@ -77,7 +77,7 @@ public class ConnectConfigController {
      */
     @PostMapping(value = "/findByList")
     @Operation(summary = "根据查询条件查询列表", description = "数据库配置")
-    public ResultBody findByList(ConnectConfigQuery connectConfigQuery) {
+    public ResultBody findByList(connectConfigQuery connectConfigQuery) {
         return ResultBody.success(connectConfigService.findByList(connectConfigQuery));
     }
 
@@ -102,7 +102,7 @@ public class ConnectConfigController {
      */
     @PostMapping(value = "/queryPage")
     @Operation(summary = "数据分页查询", description = "数据库配置")
-    public ResultBody queryPage(ConnectConfigQuery connectConfigQuery, PageParam pageParam) {
+    public ResultBody queryPage(connectConfigQuery connectConfigQuery, PageParam pageParam) {
         return ResultBody.success(connectConfigService.queryPage(connectConfigQuery, pageParam));
     }
 

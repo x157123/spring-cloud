@@ -3,10 +3,10 @@ package com.cloud.sync.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.result.ResultBody;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.TableMapParam;
-import com.cloud.sync.query.TableMapQuery;
-import com.cloud.sync.service.TableMapService;
-import com.cloud.sync.vo.TableMapVo;
+import com.cloud.sync.param.tableMapParam;
+import com.cloud.sync.query.tableMapQuery;
+import com.cloud.sync.service.tableMapService;
+import com.cloud.sync.vo.tableMapVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +19,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/tableMap")
 @Tag(description = "表映射", name = "表映射")
-public class TableMapController {
+public class tableMapController {
 
-    private final TableMapService tableMapService;
+    private final tableMapService tableMapService;
 
     /**
      * 使用构造方法注入
      *
      * @param tableMapService    注册表映射
      */
-    public TableMapController(TableMapService tableMapService){
+    public tableMapController(tableMapService tableMapService){
         this.tableMapService= tableMapService;
     }
 
@@ -40,7 +40,7 @@ public class TableMapController {
      */
     @PostMapping(value = "/save")
     @Operation(summary = "保存", description = "表映射")
-    public ResultBody save(@RequestBody TableMapParam tableMapParam) {
+    public ResultBody save(@RequestBody tableMapParam tableMapParam) {
         return ResultBody.success(tableMapService.save(tableMapParam));
     }
 
@@ -77,7 +77,7 @@ public class TableMapController {
      */
     @PostMapping(value = "/findByList")
     @Operation(summary = "根据查询条件查询列表", description = "表映射")
-    public ResultBody findByList(TableMapQuery tableMapQuery) {
+    public ResultBody findByList(tableMapQuery tableMapQuery) {
         return ResultBody.success(tableMapService.findByList(tableMapQuery));
     }
 
@@ -102,7 +102,7 @@ public class TableMapController {
      */
     @PostMapping(value = "/queryPage")
     @Operation(summary = "数据分页查询", description = "表映射")
-    public ResultBody queryPage(TableMapQuery tableMapQuery, PageParam pageParam) {
+    public ResultBody queryPage(tableMapQuery tableMapQuery, PageParam pageParam) {
         return ResultBody.success(tableMapService.queryPage(tableMapQuery, pageParam));
     }
 

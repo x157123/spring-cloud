@@ -8,7 +8,12 @@ import lombok.Data;
  * 同步数据库列配置
  */
 @Data
-public class ColumnConfig extends BaseEntity {
+public class columnConfig extends BaseEntity {
+
+	/**
+     * 
+     */
+    private Long id;
 
 	/**
      * 数据库Id
@@ -49,4 +54,9 @@ public class ColumnConfig extends BaseEntity {
      * 主键
      */
     private Integer columnPrimaryKey;
+
+	/**
+     * 版本
+     */
+    private Long version;
 }

@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
-import com.cloud.sync.vo.ServeTableVo;
+import com.cloud.sync.vo.serveTableVo;
 
 /**
  * @author liulei
@@ -16,7 +16,7 @@ import com.cloud.sync.vo.ServeTableVo;
  */
 @Data
 @Schema(name = "同步启动服务响应对象", description = "同步启动服务响应对象")
-public class ServeConfigVo {
+public class serveConfigVo {
 	/**
      * id
      */
@@ -39,10 +39,16 @@ public class ServeConfigVo {
      */
     @Schema(description = "同步启动服务数据库采集偏移情况")
     private String offSet;
+	/**
+     * 版本
+     */
+    @Schema(description = "同步启动服务版本")
+    @JsonSerialize(using = ToStringSerializer.class)
+    private Long version;
 
 	/**
      * 同步表
      */
     @Schema(description = "同步启动服务同步表")
-    private List<ServeTableVo> serveTableVOList;
+    private List<serveTableVo> serveTableVOList;
 }

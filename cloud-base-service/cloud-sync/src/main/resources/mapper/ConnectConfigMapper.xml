@@ -2,10 +2,10 @@
 
 <!DOCTYPE mapper  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.cloud.sync.mapper.ConnectConfigMapper">
+<mapper namespace="com.cloud.sync.mapper.connectConfigMapper">
 
-    <select id="queryPage" resultType="com.cloud.sync.entity.ConnectConfig"
-            parameterType="com.cloud.sync.query.ConnectConfigQuery">
+    <select id="queryPage" resultType="com.cloud.sync.entity.connectConfig"
+            parameterType="com.cloud.sync.query.connectConfigQuery">
         select * from sync_connect_config
 		<where>
 			<if test="param.id != null">
@@ -34,6 +34,9 @@
 			</if>
 			<if test="param.remark != null and param.remark != ''">
 				and remark like concat('%',#{param.remark},'%')
+			</if>
+			<if test="param.version != null">
+				and version = #{param.version}
 			</if>
 		</where>
     </select>

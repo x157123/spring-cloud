@@ -7,7 +7,7 @@ import lombok.Data;
  * 同步启动服务
  */
 @Data
-public class ServeConfigQuery {
+public class serveConfigQuery {
 
 	/**
      * id
@@ -32,4 +32,10 @@ public class ServeConfigQuery {
      */
     @Schema(description = "同步启动服务数据库采集偏移情况")
     private String offSet;
+
+	/**
+     * 版本
+     */
+    @Schema(description = "同步启动服务版本")
+    private Long version;
 }

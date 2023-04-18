@@ -2,6 +2,7 @@ package com.cloud.sync.param;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author liulei
@@ -9,12 +10,13 @@ import lombok.Data;
  */
 @Data
 @Schema(name = "表映射响应对象", description = "表映射响应对象")
-public class TableMapParam {
+public class tableMapParam {
 
 	/**
      * id
      */
-    @Schema(description = "id")
+    @NotNull(message = "表映射id[tableMapVo.id]不能为null")
+    @Schema(description = "id", required = true)
     private Long id;
 
 	/**

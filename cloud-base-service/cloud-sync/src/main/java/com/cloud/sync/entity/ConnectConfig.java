@@ -9,7 +9,12 @@ import java.util.List;
  * 数据库配置
  */
 @Data
-public class ConnectConfig extends BaseEntity {
+public class connectConfig extends BaseEntity {
+
+	/**
+     * id
+     */
+    private Long id;
 
 	/**
      * 数据库类型
@@ -50,4 +55,9 @@ public class ConnectConfig extends BaseEntity {
      * 备注
      */
     private String remark;
+
+	/**
+     * 版本
+     */
+    private Long version;
 }

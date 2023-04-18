@@ -7,7 +7,7 @@ import lombok.Data;
  * 表映射
  */
 @Data
-public class TableMapQuery {
+public class tableMapQuery {
 
 	/**
      * id
@@ -38,4 +38,10 @@ public class TableMapQuery {
      */
     @Schema(description = "表映射写入表Id")
     private Long writeTableId;
+
+	/**
+     * 版本
+     */
+    @Schema(description = "表映射版本")
+    private Long version;
 }

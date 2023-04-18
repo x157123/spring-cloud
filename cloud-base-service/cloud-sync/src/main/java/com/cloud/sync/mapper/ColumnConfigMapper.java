@@ -2,8 +2,8 @@ package com.cloud.sync.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.cloud.sync.entity.ColumnConfig;
-import com.cloud.sync.query.ColumnConfigQuery;
+import com.cloud.sync.entity.columnConfig;
+import com.cloud.sync.query.columnConfigQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
  * @author liulei
  */
 @Mapper
-public interface ColumnConfigMapper extends BaseMapper<ColumnConfig> {
+public interface columnConfigMapper extends BaseMapper<columnConfig> {
 
     /**
      * 分页查询
@@ -21,6 +21,6 @@ public interface ColumnConfigMapper extends BaseMapper<ColumnConfig> {
      * @param columnConfigQuery 查询条件
      * @return  分页数据
      */
-    IPage<ColumnConfig> queryPage(IPage<ColumnConfig> page, @Param("param") ColumnConfigQuery columnConfigQuery);
+    IPage<columnConfig> queryPage(IPage<columnConfig> page, @Param("param") columnConfigQuery columnConfigQuery);
 
 }

@@ -7,7 +7,7 @@ import lombok.Data;
  * 数据库配置
  */
 @Data
-public class ConnectConfigQuery {
+public class connectConfigQuery {
 
 	/**
      * id
@@ -62,4 +62,10 @@ public class ConnectConfigQuery {
      */
     @Schema(description = "数据库配置备注")
     private String remark;
+
+	/**
+     * 版本
+     */
+    @Schema(description = "数据库配置版本")
+    private Long version;
 }

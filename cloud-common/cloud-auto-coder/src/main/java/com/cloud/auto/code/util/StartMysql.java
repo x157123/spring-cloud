@@ -39,7 +39,7 @@ public class StartMysql extends DbComponent {
 
     public static void main(String[] args) {
         //社管
-        Boolean sg = true;
+        Boolean sg = false;
         //数据库
         String schema;
         //使用生成模版
@@ -47,14 +47,14 @@ public class StartMysql extends DbComponent {
         AutoCodeConfig autoCodeConfig = new AutoCodeConfig();
 
         //去除表前缀
-        List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_");
+        List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
 
         if (sg) {
             /** 社管配置 */
-            schema = "test";
+            schema = "tests";
             ftlPath = "cloud-springfox-sg";
             autoCodeConfig.setPackagePrefix("com.tianque.scgrid.service");
-            autoCodeConfig.setProjectPath("D:/tianque/project/service/tq-project-zongzhi/tq-project-zongzhi-service/src/main/");
+            autoCodeConfig.setProjectPath("D:/tianque/tests/src/main/");
             //web页面保存路径
             autoCodeConfig.setWebPath("D:/tianque/tests/web");
             //设置保存mapper包路径
@@ -64,12 +64,12 @@ public class StartMysql extends DbComponent {
             //是否生成启动配置文件
             autoCodeConfig.setStartApp(Boolean.FALSE);
         } else {
-            schema = "cloud_sync";
+            schema = "test";
             ftlPath = "cloud";
             autoCodeConfig.setPackagePrefix("com.cloud.sync");
-            autoCodeConfig.setProjectPath("D:/me/project/springCloud/service/spring-cloud/cloud-base-service/cloud-sync/src/main/");
+            autoCodeConfig.setProjectPath("D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\test\\src\\main\\");
             //web页面保存路径
-            autoCodeConfig.setWebPath("C:/Users/liulei/Desktop");
+            autoCodeConfig.setWebPath("D:/tianque/tests/web");
             //设置保存mapper包路径
             autoCodeConfig.setMapperPath("");
             //设置服务名称

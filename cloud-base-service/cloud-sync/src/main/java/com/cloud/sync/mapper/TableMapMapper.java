@@ -2,8 +2,8 @@ package com.cloud.sync.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.cloud.sync.entity.TableMap;
-import com.cloud.sync.query.TableMapQuery;
+import com.cloud.sync.entity.tableMap;
+import com.cloud.sync.query.tableMapQuery;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,7 +12,7 @@ import org.apache.ibatis.annotations.Param;
  * @author liulei
  */
 @Mapper
-public interface TableMapMapper extends BaseMapper<TableMap> {
+public interface tableMapMapper extends BaseMapper<tableMap> {
 
     /**
      * 分页查询
@@ -21,6 +21,6 @@ public interface TableMapMapper extends BaseMapper<TableMap> {
      * @param tableMapQuery 查询条件
      * @return  分页数据
      */
-    IPage<TableMap> queryPage(IPage<TableMap> page, @Param("param") TableMapQuery tableMapQuery);
+    IPage<tableMap> queryPage(IPage<tableMap> page, @Param("param") tableMapQuery tableMapQuery);
 
 }

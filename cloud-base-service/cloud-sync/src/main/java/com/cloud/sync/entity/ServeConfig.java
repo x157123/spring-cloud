@@ -9,7 +9,12 @@ import java.util.List;
  * 同步启动服务
  */
 @Data
-public class ServeConfig extends BaseEntity {
+public class serveConfig extends BaseEntity {
+
+	/**
+     * id
+     */
+    private Long id;
 
 	/**
      * 采集数据库Id
@@ -25,4 +30,9 @@ public class ServeConfig extends BaseEntity {
      * 数据库采集偏移情况
      */
     private String offSet;
+
+	/**
+     * 版本
+     */
+    private Long version;
 }

@@ -2,16 +2,16 @@ package com.cloud.sync.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.ServeConfigParam;
-import com.cloud.sync.query.ServeConfigQuery;
-import com.cloud.sync.vo.ServeConfigVo;
+import com.cloud.sync.param.serveConfigParam;
+import com.cloud.sync.query.serveConfigQuery;
+import com.cloud.sync.vo.serveConfigVo;
 
 import java.util.List;
 
 /**
  * @author liulei
  */
-public interface ServeConfigService {
+public interface serveConfigService {
 
     /**
      * 保存对象
@@ -19,7 +19,7 @@ public interface ServeConfigService {
      * @param serveConfigParam  前端传入对象
      * @return  返回保存成功状态
      */
-    Boolean save(ServeConfigParam serveConfigParam);
+    Boolean save(serveConfigParam serveConfigParam);
 
     /**
      * 通过Id查询数据
@@ -27,7 +27,7 @@ public interface ServeConfigService {
      * @param id   业务Id
      * @return  返回VO对象
      */
-    ServeConfigVo findById(Long id);
+    serveConfigVo findById(Long id);
 
     /**
      * 传入多个Id 查询数据
@@ -35,7 +35,7 @@ public interface ServeConfigService {
      * @param ids  多个id
      * @return  返回list结果
      */
-    List<ServeConfigVo> findByIds(List<Long> ids);
+    List<serveConfigVo> findByIds(List<Long> ids);
 
 
     /**
@@ -44,7 +44,7 @@ public interface ServeConfigService {
      * @param serveConfigQuery 查询条件
      * @return  返回list结果
      */
-    List<ServeConfigVo> findByList(ServeConfigQuery serveConfigQuery);
+    List<serveConfigVo> findByList(serveConfigQuery serveConfigQuery);
 
     /**
      * 传入多个Id 并删除
@@ -61,7 +61,7 @@ public interface ServeConfigService {
      * @param pageParam    分页条件
      * @return 分页数据
      */
-    IPage<ServeConfigVo> queryPage(ServeConfigQuery serveConfigQuery, PageParam pageParam);
+    IPage<serveConfigVo> queryPage(serveConfigQuery serveConfigQuery, PageParam pageParam);
 	
     /**
      * 传入多个业务Id 查询数据
@@ -69,5 +69,5 @@ public interface ServeConfigService {
      * @param readConnectIds  查询结果集
      * @return 返回结果
      */
-    List<ServeConfigVo> findByReadConnectId(List<Long> readConnectIds);
+    List<serveConfigVo> findByreadConnectId(List<Long> readConnectIds);
 }

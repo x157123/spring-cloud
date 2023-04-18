@@ -2,16 +2,16 @@ package com.cloud.sync.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.TableMapParam;
-import com.cloud.sync.query.TableMapQuery;
-import com.cloud.sync.vo.TableMapVo;
+import com.cloud.sync.param.tableMapParam;
+import com.cloud.sync.query.tableMapQuery;
+import com.cloud.sync.vo.tableMapVo;
 
 import java.util.List;
 
 /**
  * @author liulei
  */
-public interface TableMapService {
+public interface tableMapService {
 
     /**
      * 保存对象
@@ -19,7 +19,7 @@ public interface TableMapService {
      * @param tableMapParam  前端传入对象
      * @return  返回保存成功状态
      */
-    Boolean save(TableMapParam tableMapParam);
+    Boolean save(tableMapParam tableMapParam);
 
     /**
      * 通过Id查询数据
@@ -27,7 +27,7 @@ public interface TableMapService {
      * @param id   业务Id
      * @return  返回VO对象
      */
-    TableMapVo findById(Long id);
+    tableMapVo findById(Long id);
 
     /**
      * 传入多个Id 查询数据
@@ -35,7 +35,7 @@ public interface TableMapService {
      * @param ids  多个id
      * @return  返回list结果
      */
-    List<TableMapVo> findByIds(List<Long> ids);
+    List<tableMapVo> findByIds(List<Long> ids);
 
 
     /**
@@ -44,7 +44,7 @@ public interface TableMapService {
      * @param tableMapQuery 查询条件
      * @return  返回list结果
      */
-    List<TableMapVo> findByList(TableMapQuery tableMapQuery);
+    List<tableMapVo> findByList(tableMapQuery tableMapQuery);
 
     /**
      * 传入多个Id 并删除
@@ -61,7 +61,7 @@ public interface TableMapService {
      * @param pageParam    分页条件
      * @return 分页数据
      */
-    IPage<TableMapVo> queryPage(TableMapQuery tableMapQuery, PageParam pageParam);
+    IPage<tableMapVo> queryPage(tableMapQuery tableMapQuery, PageParam pageParam);
 	
     /**
      * 传入多个业务Id 查询数据
@@ -69,7 +69,7 @@ public interface TableMapService {
      * @param writeConnectIds  查询结果集
      * @return 返回结果
      */
-    List<TableMapVo> findByWriteConnectId(List<Long> writeConnectIds);
+    List<tableMapVo> findBywriteConnectId(List<Long> writeConnectIds);
 	
     /**
      * 传入多个业务Id 查询数据
@@ -77,7 +77,7 @@ public interface TableMapService {
      * @param writeTableIds  查询结果集
      * @return 返回结果
      */
-    List<TableMapVo> findByWriteTableId(List<Long> writeTableIds);
+    List<tableMapVo> findBywriteTableId(List<Long> writeTableIds);
 	
     /**
      * 传入多个业务Id 查询数据
@@ -85,7 +85,7 @@ public interface TableMapService {
      * @param readTableIds  查询结果集
      * @return 返回结果
      */
-    List<TableMapVo> findByReadTableId(List<Long> readTableIds);
+    List<tableMapVo> findByreadTableId(List<Long> readTableIds);
 	
     /**
      * 传入多个业务Id 查询数据
@@ -93,5 +93,5 @@ public interface TableMapService {
      * @param readConnectIds  查询结果集
      * @return 返回结果
      */
-    List<TableMapVo> findByReadConnectId(List<Long> readConnectIds);
+    List<tableMapVo> findByreadConnectId(List<Long> readConnectIds);
 }

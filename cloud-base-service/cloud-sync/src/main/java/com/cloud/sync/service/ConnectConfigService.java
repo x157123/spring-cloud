@@ -2,16 +2,16 @@ package com.cloud.sync.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.ConnectConfigParam;
-import com.cloud.sync.query.ConnectConfigQuery;
-import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.param.connectConfigParam;
+import com.cloud.sync.query.connectConfigQuery;
+import com.cloud.sync.vo.connectConfigVo;
 
 import java.util.List;
 
 /**
  * @author liulei
  */
-public interface ConnectConfigService {
+public interface connectConfigService {
 
     /**
      * 保存对象
@@ -19,7 +19,7 @@ public interface ConnectConfigService {
      * @param connectConfigParam  前端传入对象
      * @return  返回保存成功状态
      */
-    Boolean save(ConnectConfigParam connectConfigParam);
+    Boolean save(connectConfigParam connectConfigParam);
 
     /**
      * 通过Id查询数据
@@ -27,7 +27,7 @@ public interface ConnectConfigService {
      * @param id   业务Id
      * @return  返回VO对象
      */
-    ConnectConfigVo findById(Long id);
+    connectConfigVo findById(Long id);
 
     /**
      * 传入多个Id 查询数据
@@ -35,7 +35,7 @@ public interface ConnectConfigService {
      * @param ids  多个id
      * @return  返回list结果
      */
-    List<ConnectConfigVo> findByIds(List<Long> ids);
+    List<connectConfigVo> findByIds(List<Long> ids);
 
 
     /**
@@ -44,7 +44,7 @@ public interface ConnectConfigService {
      * @param connectConfigQuery 查询条件
      * @return  返回list结果
      */
-    List<ConnectConfigVo> findByList(ConnectConfigQuery connectConfigQuery);
+    List<connectConfigVo> findByList(connectConfigQuery connectConfigQuery);
 
     /**
      * 传入多个Id 并删除
@@ -61,5 +61,5 @@ public interface ConnectConfigService {
      * @param pageParam    分页条件
      * @return 分页数据
      */
-    IPage<ConnectConfigVo> queryPage(ConnectConfigQuery connectConfigQuery, PageParam pageParam);
+    IPage<connectConfigVo> queryPage(connectConfigQuery connectConfigQuery, PageParam pageParam);
 }

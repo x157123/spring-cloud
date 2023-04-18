@@ -3,10 +3,10 @@ package com.cloud.sync.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.result.ResultBody;
 import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.sync.param.ServeConfigParam;
-import com.cloud.sync.query.ServeConfigQuery;
-import com.cloud.sync.service.ServeConfigService;
-import com.cloud.sync.vo.ServeConfigVo;
+import com.cloud.sync.param.serveConfigParam;
+import com.cloud.sync.query.serveConfigQuery;
+import com.cloud.sync.service.serveConfigService;
+import com.cloud.sync.vo.serveConfigVo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
@@ -19,16 +19,16 @@ import java.util.List;
 @RestController
 @RequestMapping("/serveConfig")
 @Tag(description = "同步启动服务", name = "同步启动服务")
-public class ServeConfigController {
+public class serveConfigController {
 
-    private final ServeConfigService serveConfigService;
+    private final serveConfigService serveConfigService;
 
     /**
      * 使用构造方法注入
      *
      * @param serveConfigService    注册同步启动服务
      */
-    public ServeConfigController(ServeConfigService serveConfigService){
+    public serveConfigController(serveConfigService serveConfigService){
         this.serveConfigService= serveConfigService;
     }
 
@@ -40,7 +40,7 @@ public class ServeConfigController {
      */
     @PostMapping(value = "/save")
     @Operation(summary = "保存", description = "同步启动服务")
-    public ResultBody save(@RequestBody ServeConfigParam serveConfigParam) {
+    public ResultBody save(@RequestBody serveConfigParam serveConfigParam) {
         return ResultBody.success(serveConfigService.save(serveConfigParam));
     }
 
@@ -77,7 +77,7 @@ public class ServeConfigController {
      */
     @PostMapping(value = "/findByList")
     @Operation(summary = "根据查询条件查询列表", description = "同步启动服务")
-    public ResultBody findByList(ServeConfigQuery serveConfigQuery) {
+    public ResultBody findByList(serveConfigQuery serveConfigQuery) {
         return ResultBody.success(serveConfigService.findByList(serveConfigQuery));
     }
 
@@ -102,7 +102,7 @@ public class ServeConfigController {
      */
     @PostMapping(value = "/queryPage")
     @Operation(summary = "数据分页查询", description = "同步启动服务")
-    public ResultBody queryPage(ServeConfigQuery serveConfigQuery, PageParam pageParam) {
+    public ResultBody queryPage(serveConfigQuery serveConfigQuery, PageParam pageParam) {
         return ResultBody.success(serveConfigService.queryPage(serveConfigQuery, pageParam));
     }
 
