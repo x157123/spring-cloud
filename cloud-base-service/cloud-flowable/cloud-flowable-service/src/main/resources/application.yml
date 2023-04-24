@@ -1,0 +1,10 @@
+server:
+  port: 80
+
+spring:
+  application:
+    name: flowable
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/cloud_flowable?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+    username: root
+    password: 123456

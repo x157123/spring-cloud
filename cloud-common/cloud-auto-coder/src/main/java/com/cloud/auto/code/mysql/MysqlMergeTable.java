@@ -8,6 +8,11 @@ import lombok.Data;
  */
 @Data
 public class MysqlMergeTable {
+    
+    /**
+     * 主要维护关联表
+     */
+    private String maintain;
 
     /**
      * 关联表

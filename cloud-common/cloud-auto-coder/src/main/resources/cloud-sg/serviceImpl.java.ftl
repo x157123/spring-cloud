@@ -2,19 +2,17 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.cloud.common.core.exceptions.DataException;
-import com.cloud.common.core.utils.BeanUtil;
 <#assign showVersion = 0>
 <#list column as col>
     <#if col.nameClass != "version">
         <#assign showVersion = 1>
-import com.cloud.common.core.utils.DataVersionUtils;
         <#break>
     </#if>
 </#list>
-import com.cloud.common.core.utils.ValidationUtils;
-import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.common.mybatis.util.OrderUtil;
+import com.tianque.doraemon.core.exception.base.BusinessValidationException;
+import com.tianque.scgrid.service.utils.BeanUtil;
+import com.tianque.doraemon.mybatis.support.PageParam;
+import com.tianque.doraemon.mybatis.support.Condition;
 import ${javaPath}.entity.${nameClass};
 import ${javaPath}.vo.${nameClass}Vo;
 import ${javaPath}.mapper.${nameClass}Mapper;
@@ -89,14 +87,10 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     public Boolean save(${nameClass}Param ${nameClass? uncap_first}Param) {
-        ValidationUtils.validate(${nameClass? uncap_first}Param);
         ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
         if (${nameClass? uncap_first} != null && ${nameClass? uncap_first}.getId() != null) {
             this.update(${nameClass? uncap_first});
         }else{
-<#if showVersion==1 >
-            ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
-</#if>
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
         return Boolean.TRUE;
@@ -174,7 +168,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     public IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query, PageParam pageParam) {
-        IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(OrderUtil.getPage(pageParam), ${nameClass? uncap_first}Query);
+        IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(Condition.getPage(pageParam), ${nameClass? uncap_first}Query);
 <#if foreignKeys?? && (foreignKeys?size > 0) >
         IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> BeanUtil.copyProperties(${nameClass? uncap_first}, ${nameClass}Vo::new));
 		this.setParam(page.getRecords());
@@ -216,13 +210,11 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId());
         </#if>
         <#if showVersion==1 >
-        queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId())
-                .eq(${nameClass}::getVersion, ${nameClass? uncap_first}.getVersion());
-        ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
+        queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId());
         </#if>
         int count = ${nameClass? uncap_first}Mapper.update(${nameClass? uncap_first}, queryWrapper);
         if (count <= 0) {
-            throw new DataException("数据保存异常,未更新到任何数据");
+            throw new BusinessValidationException("数据保存异常,未更新到任何数据");
         }
         return Boolean.TRUE;
     }

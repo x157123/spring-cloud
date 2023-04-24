@@ -6,7 +6,7 @@ import org.camunda.bpm.engine.delegate.JavaDelegate;
 /**
  * @author liulei
  */
-public class ArchiveTask  implements JavaDelegate {
+public class ArchiveTask implements JavaDelegate {
 
     @Override
     public void execute(DelegateExecution execution) throws Exception {

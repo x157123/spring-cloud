@@ -13,16 +13,21 @@ import java.util.stream.Collectors;
 public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
-        String url = "jdbc:mysql://localhost:3306/test";
+        String url = "jdbc:mysql://localhost:3306/test_sg";
         String username = "root";
         String password = "123456";
-        String packagePath = "com.example.cloud";
+        String packagePath = "com.tianque.scgrid.service";
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
+        //模版路径
+        String ftlPath = "cloud-sg";
+
         List<String> ftlList = new ArrayList<>();
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
         ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl"));
+
+        String filePath = "D:\\tianque\\project\\service\\tq-project-zongzhi\\tq-project-zongzhi-service\\src\\main\\";
 
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
 
@@ -38,10 +43,41 @@ public class ReadMysqlTable {
             //过滤掉中间表
             tables = tables.stream().filter(table -> !table.getName().matches("(.*)_merge$")).toList();
 
-            writer(tables, ftlList, "cloud-new");
+            writer(tables, ftlList, ftlPath, filePath);
+
+            createPgSql(tables);
         }
     }
 
+    private static void createPgSql(List<MysqlTable> tables) {
+        tables.forEach(table -> {
+            System.out.println("create table " + table.getName() + " (");
+            int i = table.getColumn().size();
+            for (MysqlColumn column : table.getColumn()) {
+                i--;
+//                System.out.println("            " + column.getName() + "                   " + column.getPgSqlType() + "            " + column.getPgRequired() + (i > 0 ? "," : ""));
+                System.out.println("            " + column.getName() + "                   " + column.getPgSqlType() + "            " + column.getPgRequired() + ",");
+            }
+            System.out.println("            create_user            varchar(32)            NOT NULL,");
+            System.out.println("            create_date            timestamp(6)            NOT NULL,");
+            System.out.println("            update_user            varchar(32)            NULL,");
+            System.out.println("            update_date            timestamp(6)            NULL,");
+            System.out.println("            is_deleted            int2            NOT NULL DEFAULT 0,");
+            System.out.println("CONSTRAINT " + table.getName() + "_pk PRIMARY KEY (id)");
+            System.out.println(");");
+
+            System.out.println("comment on table " + table.getName() + " is '" + table.getComment() + "';");
+            table.getColumn().forEach(column -> {
+                System.out.println("comment on column " + table.getName() + "." + column.getName() + " is '" + column.getComment() + "';");
+            });
+            System.out.println("comment on column " + table.getName() + ".create_user is '创建人';");
+            System.out.println("comment on column " + table.getName() + ".create_date is '创建时间';");
+            System.out.println("comment on column " + table.getName() + ".update_user is '跟新用户';");
+            System.out.println("comment on column " + table.getName() + ".update_date is '更新时间';");
+            System.out.println("comment on column " + table.getName() + ".is_deleted is '是否删除';");
+
+        });
+    }
 
     private static boolean getUni(Map<String, Boolean> tableUniMap, String table, String column) {
         String tmp = "-----";
@@ -74,14 +110,14 @@ public class ReadMysqlTable {
         return null;
     }
 
-    private static void writer(List<MysqlTable> tables, List<String> ftlList, String ftlPath) {
+    private static void writer(List<MysqlTable> tables, List<String> ftlList, String ftlPath, String filePath) {
         for (MysqlTable mysqlTable : tables) {
             for (String ftlName : ftlList) {
                 Template template = getTemplate(ftlPath, ftlName);
                 if (template == null) {
                     continue;
                 }
-                String savePath = getSavePath(mysqlTable, "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\test\\src\\main\\", ftlName);
+                String savePath = getSavePath(mysqlTable, filePath, ftlName);
                 writerData(template, mysqlTable, savePath);
             }
         }
@@ -322,6 +358,18 @@ public class ReadMysqlTable {
                     }
                 }
                 if (mysqlMergeTable != null) {
+                    String oneKey = "";
+                    for (MysqlColumn mysqlColumn : table.getColumn()) {
+                        if (mysqlColumn != null && !mysqlColumn.getName().equals("id")) {
+                            oneKey = mysqlColumn.getName();
+                            break;
+                        }
+                    }
+                    if (mysqlMergeTable.getLeftMergeTableColumn().equals(oneKey)) {
+                        mysqlMergeTable.setMaintain(mysqlMergeTable.getLeftTable());
+                    } else if (mysqlMergeTable.getRightMergeTableColumn().equals(oneKey)) {
+                        mysqlMergeTable.setMaintain(mysqlMergeTable.getRightTable());
+                    }
                     MysqlTable mysqlTable = tableMap.get(mysqlMergeTable.getRightTable());
                     mysqlMergeTable.setPackagePath(mysqlTable.getJavaPath());
                     mysqlMergeTable.setComment(mysqlTable.getComment());
@@ -329,6 +377,7 @@ public class ReadMysqlTable {
                     mysqlMergeTable.setRightTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightTableColumn())));
                     mysqlMergeTable.setRightTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightTable(), prefix)));
                     MysqlMergeTable newMysqlMergeTable = new MysqlMergeTable();
+                    newMysqlMergeTable.setMaintain(mysqlMergeTable.getMaintain());
                     newMysqlMergeTable.setLeftMergeTableColumn(mysqlMergeTable.getRightMergeTableColumn());
                     newMysqlMergeTable.setLeftTableColumn(mysqlMergeTable.getRightTableColumn());
                     newMysqlMergeTable.setLeftTable(mysqlMergeTable.getRightTable());
