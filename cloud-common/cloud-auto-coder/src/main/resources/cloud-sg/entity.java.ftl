@@ -1,5 +1,6 @@
 package ${javaPath}.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.tianque.scgrid.service.componet.domain.BaseDomainExtend;
 import lombok.Data;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
@@ -17,6 +18,7 @@ import lombok.Data;
 * ${comment}
 */
 @Data
+@TableName("${name}")
 public class ${nameClass} extends BaseDomainExtend {
 <#if column?? && (column?size > 0) >
     <#list column as col>

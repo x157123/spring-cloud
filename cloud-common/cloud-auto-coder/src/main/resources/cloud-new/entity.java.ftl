@@ -1,6 +1,7 @@
 package ${javaPath}.entity;
 
 import com.cloud.common.core.entity.BaseEntity;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
     import java.util.List;
@@ -17,6 +18,7 @@ import lombok.Data;
 * ${comment}
 */
 @Data
+@TableName("${name}")
 public class ${nameClass} extends BaseEntity {
 <#if column?? && (column?size > 0) >
     <#list column as col>

@@ -25,9 +25,9 @@ public class ReadMysqlTable {
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
-        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl"));
+//        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl"));
 
-        String filePath = "D:\\tianque\\project\\service\\tq-project-zongzhi\\tq-project-zongzhi-service\\src\\main\\";
+        String filePath = "E:\\test\\project\\service\\tq-project-zongzhi\\tq-project-zongzhi-service\\src\\main\\";
 
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
 

@@ -125,6 +125,9 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     public List<${nameClass}Vo> findByIds(List<Long> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return new ArrayList();
+        }
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${nameClass}::getId, ids);
         List<${nameClass}Vo> list = queryWrapper(queryWrapper);
@@ -159,6 +162,9 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     public Boolean removeByIds(List<Long> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return Boolean.False;
+        }
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${nameClass}::getId, ids);
         ${nameClass? uncap_first}Mapper.delete(queryWrapper);

@@ -75,6 +75,7 @@ public class MysqlColumn {
                 return "bigint";
             case "Integer":
                 return "int";
+            case "java.util.Date":
             case "Date":
                 return "timestamp(6)";
             case "Double":
