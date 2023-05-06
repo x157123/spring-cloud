@@ -35,6 +35,7 @@ import org.springframework.util.CollectionUtils;
 <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
 import java.util.ArrayList;
 </#if>
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
@@ -163,7 +164,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
     @Override
     public Boolean removeByIds(List<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
-            return Boolean.False;
+            return Boolean.FALSE;
         }
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${nameClass}::getId, ids);
