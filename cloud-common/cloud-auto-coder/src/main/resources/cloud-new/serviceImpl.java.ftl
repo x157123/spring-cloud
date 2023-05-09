@@ -16,6 +16,13 @@ import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import ${javaPath}.entity.${nameClass};
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+import ${mergeTable.packagePath}.service.${mergeTable.tableNameClass? cap_first}Service;
+        </#if>
+    </#list>
+</#if>
 import ${javaPath}.vo.${nameClass}Vo;
 import ${javaPath}.mapper.${nameClass}Mapper;
 import ${javaPath}.query.${nameClass}Query;
@@ -30,6 +37,7 @@ import ${foreignKey.packagePath}.service.${foreignKey.joinTableNameClass}Service
     </#list>
 </#if>
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
@@ -51,6 +59,14 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
 
     private final ${nameClass}Mapper ${nameClass? uncap_first}Mapper;
 
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+    private final ${mergeTable.tableNameClass? cap_first}Service ${mergeTable.tableNameClass? uncap_first}Service;
+
+        </#if>
+    </#list>
+</#if>
 <#if foreignKeys?? && (foreignKeys?size > 0) >
     <#list foreignKeys as foreignKey>
 <#if foreignKey.joinTableNameClass != nameClass>
@@ -71,12 +87,19 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
     </#list>
 </#if>
      */
-    public ${nameClass}ServiceImpl(${nameClass}Mapper ${nameClass? uncap_first}Mapper<#if foreignKeys?? && (foreignKeys?size > 0) ><#list foreignKeys as foreignKey><#if foreignKey.joinTableNameClass != nameClass>, ${foreignKey.joinTableNameClass}Service ${foreignKey.joinTableNameClass? uncap_first}Service</#if></#list></#if>){
+    public ${nameClass}ServiceImpl(${nameClass}Mapper ${nameClass? uncap_first}Mapper<#if foreignKeys?? && (foreignKeys?size > 0) ><#list foreignKeys as foreignKey><#if foreignKey.joinTableNameClass != nameClass>, ${foreignKey.joinTableNameClass}Service ${foreignKey.joinTableNameClass? uncap_first}Service</#if></#list></#if><#if mergeTables?? && (mergeTables?size > 0) ><#list mergeTables as mergeTable><#if mergeTable.leftTable == mergeTable.maintain>, ${mergeTable.tableNameClass? cap_first}Service ${mergeTable.tableNameClass? uncap_first}Service</#if></#list></#if>){
         this.${nameClass? uncap_first}Mapper = ${nameClass? uncap_first}Mapper;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
     <#list foreignKeys as foreignKey>
         <#if foreignKey.joinTableNameClass != nameClass>
         this.${foreignKey.joinTableNameClass? uncap_first}Service = ${foreignKey.joinTableNameClass? uncap_first}Service;
+        </#if>
+    </#list>
+</#if>
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+        this.${mergeTable.tableNameClass? uncap_first}Service = ${mergeTable.tableNameClass? uncap_first}Service;
         </#if>
     </#list>
 </#if>
@@ -89,6 +112,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      * @return 返回保存成功状态
      */
     @Override
+    @Transactional
     public Boolean save(${nameClass}Param ${nameClass? uncap_first}Param) {
         ValidationUtils.validate(${nameClass? uncap_first}Param);
         ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
@@ -100,6 +124,15 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
 </#if>
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids() != null) {
+            ${mergeTable.tableNameClass? uncap_first}Service.save(siteParam.getId(), siteParam.get${mergeTable.rightTableClass? cap_first}Ids());
+        }
+    </#if>
+</#list>
+</#if>
         return Boolean.TRUE;
     }
 

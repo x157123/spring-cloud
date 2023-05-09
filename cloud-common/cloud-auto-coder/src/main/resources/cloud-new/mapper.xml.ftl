@@ -27,12 +27,9 @@
             </#if>
             <#if mergeTables?? && (mergeTables?size > 0) >
                 <#list mergeTables as mergeTable>
-            <if test="param.${mergeTable.rightTableClass? uncap_first}Ids!=null and param.${mergeTable.rightTableClass? uncap_first}Ids.size()>0">
+            <if test="param.${mergeTable.rightTableClass? uncap_first}Id!=null and param.${mergeTable.rightTableClass? uncap_first}Id>0">
                 and ${mergeTable.leftTableColumn} in (select ${mergeTable.leftMergeTableColumn}
-                    from ${mergeTable.mergeTable} where ${mergeTable.rightMergeTableColumn} in
-                    <foreach collection="param.${mergeTable.rightTableClass? uncap_first}Ids" item="item" open="(" close=")" separator=",">
-                        ${r"#"}{item}
-                    </foreach>
+                    from ${mergeTable.mergeTable} where ${mergeTable.rightMergeTableColumn} = ${r"#"}{param.${mergeTable.rightTableClass ? uncap_first}Id}
                 )
             </if>
                 </#list>

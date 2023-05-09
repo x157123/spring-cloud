@@ -39,7 +39,7 @@ public class ${nameClass}Query {
     * ${mergeTable.comment}
     */
     @Schema(description = "${comment}${mergeTable.comment}")
-    private List<Long> ${mergeTable.rightTableClass? uncap_first}Ids;
+    private Long ${mergeTable.rightTableClass? uncap_first}Id;
 </#list>
 </#if>
 }
