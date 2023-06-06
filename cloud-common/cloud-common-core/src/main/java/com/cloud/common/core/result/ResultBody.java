@@ -2,8 +2,6 @@ package com.cloud.common.core.result;
 
 import lombok.Data;
 
-import java.util.Date;
-
 /**
  * @author liulei
  */
@@ -13,7 +11,7 @@ public class ResultBody {
     /**
      * 返回时间
      */
-    private Date timestamp = new Date();
+    private Long timestamp = System.currentTimeMillis();
 
     /**
      * 相应Code
