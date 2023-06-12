@@ -19,6 +19,7 @@ public class ReadMysqlTable {
         String password = "123456";
         String packagePath = "com.tianque.scgrid.service";
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
+        String projectName = "text";
         //模版路径
         String ftlPath = "cloud-new";
 
@@ -32,11 +33,12 @@ public class ReadMysqlTable {
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
 
-        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\test\\";
+        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\" + projectName + "\\";
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             if (sg) {
                 ftlPath = "cloud-sg";
-                filePath = "E:\\test\\project\\service\\tq-project-zongzhi\\tq-project-zongzhi-service\\";
+                projectName = "tq-project-zongzhi-service";
+                filePath = "E:\\test\\project\\service\\tq-project-zongzhi\\" + projectName + "\\";
             }
 
             //  获取表结果集
