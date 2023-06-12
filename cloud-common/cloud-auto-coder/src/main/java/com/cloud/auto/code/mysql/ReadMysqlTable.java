@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
+        boolean sg = true;
         String url = "jdbc:mysql://localhost:3306/test";
         String username = "root";
         String password = "123456";
@@ -30,9 +31,13 @@ public class ReadMysqlTable {
 
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
-//        String filePath = "E:\\test\\project\\service\\tq-project-zongzhi\\tq-project-zongzhi-service\\src\\main\\";
-        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\test\\src\\main\\";
+
+        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\test\\";
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
+            if (sg) {
+                ftlPath = "cloud-sg";
+                filePath = "E:\\test\\project\\service\\tq-project-zongzhi\\tq-project-zongzhi-service\\";
+            }
 
             //  获取表结果集
             List<MysqlTable> tables = getTables(conn, packagePath, prefix);
@@ -48,9 +53,11 @@ public class ReadMysqlTable {
 
             List<MysqlTable> mergeTables = tables.stream().filter(table -> table.getName().matches("(.*)_merge$")).toList();
 
-            writer(writerTables, ftlList, ftlPath, filePath);
+            writer(writerTables, ftlList, ftlPath, filePath + "src\\main\\");
 
-            writer(mergeTables, ftlMergeList, ftlPath, filePath);
+            writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
+
+            writer(writerTables, Arrays.asList("pom.xml.ftl"), ftlPath, filePath);
 
             createPgSql(tables);
         }
@@ -203,6 +210,10 @@ public class ReadMysqlTable {
             case "application.yml.ftl":
                 //保存到 xml+扩展包
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("resources")) + "application.yml";
+                break;
+            case "pom.xml.ftl":
+                //保存到 xml+扩展包
+                saveFilePath = savePath + "pom.xml";
                 break;
         }
         return saveFilePath;
