@@ -1,26 +1,36 @@
 package org.cloud.flowable.controller;
 
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.Data;
 import org.cloud.flowable.service.MyService;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.task.api.Task;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@RestController
 public class MyRestController {
-    @Autowired
+
     private MyService myService;
 
+    public MyRestController(MyService myService) {
+        this.myService = myService;
+    }
 
+    /**
+     * 创建流程
+     *
+     * @param resourceName
+     * @param key
+     * @param bpmnXmlStr
+     */
     @PostMapping(value = "/createDeployment")
-    public void createDeployment(String resourceName, String bpmnXmlStr) {
-        myService.createDeployment(resourceName, bpmnXmlStr);
+    public void createDeployment(String resourceName, String key, String bpmnXmlStr) {
+        myService.createDeployment(resourceName, key, bpmnXmlStr);
     }
 
     @PostMapping(value = "/delete")
@@ -29,51 +39,101 @@ public class MyRestController {
         myService.deleteDeployment(deployId);
     }
 
+    @PostMapping(value = "/single")
+    public void single(String deployId) {
+        myService.single(deployId);
+    }
+
     @PostMapping(value = "/getDeployment")
     public List<Deployment> getDeployment() {
         return myService.getDeployment();
     }
 
-    @PostMapping(value = "/process")
-    public void startProcessInstance(String processInstanceById) {
-        myService.startProcess(processInstanceById);
+    @PostMapping(value = "/testFlow")
+    public void testFlow() {
+        myService.testFlow();
     }
 
-    @RequestMapping(value = "/tasks", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<TaskRepresentation> getTasks(@RequestParam String assignee) {
-        List<Task> tasks = myService.getTasks(assignee);
-        List<TaskRepresentation> dtos = new ArrayList<>();
+    /**
+     * 开始任务
+     *
+     * @param day
+     * @param assignee
+     * @param flowKey
+     */
+    @GetMapping("startFlow")
+    public void startFlow(Integer day, String assignee, String flowKey) {
+        myService.startFlow(day, assignee, flowKey);
+    }
+
+
+    /**
+     * 指定节点处理人
+     *
+     * @param assignee
+     * @param taskId
+     */
+    @GetMapping(value = "/setAssignee")
+    public void setAssignee(String assignee, String taskId) {
+        myService.setAssignee(assignee, taskId);
+    }
+
+    /**
+     * 获取任务
+     *
+     * @param assignee
+     * @param group
+     * @return
+     */
+    @GetMapping(value = "/getTasks")
+    public List<TaskRepresentation> getTasks(String assignee, String group) {
+        List<Task> tasks = myService.getTasks(assignee, group);
+        List<TaskRepresentation> taskRepresentations = new ArrayList<>();
         for (Task task : tasks) {
-            dtos.add(new TaskRepresentation(task.getId(), task.getName()));
+            taskRepresentations.add(new TaskRepresentation(task.getId(), task.getName(), task.getAssignee()));
         }
-        return dtos;
+        return taskRepresentations;
     }
 
-    static class TaskRepresentation {
 
+    /**
+     * 办理任务
+     *
+     * @param assignee
+     * @param taskId
+     * @param outcome
+     */
+    @GetMapping(value = "/complete")
+    public void complete(String assignee, String taskId, String outcome) {
+        myService.complete(assignee, taskId, outcome);
+    }
+
+    @GetMapping(value = "/getData")
+    public void getData() {
+        myService.getData();
+    }
+
+    @GetMapping(value = "/getHistoricActivityInstance")
+    public void getHistoricActivityInstance(String processInstanceId) {
+        myService.getHistoricActivityInstance(processInstanceId);
+    }
+
+
+    @GetMapping(value = "/genProcessDiagram")
+    public void genProcessDiagram(HttpServletResponse httpServletResponse, String processId) {
+        myService.genProcessDiagram(httpServletResponse, processId);
+    }
+
+    @Data
+    static class TaskRepresentation {
         private String id;
         private String name;
+        private String assignee;
 
-        public TaskRepresentation(String id, String name) {
+        public TaskRepresentation(String id, String name, String assignee) {
             this.id = id;
             this.name = name;
+            this.assignee = assignee;
         }
-
-        public String getId() {
-            return id;
-        }
-
-        public void setId(String id) {
-            this.id = id;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
     }
 }

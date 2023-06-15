@@ -198,10 +198,15 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() == 0) {
             return new ArrayList<>();
         }
+        List<${nameClass}Vo> dataList = new ArrayList<>();
 		LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, ${key.columnNameClass? uncap_first}s);
-        return queryWrapper(queryWrapper);
-	}
+        List<List<Long>> subLists = Lists.partition(${key.columnNameClass? uncap_first}s, 5000);
+        for(List<Long> list : subList) {
+            queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, subLists);
+            dataList.addAll(queryWrapper(queryWrapper));
+        }
+        return dataList;
+    }
 	</#list>
 </#if>
 
