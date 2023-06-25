@@ -18,7 +18,7 @@
         <module>cloud-dept</module>
         <!--字典-->
         <module>cloud-dictionary</module>
-        <!--菜单-->
+        <!--菜单服务-->
         <module>cloud-menu</module>
         <!--权限-->
         <module>cloud-permissions</module>
