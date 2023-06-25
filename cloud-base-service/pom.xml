@@ -13,7 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <!--工作流-->
-        <module>cloud-camunda</module>
+        <module>cloud-flowable</module>
         <!--部门-->
         <module>cloud-dept</module>
         <!--字典-->
@@ -25,8 +25,7 @@
         <!--用户-->
         <module>cloud-sync</module>
         <module>cloud-user</module>
-        <module>cloud-flowable</module>
     </modules>
 
-    <description>基础服务 用户  菜单  权限 部门 数据字典</description>
+    <description>基础服务 用户 菜单 权限 部门 数据字典</description>
 </project>

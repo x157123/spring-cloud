@@ -90,7 +90,7 @@ public class MyRestController {
         List<Task> tasks = myService.getTasks(assignee, group);
         List<TaskRepresentation> taskRepresentations = new ArrayList<>();
         for (Task task : tasks) {
-            taskRepresentations.add(new TaskRepresentation(task.getId(), task.getName(), task.getAssignee()));
+            taskRepresentations.add(new TaskRepresentation(task.getId(), task.getName(), task.getAssignee(), task.getProcessInstanceId()));
         }
         return taskRepresentations;
     }
@@ -130,10 +130,13 @@ public class MyRestController {
         private String name;
         private String assignee;
 
-        public TaskRepresentation(String id, String name, String assignee) {
+        private String processId;
+
+        public TaskRepresentation(String id, String name, String assignee, String processId) {
             this.id = id;
             this.name = name;
             this.assignee = assignee;
+            this.processId = processId;
         }
     }
 }

@@ -184,11 +184,8 @@ public class MyService {
     }
 
     public void genProcessDiagram(HttpServletResponse httpServletResponse, String processId) {
-
         try {
-
             ProcessInstance pi = runtimeService.createProcessInstanceQuery().processInstanceId(processId).singleResult();
-
             //流程走完的不显示图
             if (pi == null) {
                 return;
