@@ -12,6 +12,7 @@
                 <#list column as col>
                     <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
                     && col.nameClass != "vreateDate" && col.nameClass != "UpdateDate"
+                    && col.nameClass != "createDate" && col.nameClass != "updateDate"
                     && col.nameClass != "isDelete" && col.nameClass != "version">
                         <#if col.type == 'String'>
             <if test="param.${col.nameClass ? uncap_first} != null and param.${col.nameClass ? uncap_first} != ''">

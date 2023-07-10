@@ -13,13 +13,13 @@ import java.util.stream.Collectors;
 public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
-        boolean sg = true;
-        String url = "jdbc:mysql://localhost:3306/test";
+        boolean sg = false;
+        String url = "jdbc:mysql://localhost:3306/testuser";
         String username = "root";
         String password = "123456";
         String packagePath = "com.tianque.scgrid.service";
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
-        String projectName = "text";
+        String projectName = "test";
         //模版路径
         String ftlPath = "cloud-new";
 
@@ -28,7 +28,7 @@ public class ReadMysqlTable {
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
-        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl"));
+        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
 
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
@@ -218,6 +218,11 @@ public class ReadMysqlTable {
                 //保存到 xml+扩展包
                 saveFilePath = savePath + "pom.xml";
                 break;
+            case "mybatisPlusConfig.java.ftl":
+                //保存到 xml+扩展包
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getJavaPath(), "config")) + "MybatisPlusConfig.java";
+                break;
+
         }
         return saveFilePath;
     }
@@ -396,8 +401,11 @@ public class ReadMysqlTable {
                     }
                     if (mysqlMergeTable.getLeftMergeTableColumn().equals(oneKey)) {
                         mysqlMergeTable.setMaintain(mysqlMergeTable.getLeftTable());
-                    } else if (mysqlMergeTable.getRightMergeTableColumn().equals(oneKey)) {
+                    } else if (oneKey.equals(mysqlMergeTable.getRightMergeTableColumn())) {
                         mysqlMergeTable.setMaintain(mysqlMergeTable.getRightTable());
+                    }
+                    if (mysqlMergeTable.getRightMergeTableColumn() == null) {
+                        System.out.println("我是null");
                     }
                     MysqlTable mysqlTable = tableMap.get(mysqlMergeTable.getRightTable());
                     mysqlMergeTable.setPackagePath(mysqlTable.getJavaPath());

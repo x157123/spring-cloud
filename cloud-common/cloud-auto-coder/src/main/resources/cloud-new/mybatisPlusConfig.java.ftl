@@ -1,4 +1,4 @@
-package ${basePackage}.config;
+package ${javaPath}.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;

@@ -68,7 +68,6 @@ public class ${nameClass}Controller {
         return ResultBody.success(${nameClass? uncap_first}Service.findByIds(ids));
     }
 
-
     /**
      * 根据查询条件查询列表
      *

@@ -36,6 +36,9 @@ import ${foreignKey.packagePath}.service.${foreignKey.joinTableNameClass}Service
         </#if>
     </#list>
 </#if>
+<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
+import org.apache.commons.collections4.ListUtils;
+</#if>
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -127,8 +130,8 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
 <#if mergeTables?? && (mergeTables?size > 0) >
 <#list mergeTables as mergeTable>
 <#if mergeTable.leftTable == mergeTable.maintain>
-        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids() != null) {
-            ${mergeTable.tableNameClass? uncap_first}Service.save(siteParam.getId(), siteParam.get${mergeTable.rightTableClass? cap_first}Ids());
+        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids() != null && ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids().size() > 0) {
+            ${mergeTable.tableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids());
         }
     </#if>
 </#list>
@@ -239,9 +242,9 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         }
         List<${nameClass}Vo> dataList = new ArrayList<>();
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
-        List<List<Long>> subLists = Lists.partition(${key.columnNameClass? uncap_first}s, 5000);
-        for(List<Long> list : subList) {
-            queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, subLists);
+        List<List<Long>> subLists = ListUtils.partition(${key.columnNameClass? uncap_first}s, 5000);
+        for(List<Long> list : subLists) {
+            queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, list);
             dataList.addAll(queryWrapper(queryWrapper));
         }
         return dataList;
@@ -292,7 +295,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
                     ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}Vo(${foreignKey.joinTableNameClass? uncap_first}Vos.get(0));
                 }
         <#else>
-                ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VOList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
+                ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VoList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
     </#list>
             }

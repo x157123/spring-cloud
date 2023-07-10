@@ -27,8 +27,7 @@ public class ${nameClass} implements Serializable {
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
-        && col.nameClass != "id">
+        && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
 
     /**
      * ${col.comment}
@@ -37,7 +36,10 @@ public class ${nameClass} implements Serializable {
         </#if>
     </#list>
 
-    public ${nameClass}(<#if column?? && (column?size > 0) ><#list column as col><#if indexNum = 1>, </#if>${col.type} ${col.nameClass? uncap_first}<#assign indexNum = 1></#list></#if>) {
+    public ${nameClass}(<#if column?? && (column?size > 0) ><#list column as col><#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+&& col.nameClass != "createDate" && col.nameClass != "updateDate"
+&& col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+&& col.nameClass != "id"><#if indexNum = 1>, </#if>${col.type} ${col.nameClass? uncap_first}<#assign indexNum = 1></#if></#list></#if>) {
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
