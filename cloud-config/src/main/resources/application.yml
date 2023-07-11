@@ -19,12 +19,12 @@ spring:
           # git仓库的密码
           password: xujia4209
           default-label: master
-  # http://150.109.5.143:15672 管理地址端口
+  # http://198.46.158.227:15672 管理地址端口
   rabbitmq:
-    host: 150.109.5.143
-    port: 5673
-    username: liulei
-    password: liulei
+    host: 198.46.158.227
+    port: 5672
+    username: guest
+    password: guest
 # 指定注册中心的地址
 eureka:
   client:
