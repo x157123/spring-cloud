@@ -1,0 +1,88 @@
+server:
+  port: 82
+  tomcat:
+    uri-encoding: UTF-8
+  servlet:
+    context-path: /flow-ui
+spring:
+  application:
+    name: flowable
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/flowable?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+    username: root
+    password: 123456
+
+# flowable config
+flowable:
+  common:
+    app:
+      security:
+        type: idm
+      role-prefix:
+      idm-admin:
+        user: admin
+        password: 123456
+  idm:
+    ldap:
+      enabled: false
+    app:
+      admin:
+        user-id: admin
+        password: 123456
+        first-name: Test
+        last-name: Administrator
+        email: test-admin@126.com
+  content:
+    storage:
+      root-folder: data/
+      create-root: true
+  process:
+    definition-cache-limit: 512
+    async:
+      executor:
+        default-async-job-acquire-wait-time: PT5S
+        default-timer-job-acquire-wait-time: PT5S
+  cmmn:
+    async:
+      executor:
+        default-async-job-acquire-wait-time: PT5S
+        default-timer-job-acquire-wait-time: PT5S
+  rest:
+    app:
+      authentication-mode: verify-privilege
+  task:
+    app:
+      rest-enabled: true
+  admin:
+    app:
+      security:
+        encryption:
+          credentials-i-v-spec: j8kdO2hejA9lKmm6
+          credentials-secret-spec: 9FGl73ngxcOoJvmL
+  form-field-validation-enabled: false
+  experimental:
+    debugger:
+      enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+  endpoint:
+    health:
+      show-details: when_authorized
+      roles: access-admin
+  health:
+    ldap:
+      enabled: false
+#logging
+logging:
+  file:
+    path: logs
+    name: ${spring.application.name}
+  level:
+    com.lance.flowable: debug
+    org.springframework: info
+    org.flowable.engine.impl.persistence.entity: debug
+    org.flowable.task.service.impl.persistence.entity: debug
