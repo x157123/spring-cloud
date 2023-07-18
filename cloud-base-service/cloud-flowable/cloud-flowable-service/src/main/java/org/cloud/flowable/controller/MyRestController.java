@@ -124,6 +124,11 @@ public class MyRestController {
         myService.genProcessDiagram(httpServletResponse, processId);
     }
 
+    @GetMapping(value = "/contextLoads")
+    public void contextLoads() {
+        myService.contextLoads();
+    }
+
     @Data
     static class TaskRepresentation {
         private String id;

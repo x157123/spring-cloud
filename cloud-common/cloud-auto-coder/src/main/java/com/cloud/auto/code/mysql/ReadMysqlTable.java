@@ -14,26 +14,27 @@ public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
         boolean sg = false;
-        String url = "jdbc:mysql://localhost:3306/testuser";
+        String url = "jdbc:mysql://localhost:3306/cloud_sync";
         String username = "root";
         String password = "123456";
-        String packagePath = "com.tianque.scgrid.service";
+        String packagePath = "com.cloud.sync";
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
-        String projectName = "test";
         //模版路径
         String ftlPath = "cloud-new";
+        //服务名
+        String projectName = "cloud-sync";
 
         List<String> ftlList = new ArrayList<>();
         List<String> ftlMergeList = new ArrayList<>();
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
-        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
+//        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
 
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
 
-        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-apps\\" + projectName + "\\";
+        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-base-service\\" + projectName + "\\";
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
             if (sg) {
                 ftlPath = "cloud-sg";

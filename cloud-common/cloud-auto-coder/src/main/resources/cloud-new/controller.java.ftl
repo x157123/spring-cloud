@@ -9,6 +9,7 @@ import ${javaPath}.service.${nameClass}Service;
 import ${javaPath}.vo.${nameClass}Vo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -101,7 +102,7 @@ public class ${nameClass}Controller {
      */
     @PostMapping(value = "/queryPage")
     @Operation(summary = "数据分页查询", description = "${comment}")
-    public ResultBody queryPage(${nameClass}Query ${nameClass? uncap_first}Query, PageParam pageParam) {
+    public ResultBody queryPage(@ParameterObject ${nameClass}Query ${nameClass? uncap_first}Query, @ParameterObject PageParam pageParam) {
         return ResultBody.success(${nameClass? uncap_first}Service.queryPage(${nameClass? uncap_first}Query, pageParam));
     }
 

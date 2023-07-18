@@ -8,6 +8,7 @@ import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.Task;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,9 @@ public class MyService {
 
     @Autowired
     private ProcessEngine processEngine;
+
+    @Autowired
+    IdentityService identityService;
 
     @Transactional
     public void createDeployment(String resourceName, String key, String bpmnXmlStr) {
@@ -233,5 +237,17 @@ public class MyService {
         } catch (Exception e) {
 
         }
+    }
+
+    public void contextLoads() {
+        UserEntityImpl user = new UserEntityImpl();
+        user.setId("admin");
+        user.setDisplayName("江南一点雨");
+        user.setPassword("admin");
+        user.setFirstName("java");
+        user.setLastName("boy");
+        user.setEmail("javaboy@qq.com");
+        user.setRevision(0);
+        identityService.saveUser(user);
     }
 }

@@ -1,7 +1,6 @@
 package com.cloud.sync.builder;
 
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
-import io.debezium.connector.mysql.MySqlConnector;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
@@ -11,8 +10,9 @@ import java.util.Properties;
 public class DebeziumConnectBuilder {
 
     /**
-     *  https://debezium.io/documentation/reference/2.0/development/engine.html
-     *  doc
+     * https://debezium.io/documentation/reference/2.0/development/engine.html
+     * doc
+     *
      * @return
      */
     public static DebeziumEngine<ChangeEvent<String, String>> getMysql() {
@@ -41,12 +41,18 @@ public class DebeziumConnectBuilder {
 
         props.setProperty("offset.flush.interval.ms", "60000");
         /* begin connector properties */
-        props.setProperty("connector.class", MySqlConnector.class.getCanonicalName());
+        props.setProperty("topic.prefix", "my-app-connector");
+        props.setProperty("database.server.id", "85744");
+        props.setProperty("connector.class", "io.debezium.connector.mysql.MySqlConnector");
         props.setProperty("database.hostname", "127.0.0.1");
         props.setProperty("database.port", "3306");
         props.setProperty("database.user", "root");
         props.setProperty("database.password", "123456");
         props.setProperty("database.connectionTimeZone", "UTC");
+
+        /** 采集表配置 */
+        props.setProperty("database.include.list", "test");
+        props.setProperty("table.include.list", "test.gp_area_info");
 
 
         /** 去除 json schema 数据*/
@@ -57,10 +63,8 @@ public class DebeziumConnectBuilder {
 
 
         /** 采集表配置 */
-        props.setProperty("table.include.list", "test.sg_sync_diversified,test.sg_sync_person");
+        props.setProperty("table.include.list", "test.gp_area_info");
 
-        props.setProperty("database.server.id", "85744");
-        props.setProperty("topic.prefix", "my-app-connector");
         props.setProperty("schema.history.internal", "io.debezium.storage.file.history.FileSchemaHistory");
         props.setProperty("schema.history.internal.file.filename", "D:/dbhistory.dat");
         return props;

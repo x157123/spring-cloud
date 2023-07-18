@@ -78,10 +78,10 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
 
                     System.out.println("key-->:" + keyBuffer.toString());
                     System.out.println("value-->:" + valueBuffer.toString());
+                    //写入数据库
+                    save(keyBuffer.toString(), valueBuffer.toString());
                 }
             }
-            //写入数据库
-            save();
             if (callback != null) {
                 callback.onCompletion(null, null);
             }
@@ -96,16 +96,16 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
     /**
      * 获取数据库
      */
-    private void load(){
-        String key = "[\"engine\",{\"server\":\"my-app-connector\"}]";
-        String value = "{\"ts_sec\":1667557541,\"file\":\"mysql-bin.000090\",\"pos\":26769,\"gtids\":\"6e743415-ca40-11e8-8a55-10f0059aec86:1-17632\"}";
-        data.put(ByteBuffer.wrap(key.getBytes()),ByteBuffer.wrap(value.getBytes()));
+    private void load() {
+//        String key = "[\"engine\",{\"server\":\"my-app-connector\"}]";
+//        String value = "{\"transaction_id\":null,\"ts_sec\":1689695879,\"file\":\"mysql-bin.000147\",\"pos\":5511,\"gtids\":\"6e743415-ca40-11e8-8a55-10f0059aec86:1-33792\",\"row\":1,\"server_id\":1,\"event\":2}";
+//        data.put(ByteBuffer.wrap(key.getBytes()), ByteBuffer.wrap(value.getBytes()));
     }
 
     /**
      * 写入数据库
      */
-    private void save(){
+    private void save(String key, String value) {
 
     }
 }

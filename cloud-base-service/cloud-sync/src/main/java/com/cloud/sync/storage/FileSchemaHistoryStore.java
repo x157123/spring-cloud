@@ -60,14 +60,4 @@ public class FileSchemaHistoryStore implements SchemaHistory {
     public void initializeStorage() {
 
     }
-
-    @Override
-    public boolean storeOnlyCapturedTables() {
-        return false;
-    }
-
-    @Override
-    public boolean skipUnparseableDdlStatements() {
-        return false;
-    }
 }
