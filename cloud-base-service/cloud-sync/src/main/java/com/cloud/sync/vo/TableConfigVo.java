@@ -41,6 +41,11 @@ public class TableConfigVo {
      * 同步数据库列配置
      */
     @Schema(description = "同步表配置同步数据库列配置")
-    private List<ColumnConfigVo> columnConfigVOList;
+    private List<ColumnConfigVo> columnConfigVoList;
 
+    /**
+     * 表映射
+     */
+    @Schema(description = "同步表配置表映射")
+    private List<TableMapVo> tableMapVoList;
 }

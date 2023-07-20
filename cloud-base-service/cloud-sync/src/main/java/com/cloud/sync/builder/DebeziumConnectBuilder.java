@@ -27,7 +27,6 @@ public class DebeziumConnectBuilder {
                 System.out.println("error:" + message);
             }
         }).build();
-
         return engine;
     }
 
@@ -48,7 +47,7 @@ public class DebeziumConnectBuilder {
         props.setProperty("database.port", "3306");
         props.setProperty("database.user", "root");
         props.setProperty("database.password", "123456");
-        props.setProperty("database.connectionTimeZone", "UTC");
+        props.setProperty("database.connectionTimeZone", "Asia/Shanghai");
 
         /** 采集表配置 */
         props.setProperty("database.include.list", "test");

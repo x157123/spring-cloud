@@ -26,13 +26,16 @@ public class ReadMysqlTable {
 
         List<String> ftlList = new ArrayList<>();
         List<String> ftlMergeList = new ArrayList<>();
+        List<String> pom = new ArrayList<>();
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
+
 //        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
 
-        ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
+//        pom.addAll(Arrays.asList("pom.xml.ftl"));
 
+        ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
         String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-base-service\\" + projectName + "\\";
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
@@ -61,7 +64,7 @@ public class ReadMysqlTable {
 
             writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
 
-            writer(writerTables, Arrays.asList("pom.xml.ftl"), ftlPath, filePath);
+            writer(writerTables, pom, ftlPath, filePath);
 
             createPgSql(tables);
         }

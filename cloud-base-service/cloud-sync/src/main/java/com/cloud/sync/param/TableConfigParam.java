@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
+import java.util.List;
+
 /**
  * @author liulei
  * 同步表配置
@@ -23,7 +25,7 @@ public class TableConfigParam {
      * 数据库id
      */
     @NotNull(message = "同步表配置数据库id[TableConfigVo.connectId]不能为null")
-    @Schema(description = "数据库id")
+    @Schema(description = "数据库id", requiredMode = Schema.RequiredMode.REQUIRED)
     private Long connectId;
 
 	/**

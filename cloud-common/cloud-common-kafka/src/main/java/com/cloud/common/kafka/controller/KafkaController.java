@@ -25,13 +25,16 @@ public class KafkaController {
 
     /**
      * 发送文本消息
+     *
      * @param msg
      * @return
      */
     @GetMapping("/send/{msg}")
     public String send(@PathVariable String msg) {
-//        kafkaService.send(kafkaConfiguration.getT(), msg);
-        return "生产者发送消息给topic1："+msg;
+        for (int i = 0; i < 1000; i++) {
+            kafkaService.send("topic-" + (i % 3), "topic-" + (i % 3));
+        }
+        return "成功";
     }
 
 }

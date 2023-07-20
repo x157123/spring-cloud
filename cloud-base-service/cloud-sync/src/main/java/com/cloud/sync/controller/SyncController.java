@@ -18,27 +18,27 @@ public class SyncController {
 
     @GetMapping("/begin")
     @ResponseBody
-    public void begin(){
-        syncService.begin();
+    public void begin(Long connectId) {
+        syncService.begin(connectId);
     }
 
     @GetMapping("/start")
     @ResponseBody
-    public void start(){
-        syncService.start();
+    public void start(Long connectId) {
+        syncService.start(connectId);
     }
 
 
     @GetMapping("/stop")
     @ResponseBody
-    public void stop(){
-        syncService.stop();
+    public void stop(Long connectId) {
+        syncService.stop(connectId);
     }
 
 
     @GetMapping("/msg")
     @ResponseBody
-    public void msg(){
+    public void msg() {
         syncService.msg();
     }
 }
