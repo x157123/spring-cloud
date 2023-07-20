@@ -5,7 +5,10 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 消费者（监听topic队列）
@@ -17,27 +20,32 @@ public class ConsumerListener {
 
     @KafkaListener(topicPattern = "${spring.kafka.topic.debeziumTopic}")
     public void listen(List<ConsumerRecord<String, String>> messages) {
+        Map<String, List<String>> map = new HashMap<>();
         for (ConsumerRecord<String, String> message : messages) {
-
             JSONObject jsonObject = JSONObject.parseObject(message.value());
             String op = jsonObject.getString("op");
             if (op != null) {
                 switch (op) {
                     case "r":
-                        System.out.print(message.topic() + "读取数据:->" + jsonObject.get("after"));
-                        break;
                     case "c":
-                        System.out.print(message.topic() + "创建数据:->" + jsonObject.get("after"));
-                        break;
                     case "u":
-                        System.out.print(message.topic() + "更新数据:->" + jsonObject.get("after"));
+                        putData(map, op + "." + message.topic(), jsonObject.get("after").toString());
                         break;
                     case "d":
-                        System.out.print(message.topic() + "删除数据:->" + jsonObject.get("before"));
+                        putData(map, op + "." + message.topic(), jsonObject.get("before").toString());
                         break;
                 }
             }
         }
+    }
+
+    private void putData(Map<String, List<String>> map, String key, String data) {
+        List<String> list = map.get(key);
+        if (list == null) {
+            list = new ArrayList<>();
+            map.put(key, list);
+        }
+        list.add(data);
     }
 }
 
