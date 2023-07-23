@@ -30,6 +30,10 @@ public class CommonWriter {
     protected static final Logger LOG = LoggerFactory
             .getLogger(CommonWriter.class);
 
+    protected void init(){
+
+    }
+
     protected void doBatchInsert(Connection connection, List<Record> buffer)
             throws SQLException {
         PreparedStatement preparedStatement = null;
