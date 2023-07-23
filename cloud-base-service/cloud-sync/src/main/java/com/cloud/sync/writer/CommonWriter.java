@@ -44,12 +44,9 @@ public class CommonWriter {
         this.password = password;
         this.table = table;
         this.columns = columns;
+        this.resultSetMetaData = DBUtil.getColumnMetaData(getConnection(), table, columns);
     }
 
-    private Connection getConnection() {
-        Connection connection = DBUtil.getConnect(this.connectionId, this.dataBaseType.getDriverClassName(), this.url, this.username, this.password);
-        return connection;
-    }
 
     protected void doBatchInsert(List<Record> buffer)
             throws SQLException {
@@ -77,7 +74,7 @@ public class CommonWriter {
         }
     }
 
-    protected void doOneInsert(Connection connection, List<Record> buffer) {
+    private void doOneInsert(Connection connection, List<Record> buffer) {
         PreparedStatement preparedStatement = null;
         try {
             connection.setAutoCommit(true);
@@ -105,7 +102,7 @@ public class CommonWriter {
 
 
     // 直接使用了两个类变量：columnNumber,resultSetMetaData
-    protected PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Record record)
+    private PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Record record)
             throws SQLException {
         for (int i = 0; i < this.columnNumber; i++) {
             int columnSqltype = this.resultSetMetaData.getMiddle().get(i);
@@ -116,8 +113,8 @@ public class CommonWriter {
         return preparedStatement;
     }
 
-    protected PreparedStatement fillPreparedStatementColumnType(PreparedStatement preparedStatement, int columnIndex,
-                                                                int columnSqltype, String typeName, Column column) throws SQLException {
+    private PreparedStatement fillPreparedStatementColumnType(PreparedStatement preparedStatement, int columnIndex,
+                                                              int columnSqltype, String typeName, Column column) throws SQLException {
         java.util.Date utilDate;
         switch (columnSqltype) {
             case Types.CHAR:
@@ -248,6 +245,12 @@ public class CommonWriter {
                                 .get(columnIndex)));
         }
         return preparedStatement;
+    }
+
+
+    private Connection getConnection() {
+        Connection connection = DBUtil.getConnect(this.connectionId, this.dataBaseType.getDriverClassName(), this.url, this.username, this.password);
+        return connection;
     }
 
 }

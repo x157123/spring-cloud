@@ -12,10 +12,10 @@ import java.util.*;
 public class DBUtil {
 
 
-    private static final Map<Long, DataSource> dataSourceMap = new HashMap<>();
+    private static final Map<Long, HikariDataSource> dataSourceMap = new HashMap<>();
 
 
-    private static DataSource getDataSource(String url, String username, String password, String driver) {
+    private static HikariDataSource getDataSource(String url, String username, String password, String driver) {
         // 创建一个 HikariDataSource 实例。
         HikariDataSource dataSource = new HikariDataSource();
         // 设置 HikariDataSource 的属性。
@@ -30,8 +30,8 @@ public class DBUtil {
 
     public static synchronized Connection getConnect(Long connectionId, String url, String username, String password, String driver) {
         try {
-            DataSource dataSource = dataSourceMap.get(connectionId);
-            if (dataSource == null) {
+            HikariDataSource dataSource = dataSourceMap.get(connectionId);
+            if (dataSource == null || dataSource.isClosed()) {
                 dataSource = getDataSource(url, username, password, driver);
             }
             return dataSource.getConnection();
@@ -40,16 +40,27 @@ public class DBUtil {
         }
     }
 
+    public static synchronized void close(Long connectionId) {
+        try {
+            HikariDataSource dataSource = dataSourceMap.get(connectionId);
+            if (dataSource == null) {
+                dataSource.close();
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("关闭数据库连接错误");
+        }
+    }
+
     /**
      * 获取表字段信息
      *
      * @param conn
      * @param tableName
-     * @param column
+     * @param columns
      * @return
      */
     public static Triple<List<String>, List<Integer>, List<String>> getColumnMetaData(
-            Connection conn, String tableName, String column) {
+            Connection conn, String tableName, List<String> columns) {
         Statement statement = null;
         ResultSet rs = null;
 
@@ -58,7 +69,7 @@ public class DBUtil {
                 new ArrayList<String>());
         try {
             statement = conn.createStatement();
-            String queryColumnSql = "select " + column + " from " + tableName
+            String queryColumnSql = "select " + String.join(", ", columns) + " from " + tableName
                     + " where 1=2";
 
             rs = statement.executeQuery(queryColumnSql);
