@@ -1,6 +1,7 @@
 package com.cloud.sync.service;
 
 import java.util.List;
+import java.util.Map;
 
 public interface SyncService {
 
@@ -24,5 +25,10 @@ public interface SyncService {
      */
     void msg();
 
-    void writeData(Long connectId, String table, String type, List<String> data);
+    /**
+     * 写入数据
+     *
+     * @param map
+     */
+    void writeData(Map<String, List<String>> map);
 }

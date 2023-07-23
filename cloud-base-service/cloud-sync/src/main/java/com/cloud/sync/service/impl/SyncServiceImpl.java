@@ -90,8 +90,16 @@ public class SyncServiceImpl implements SyncService {
     }
 
     @Override
-    public void writeData(Long connectId, String table, String type, List<String> data) {
+    public void writeData(Map<String, List<String>> map) {
+        if (map != null && map.size() > 0) {
+            map.keySet();
+            for (String key : map.keySet()) {
+                System.out.println(key);
+            }
+            //读取表结构信息
 
+            //调用插入语句
+        }
     }
 
 

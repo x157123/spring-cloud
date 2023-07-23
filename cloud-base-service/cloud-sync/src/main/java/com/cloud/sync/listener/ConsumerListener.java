@@ -1,6 +1,7 @@
 package com.cloud.sync.listener;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.cloud.sync.service.SyncService;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,12 @@ import java.util.Map;
  */
 @Component
 public class ConsumerListener {
+
+    private SyncService syncService;
+
+    public ConsumerListener(SyncService syncService) {
+        this.syncService = syncService;
+    }
 
     @KafkaListener(topicPattern = "${spring.kafka.topic.debeziumTopic}")
     public void listen(List<ConsumerRecord<String, String>> messages) {
@@ -37,6 +44,7 @@ public class ConsumerListener {
                 }
             }
         }
+        syncService.writeData(map);
     }
 
     private void putData(Map<String, List<String>> map, String key, String data) {
