@@ -12,6 +12,7 @@ import java.util.List;
 
 public class CommonWriter {
 
+    protected Long connectionId;
 
     protected String table;
 
@@ -27,15 +28,32 @@ public class CommonWriter {
 
     protected DataBaseType dataBaseType;
 
-    protected static final Logger LOG = LoggerFactory
-            .getLogger(CommonWriter.class);
+    private String url;
 
-    protected void init(){
+    private String username;
 
+    private String password;
+
+    protected static final Logger LOG = LoggerFactory.getLogger(CommonWriter.class);
+
+    protected void init(Long connectionId, DataBaseType dataBaseType, String url, String username, String password, String table, List<String> columns) {
+        this.connectionId = connectionId;
+        this.dataBaseType = dataBaseType;
+        this.url = url;
+        this.username = username;
+        this.password = password;
+        this.table = table;
+        this.columns = columns;
     }
 
-    protected void doBatchInsert(Connection connection, List<Record> buffer)
+    private Connection getConnection() {
+        Connection connection = DBUtil.getConnect(this.connectionId, this.dataBaseType.getDriverClassName(), this.url, this.username, this.password);
+        return connection;
+    }
+
+    protected void doBatchInsert(List<Record> buffer)
             throws SQLException {
+        Connection connection = getConnection();
         PreparedStatement preparedStatement = null;
         try {
             connection.setAutoCommit(false);

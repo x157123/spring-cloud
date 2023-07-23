@@ -12,7 +12,7 @@ import java.util.*;
 public class DBUtil {
 
 
-    private static final Map<String, DataSource> dataSourceMap = new HashMap<>();
+    private static final Map<Long, DataSource> dataSourceMap = new HashMap<>();
 
 
     private static DataSource getDataSource(String url, String username, String password, String driver) {
@@ -28,11 +28,11 @@ public class DBUtil {
         return dataSource;
     }
 
-    public static synchronized Connection getConnect(DataBaseType dataBaseType,String url, String username, String password) {
+    public static synchronized Connection getConnect(Long connectionId, String url, String username, String password, String driver) {
         try {
-            DataSource dataSource = dataSourceMap.get(url);
+            DataSource dataSource = dataSourceMap.get(connectionId);
             if (dataSource == null) {
-                dataSource = getDataSource(url, username, password, dataBaseType.getDriverClassName());
+                dataSource = getDataSource(url, username, password, driver);
             }
             return dataSource.getConnection();
         } catch (Exception e) {
