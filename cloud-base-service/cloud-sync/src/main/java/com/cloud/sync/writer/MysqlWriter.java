@@ -4,8 +4,12 @@ import java.util.List;
 
 public class MysqlWriter extends CommonWriter {
 
-    public MysqlWriter(Long dbId, String url, String username, String password, String table, List<String> columns) {
-        super.init(dbId, DataBaseType.MySql, url, username, password, table, columns);
+    private MysqlWriter(){}
+
+    public static MysqlWriter getMysqlWriter(Long dbId, String url, String username, String password, String table, List<String> columns) {
+        MysqlWriter mysqlWriter = new MysqlWriter();
+        mysqlWriter.init(dbId, DataBaseType.MySql, url, username, password, table, columns);
+        return mysqlWriter;
     }
 
     public void writer(List<Record> buffer) {

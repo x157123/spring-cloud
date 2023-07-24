@@ -6,10 +6,12 @@ import com.cloud.sync.service.SyncService;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
 import com.cloud.sync.writer.CommonWriter;
+import com.cloud.sync.writer.MysqlWriter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
 import io.debezium.engine.format.Json;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +33,9 @@ public class SyncServiceImpl implements SyncService {
 
     private Map<String, CommonWriter> writerMap = new HashMap<>();
 
+    @Value("${spring.kafka.topic.startTopic}")
+    private String debeziumTopic;
+
     public SyncServiceImpl(ConnectConfigService connectConfigService, KafkaTemplate<String, String> kafkaTemplate) {
         this.connectConfigService = connectConfigService;
         this.kafkaTemplate = kafkaTemplate;
@@ -49,14 +54,14 @@ public class SyncServiceImpl implements SyncService {
         ConnectConfigVo connectConfigVo = connectConfigService.findById(connectId);
         DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(connectConfigVo);
         executor.execute(engine);
-        map.put("debezium_" + connectConfigVo.getId().toString(), engine);
+        map.put(debeziumTopic + connectConfigVo.getId().toString(), engine);
     }
 
 
     @Override
     public void start(Long connectId) {
         ConnectConfigVo connectConfigVo = connectConfigService.findById(connectId);
-        DebeziumEngine<ChangeEvent<String, String>> mysql = map.get("debezium_" + connectConfigVo.getId().toString());
+        DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + connectConfigVo.getId().toString());
         executor.execute(mysql);
     }
 
@@ -65,7 +70,7 @@ public class SyncServiceImpl implements SyncService {
     public void stop(Long connectId) {
         ConnectConfigVo connectConfigVo = connectConfigService.findById(connectId);
         try {
-            DebeziumEngine<ChangeEvent<String, String>> mysql = map.get("debezium_" + connectConfigVo.getId().toString());
+            DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + connectConfigVo.getId().toString());
             mysql.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -94,16 +99,33 @@ public class SyncServiceImpl implements SyncService {
         if (map != null && map.size() > 0) {
             for (String key : map.keySet()) {
                 System.out.println(key);
+                String[]  keys = key.split(".");
+//                //读取表结构信息
+//                CommonWriter commonWriter = writerMap.get(key);
+//                if (commonWriter == null) {
+//                    //调用插入语句
+//                    commonWriter = MysqlWriter.getMysqlWriter(1,url,username,password,table,new ArrayList<>());
+//                    writerMap.put(key, commonWriter);
+//                }
+//                try {
+//                    commonWriter.writer(new ArrayList<>());
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
             }
-            //读取表结构信息
-            CommonWriter commonWriter = writerMap.get(map.keySet());
-            if (commonWriter == null) {
-                //调用插入语句
-            }
-            try {
-                commonWriter.writer(new ArrayList<>());
-            } catch (Exception e) {
+        }
+    }
 
+    public static void main(String[] args) {
+        Map<String, List<String>> map = new HashMap<>();
+        map.put("r.debezium_1.tete.test", new ArrayList<>());
+        if (map != null && map.size() > 0) {
+            for (String key : map.keySet()) {
+                key = key.replace("debezium_","");
+                String[] keys = key.split("\\.");
+                for(String tmp : keys) {
+                    System.out.println(tmp);
+                }
             }
         }
     }
@@ -128,7 +150,7 @@ public class SyncServiceImpl implements SyncService {
 
     private Properties getProperties(ConnectConfigVo connectConfigVo) {
         final Properties props = getProperties();
-        props.setProperty("topic.prefix", "debezium_" + connectConfigVo.getId().toString());
+        props.setProperty("topic.prefix", debeziumTopic + connectConfigVo.getId().toString());
         props.setProperty("database.server.id", connectConfigVo.getId().toString());
         if (connectConfigVo.getType() == 1) {
             props.setProperty("connector.class", "io.debezium.connector.mysql.MySqlConnector");
