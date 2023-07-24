@@ -5,6 +5,7 @@ import com.cloud.sync.service.ConnectConfigService;
 import com.cloud.sync.service.SyncService;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.writer.CommonWriter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
@@ -12,10 +13,7 @@ import io.debezium.engine.format.Json;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -30,6 +28,8 @@ public class SyncServiceImpl implements SyncService {
     private final ConnectConfigService connectConfigService;
 
     private KafkaTemplate<String, String> kafkaTemplate;
+
+    private Map<String, CommonWriter> writerMap = new HashMap<>();
 
     public SyncServiceImpl(ConnectConfigService connectConfigService, KafkaTemplate<String, String> kafkaTemplate) {
         this.connectConfigService = connectConfigService;
@@ -92,13 +92,19 @@ public class SyncServiceImpl implements SyncService {
     @Override
     public void writeData(Map<String, List<String>> map) {
         if (map != null && map.size() > 0) {
-            map.keySet();
             for (String key : map.keySet()) {
                 System.out.println(key);
             }
             //读取表结构信息
+            CommonWriter commonWriter = writerMap.get(map.keySet());
+            if (commonWriter == null) {
+                //调用插入语句
+            }
+            try {
+                commonWriter.writer(new ArrayList<>());
+            } catch (Exception e) {
 
-            //调用插入语句
+            }
         }
     }
 

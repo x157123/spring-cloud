@@ -36,6 +36,10 @@ public class CommonWriter {
 
     protected static final Logger LOG = LoggerFactory.getLogger(CommonWriter.class);
 
+    public void writer(List<Record> buffer) throws Exception {
+        this.doBatchInsert(buffer);
+    }
+
     protected void init(Long connectionId, DataBaseType dataBaseType, String url, String username, String password, String table, List<String> columns) {
         this.connectionId = connectionId;
         this.dataBaseType = dataBaseType;
@@ -74,7 +78,7 @@ public class CommonWriter {
         }
     }
 
-    private void doOneInsert(Connection connection, List<Record> buffer) {
+    protected void doOneInsert(Connection connection, List<Record> buffer) {
         PreparedStatement preparedStatement = null;
         try {
             connection.setAutoCommit(true);
@@ -102,7 +106,7 @@ public class CommonWriter {
 
 
     // 直接使用了两个类变量：columnNumber,resultSetMetaData
-    private PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Record record)
+    protected PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Record record)
             throws SQLException {
         for (int i = 0; i < this.columnNumber; i++) {
             int columnSqltype = this.resultSetMetaData.getMiddle().get(i);
@@ -113,8 +117,8 @@ public class CommonWriter {
         return preparedStatement;
     }
 
-    private PreparedStatement fillPreparedStatementColumnType(PreparedStatement preparedStatement, int columnIndex,
-                                                              int columnSqltype, String typeName, Column column) throws SQLException {
+    protected PreparedStatement fillPreparedStatementColumnType(PreparedStatement preparedStatement, int columnIndex,
+                                                                int columnSqltype, String typeName, Column column) throws SQLException {
         java.util.Date utilDate;
         switch (columnSqltype) {
             case Types.CHAR:
@@ -248,7 +252,7 @@ public class CommonWriter {
     }
 
 
-    private Connection getConnection() {
+    protected Connection getConnection() {
         Connection connection = DBUtil.getConnect(this.connectionId, this.dataBaseType.getDriverClassName(), this.url, this.username, this.password);
         return connection;
     }
