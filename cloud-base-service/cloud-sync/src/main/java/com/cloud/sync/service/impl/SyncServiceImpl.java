@@ -2,11 +2,13 @@ package com.cloud.sync.service.impl;
 
 import com.cloud.sync.builder.DateTimeConverter;
 import com.cloud.sync.service.ConnectConfigService;
+import com.cloud.sync.service.ServeTableService;
 import com.cloud.sync.service.SyncService;
+import com.cloud.sync.service.TableMapService;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
 import com.cloud.sync.writer.CommonWriter;
-import com.cloud.sync.writer.MysqlWriter;
+import com.cloud.sync.writer.DataBaseType;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
@@ -15,7 +17,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -29,6 +34,10 @@ public class SyncServiceImpl implements SyncService {
 
     private final ConnectConfigService connectConfigService;
 
+    private final ServeTableService serveTableService;
+
+    private final TableMapService tableMapService;
+
     private KafkaTemplate<String, String> kafkaTemplate;
 
     private Map<String, CommonWriter> writerMap = new HashMap<>();
@@ -36,9 +45,12 @@ public class SyncServiceImpl implements SyncService {
     @Value("${spring.kafka.topic.startTopic}")
     private String debeziumTopic;
 
-    public SyncServiceImpl(ConnectConfigService connectConfigService, KafkaTemplate<String, String> kafkaTemplate) {
+    public SyncServiceImpl(ConnectConfigService connectConfigService, KafkaTemplate<String, String> kafkaTemplate
+            , ServeTableService serveTableService, TableMapService tableMapService) {
         this.connectConfigService = connectConfigService;
         this.kafkaTemplate = kafkaTemplate;
+        this.serveTableService = serveTableService;
+        this.tableMapService = tableMapService;
     }
 
     ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("pool-%d").build();
@@ -98,8 +110,12 @@ public class SyncServiceImpl implements SyncService {
     public void writeData(Map<String, List<String>> map) {
         if (map != null && map.size() > 0) {
             for (String key : map.keySet()) {
-                System.out.println(key);
-                String[]  keys = key.split(".");
+                String keyTmp = key.replace("debezium_", "");
+                String[] keys = keyTmp.split("\\.");
+                for (String tmp : keys) {
+                    System.out.println(tmp);
+                }
+                System.out.println(map.get(key));
 //                //读取表结构信息
 //                CommonWriter commonWriter = writerMap.get(key);
 //                if (commonWriter == null) {
@@ -115,21 +131,6 @@ public class SyncServiceImpl implements SyncService {
             }
         }
     }
-
-    public static void main(String[] args) {
-        Map<String, List<String>> map = new HashMap<>();
-        map.put("r.debezium_1.tete.test", new ArrayList<>());
-        if (map != null && map.size() > 0) {
-            for (String key : map.keySet()) {
-                key = key.replace("debezium_","");
-                String[] keys = key.split("\\.");
-                for(String tmp : keys) {
-                    System.out.println(tmp);
-                }
-            }
-        }
-    }
-
 
     private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(ConnectConfigVo connectConfigVo) {
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(Json.class).using(getProperties(connectConfigVo)).notifying(record -> {
@@ -150,16 +151,16 @@ public class SyncServiceImpl implements SyncService {
 
     private Properties getProperties(ConnectConfigVo connectConfigVo) {
         final Properties props = getProperties();
+        props.setProperty("name", debeziumTopic + connectConfigVo.getId().toString());
         props.setProperty("topic.prefix", debeziumTopic + connectConfigVo.getId().toString());
         props.setProperty("database.server.id", connectConfigVo.getId().toString());
-        if (connectConfigVo.getType() == 1) {
-            props.setProperty("connector.class", "io.debezium.connector.mysql.MySqlConnector");
-        }
+        props.setProperty("connector.class", DataBaseType.getDataBaseType(connectConfigVo.getType()).getDebeziumConnector());
         props.setProperty("database.hostname", connectConfigVo.getHostname());
         props.setProperty("database.port", connectConfigVo.getPort().toString());
         props.setProperty("database.user", connectConfigVo.getUser());
         props.setProperty("database.password", connectConfigVo.getPassword());
-
+        /** 采集表配置 */
+        props.setProperty("database.include.list", connectConfigVo.getDatabaseName());
         /** 采集表配置 */
         props.setProperty("table.include.list", "test.gp_area_info");
         return props;
@@ -168,19 +169,9 @@ public class SyncServiceImpl implements SyncService {
     private static Properties getProperties() {
         final Properties props = new Properties();
 
-        props.setProperty("name", "engine");
-
         props.setProperty("offset.flush.interval.ms", "60000");
         /* begin connector properties */
-        props.setProperty("topic.prefix", "my-app-connector");
-        props.setProperty("database.server.id", "85744");
-        props.setProperty("connector.class", "io.debezium.connector.mysql.MySqlConnector");
-        props.setProperty("database.hostname", "127.0.0.1");
-        props.setProperty("database.port", "3306");
-        props.setProperty("database.user", "root");
-        props.setProperty("database.password", "123456");
         props.setProperty("database.connectionTimeZone", "Asia/Shanghai");
-
 
         //日期时间类型转换器自定义属性（属性前缀为转换器名称）
         props.setProperty("converters", DateTimeConverter.CONVERTERS_NAME);
@@ -192,9 +183,6 @@ public class SyncServiceImpl implements SyncService {
         props.setProperty(DateTimeConverter.FORMATTER_PATTERN_TIMESTAMP, "yyyy-MM-dd HH:mm:ss");
         props.setProperty(DateTimeConverter.FORMATTER_PATTERN_TIMESTAMP_ZONID, "Asia/Shanghai");
 
-        /** 采集表配置 */
-        props.setProperty("database.include.list", "test");
-        props.setProperty("table.include.list", "test.gp_area_info");
         //  对于decimal类型数据，在默认精度下会显示为"F3A="，通过设置属性decimal.handling.mode为double或string即可解决
         props.setProperty("decimal.handling.mode", "string");
         //  默认情况下，连接器在每次启动时都会首先获取一个全局读锁，然后进行快照读取。 首先获取全局读锁是不推荐的，可以设置snapshot.locking.mode=none使用行锁来代替
@@ -207,9 +195,6 @@ public class SyncServiceImpl implements SyncService {
         props.setProperty("value.converter.schemas.enable", "false");
 
 
-        /** 采集表配置 */
-        props.setProperty("table.include.list", "test.gp_area_info");
-
         /** 使用文件存储数据库模式历史 */
         props.setProperty("schema.history.internal", "io.debezium.storage.file.history.FileSchemaHistory");
         props.setProperty("schema.history.internal.file.filename", "D:/dbhistory.dat");
@@ -218,7 +203,6 @@ public class SyncServiceImpl implements SyncService {
 //        props.setProperty("database.history", KafkaDatabaseHistory.class.getCanonicalName());
 //        props.setProperty("database.history.kafka.topic", "debezium.database.history");
 //        props.setProperty("database.history.kafka.bootstrap.servers", "kafka-node:9092");
-
 
         /* 使用数据库存储移量 */
         props.setProperty("offset.storage", JdbcOffsetBackingStore.class.getCanonicalName());

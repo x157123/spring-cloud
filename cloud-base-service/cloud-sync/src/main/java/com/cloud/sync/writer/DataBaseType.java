@@ -1,244 +1,55 @@
 package com.cloud.sync.writer;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-/**
- * refer:http://blog.csdn.net/ring0hx/article/details/6152528
- * <p/>
- */
 public enum DataBaseType {
-    MySql("mysql", "com.mysql.jdbc.Driver"),
-    Tddl("mysql", "com.mysql.jdbc.Driver"),
-    DRDS("drds", "com.mysql.jdbc.Driver"),
-    Oracle("oracle", "oracle.jdbc.OracleDriver"),
-    SQLServer("sqlserver", "com.microsoft.sqlserver.jdbc.SQLServerDriver"),
-    PostgreSQL("postgresql", "org.postgresql.Driver"),
-    RDBMS("rdbms", "com.alibaba.datax.plugin.rdbms.util.DataBaseType"),
-    DB2("db2", "com.ibm.db2.jcc.DB2Driver"),
-    ADB("adb", "com.mysql.jdbc.Driver"),
-    ADS("ads", "com.mysql.jdbc.Driver"),
-    ClickHouse("clickhouse", "ru.yandex.clickhouse.ClickHouseDriver"),
-    KingbaseES("kingbasees", "com.kingbase8.Driver"),
-    Oscar("oscar", "com.oscar.Driver"),
-    OceanBase("oceanbase", "com.alipay.oceanbase.jdbc.Driver"),
-    StarRocks("starrocks", "com.mysql.jdbc.Driver"),
-    Databend("databend", "com.databend.jdbc.DatabendDriver");
+    MySql(1L, "mysql", "com.mysql.jdbc.Driver", "io.debezium.connector.mysql.MySqlConnector"),
+    Tddl(2L, "mysql", "com.mysql.jdbc.Driver", "com.mysql.jdbc.Driver"),
+    DRDS(3L, "drds", "com.mysql.jdbc.Driver", "com.mysql.jdbc.Driver"),
+    Oracle(4L, "oracle", "oracle.jdbc.OracleDriver", "oracle.jdbc.OracleDriver"),
+    SQLServer(5L, "sqlserver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "com.microsoft.sqlserver.jdbc.SQLServerDriver"),
+    PostgreSQL(6L, "postgresql", "org.postgresql.Driver", "org.postgresql.Driver"),
+    RDBMS(7L, "rdbms", "com.alibaba.datax.plugin.rdbms.util.DataBaseType", "com.alibaba.datax.plugin.rdbms.util.DataBaseType"),
+    DB2(8L, "db2", "com.ibm.db2.jcc.DB2Driver", "com.ibm.db2.jcc.DB2Driver"),
+    ADB(9L, "adb", "com.mysql.jdbc.Driver", "com.mysql.jdbc.Driver"),
+    ADS(10L, "ads", "com.mysql.jdbc.Driver", "com.mysql.jdbc.Driver"),
+    ClickHouse(11L, "clickhouse", "ru.yandex.clickhouse.ClickHouseDriver", "ru.yandex.clickhouse.ClickHouseDriver"),
+    KingbaseES(12L, "kingbasees", "com.kingbase8.Driver", "com.kingbase8.Driver"),
+    Oscar(13L, "oscar", "com.oscar.Driver", "com.oscar.Driver"),
+    OceanBase(14L, "oceanbase", "com.alipay.oceanbase.jdbc.Driver", "com.alipay.oceanbase.jdbc.Driver"),
+    StarRocks(15L, "starrocks", "com.mysql.jdbc.Driver", "com.mysql.jdbc.Driver"),
+    Databend(16L, "databend", "com.databend.jdbc.DatabendDriver", "com.databend.jdbc.DatabendDriver");
 
+    private Long type;
     private String typeName;
     private String driverClassName;
 
-    DataBaseType(String typeName, String driverClassName) {
+    private String debeziumConnector;
+
+    DataBaseType(Long type, String typeName, String driverClassName, String debeziumConnector) {
+        this.type = type;
         this.typeName = typeName;
         this.driverClassName = driverClassName;
+        this.debeziumConnector = debeziumConnector;
     }
 
     public String getDriverClassName() {
         return this.driverClassName;
     }
 
-    public String appendJDBCSuffixForReader(String jdbc) {
-        String result = jdbc;
-        String suffix = null;
-        switch (this) {
-            case MySql:
-            case DRDS:
-            case OceanBase:
-                suffix = "yearIsDateType=false&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&rewriteBatchedStatements=true";
-                if (jdbc.contains("?")) {
-                    result = jdbc + "&" + suffix;
-                } else {
-                    result = jdbc + "?" + suffix;
-                }
-                break;
-            case Oracle:
-                break;
-            case SQLServer:
-                break;
-            case DB2:
-                break;
-            case PostgreSQL:
-                break;
-            case ClickHouse:
-                break;
-            case RDBMS:
-                break;
-            case KingbaseES:
-                break;
-            case Oscar:
-                break;
-            case StarRocks:
-                break;
-            default:
-                throw new RuntimeException("数据库类型错误");
-        }
-
-        return result;
+    public String getDebeziumConnector() {
+        return this.debeziumConnector;
     }
 
-    public String appendJDBCSuffixForWriter(String jdbc) {
-        String result = jdbc;
-        String suffix = null;
-        switch (this) {
-            case MySql:
-                suffix = "yearIsDateType=false&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true&tinyInt1isBit=false";
-                if (jdbc.contains("?")) {
-                    result = jdbc + "&" + suffix;
-                } else {
-                    result = jdbc + "?" + suffix;
-                }
-                break;
-            case ADB:
-                suffix = "yearIsDateType=false&zeroDateTimeBehavior=convertToNull&rewriteBatchedStatements=true&tinyInt1isBit=false";
-                if (jdbc.contains("?")) {
-                    result = jdbc + "&" + suffix;
-                } else {
-                    result = jdbc + "?" + suffix;
-                }
-                break;
-            case DRDS:
-                suffix = "yearIsDateType=false&zeroDateTimeBehavior=convertToNull";
-                if (jdbc.contains("?")) {
-                    result = jdbc + "&" + suffix;
-                } else {
-                    result = jdbc + "?" + suffix;
-                }
-                break;
-            case Oracle:
-                break;
-            case SQLServer:
-                break;
-            case DB2:
-                break;
-            case PostgreSQL:
-                break;
-            case ClickHouse:
-                break;
-            case RDBMS:
-                break;
-            case Databend:
-                break;
-            case KingbaseES:
-                break;
-            case Oscar:
-                break;
-            case OceanBase:
-                suffix = "yearIsDateType=false&zeroDateTimeBehavior=convertToNull&tinyInt1isBit=false&rewriteBatchedStatements=true";
-                if (jdbc.contains("?")) {
-                    result = jdbc + "&" + suffix;
-                } else {
-                    result = jdbc + "?" + suffix;
-                }
-                break;
-            default:
-                throw new RuntimeException("数据库类型错误");
-        }
-
-        return result;
+    public Long getType() {
+        return this.type;
     }
 
-    public String formatPk(String splitPk) {
-        String result = splitPk;
-
-        switch (this) {
-            case MySql:
-            case Oracle:
-                if (splitPk.length() >= 2 && splitPk.startsWith("`") && splitPk.endsWith("`")) {
-                    result = splitPk.substring(1, splitPk.length() - 1).toLowerCase();
-                }
-                break;
-            case SQLServer:
-                if (splitPk.length() >= 2 && splitPk.startsWith("[") && splitPk.endsWith("]")) {
-                    result = splitPk.substring(1, splitPk.length() - 1).toLowerCase();
-                }
-                break;
-            case DB2:
-            case PostgreSQL:
-            case KingbaseES:
-            case Oscar:
-                break;
-            default:
-                throw new RuntimeException("数据库类型错误");
-        }
-
-        return result;
-    }
-
-
-    public String quoteColumnName(String columnName) {
-        String result = columnName;
-
-        switch (this) {
-            case MySql:
-                result = "`" + columnName.replace("`", "``") + "`";
-                break;
-            case Oracle:
-                break;
-            case SQLServer:
-                result = "[" + columnName + "]";
-                break;
-            case DB2:
-            case PostgreSQL:
-            case KingbaseES:
-            case Oscar:
-                break;
-            default:
-                throw new RuntimeException("数据库类型错误");
-        }
-
-        return result;
-    }
-
-    public String quoteTableName(String tableName) {
-        String result = tableName;
-
-        switch (this) {
-            case MySql:
-                result = "`" + tableName.replace("`", "``") + "`";
-                break;
-            case Oracle:
-                break;
-            case SQLServer:
-                break;
-            case DB2:
-                break;
-            case PostgreSQL:
-                break;
-            case KingbaseES:
-                break;
-            case Oscar:
-                break;
-            default:
-                throw new RuntimeException("数据库类型错误");
-        }
-
-        return result;
-    }
-
-    private static Pattern mysqlPattern = Pattern.compile("jdbc:mysql://(.+):\\d+/.+");
-    private static Pattern oraclePattern = Pattern.compile("jdbc:oracle:thin:@(.+):\\d+:.+");
-
-    /**
-     * 注意：目前只实现了从 mysql/oracle 中识别出ip 信息.未识别到则返回 null.
-     */
-    public static String parseIpFromJdbcUrl(String jdbcUrl) {
-        Matcher mysql = mysqlPattern.matcher(jdbcUrl);
-        if (mysql.matches()) {
-            return mysql.group(1);
-        }
-        Matcher oracle = oraclePattern.matcher(jdbcUrl);
-        if (oracle.matches()) {
-            return oracle.group(1);
+    public static DataBaseType getDataBaseType(Long type) {
+        DataBaseType[] dataBaseTypes = DataBaseType.values();
+        for (DataBaseType dataBaseType : dataBaseTypes) {
+            if (dataBaseType.getType().equals(type)) {
+                return dataBaseType;
+            }
         }
         return null;
     }
-
-    public String getTypeName() {
-        return typeName;
-    }
-
-    public void setTypeName(String typeName) {
-        this.typeName = typeName;
-    }
-
 }
