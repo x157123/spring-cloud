@@ -14,10 +14,8 @@ import com.cloud.sync.param.TableConfigParam;
 import com.cloud.sync.query.TableConfigQuery;
 import com.cloud.sync.service.ColumnConfigService;
 import com.cloud.sync.service.TableConfigService;
-import com.cloud.sync.service.TableMapService;
 import com.cloud.sync.vo.ColumnConfigVo;
 import com.cloud.sync.vo.TableConfigVo;
-import com.cloud.sync.vo.TableMapVo;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,17 +37,14 @@ public class TableConfigServiceImpl implements TableConfigService {
 
     private final ColumnConfigService columnConfigService;
 
-    private final TableMapService tableMapService;
-
     /**
      * 使用构造方法注入
      *
      * @param tableConfigMapper 同步表配置Mapper服务
      */
-    public TableConfigServiceImpl(TableConfigMapper tableConfigMapper, ColumnConfigService columnConfigService, TableMapService tableMapService) {
+    public TableConfigServiceImpl(TableConfigMapper tableConfigMapper, ColumnConfigService columnConfigService) {
         this.tableConfigMapper = tableConfigMapper;
         this.columnConfigService = columnConfigService;
-        this.tableMapService = tableMapService;
     }
 
     /**
@@ -155,19 +150,23 @@ public class TableConfigServiceImpl implements TableConfigService {
     /**
      * 传入多个Id 查询数据
      *
-     * @param connectIds id集合
+     * @param serveIds id集合
+     * @param type     type
      * @return 返回查询结果
      */
     @Override
-    public List<TableConfigVo> findByConnectId(List<Long> connectIds) {
-        if (connectIds == null || connectIds.size() == 0) {
+    public List<TableConfigVo> findByServeId(List<Long> serveIds, Integer type) {
+        if (serveIds == null || serveIds.size() == 0) {
             return new ArrayList<>();
         }
         List<TableConfigVo> dataList = new ArrayList<>();
         LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
-        List<List<Long>> subLists = ListUtils.partition(connectIds, 5000);
+        List<List<Long>> subLists = ListUtils.partition(serveIds, 5000);
         for (List<Long> list : subLists) {
-            queryWrapper.in(TableConfig::getConnectId, list);
+            queryWrapper.in(TableConfig::getServeId, list);
+            if (type != null) {
+                queryWrapper.eq(TableConfig::getType, type);
+            }
             dataList.addAll(queryWrapper(queryWrapper));
         }
         return dataList;
@@ -200,10 +199,8 @@ public class TableConfigServiceImpl implements TableConfigService {
         if (list != null) {
             List<Long> ids = list.stream().map(TableConfigVo::getId).collect(Collectors.toList());
             Map<Long, List<ColumnConfigVo>> columnConfigMap = columnConfigService.findByTableId(ids).stream().collect(Collectors.groupingBy(ColumnConfigVo::getId));
-            Map<Long, List<TableMapVo>> tableMapMap = tableMapService.findByReadTableId(ids).stream().collect(Collectors.groupingBy(TableMapVo::getId));
             for (TableConfigVo tableConfig : list) {
                 tableConfig.setColumnConfigVoList(columnConfigMap.get(tableConfig.getId()));
-                tableConfig.setTableMapVoList(tableMapMap.get(tableConfig.getId()));
             }
         }
     }

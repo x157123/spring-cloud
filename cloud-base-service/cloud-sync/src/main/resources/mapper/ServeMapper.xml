@@ -2,26 +2,23 @@
 
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.cloud.sync.mapper.TableMapMapper">
+<mapper namespace="com.cloud.sync.mapper.ServeMapper">
 
-    <select id="queryPage" resultType="com.cloud.sync.entity.TableMap"
-            parameterType="com.cloud.sync.query.TableMapQuery">
-        select * from sync_table_map
+    <select id="queryPage" resultType="com.cloud.sync.entity.Serve"
+            parameterType="com.cloud.sync.query.ServeQuery">
+        select * from sync_serve
         <where>
             <if test="param.id != null">
                 and id = #{param.id}
             </if>
+            <if test="param.name != null and param.name != ''">
+                and name like concat('%',#{param.name},'%')
+            </if>
             <if test="param.readConnectId != null">
                 and read_connect_id = #{param.readConnectId}
             </if>
-            <if test="param.readTableId != null">
-                and read_table_id = #{param.readTableId}
-            </if>
             <if test="param.writeConnectId != null">
                 and write_connect_id = #{param.writeConnectId}
-            </if>
-            <if test="param.writeTableId != null">
-                and write_table_id = #{param.writeTableId}
             </if>
         </where>
     </select>

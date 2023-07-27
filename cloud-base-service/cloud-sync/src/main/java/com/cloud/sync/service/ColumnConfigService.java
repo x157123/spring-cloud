@@ -66,14 +66,6 @@ public interface ColumnConfigService {
     /**
      * 传入多个业务Id 查询数据
      *
-     * @param connectIds  查询结果集
-     * @return 返回结果
-     */
-    List<ColumnConfigVo> findByConnectId(List<Long> connectIds);
-	
-    /**
-     * 传入多个业务Id 查询数据
-     *
      * @param tableIds  查询结果集
      * @return 返回结果
      */

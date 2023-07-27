@@ -7,7 +7,7 @@ import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import lombok.Data;
 
 import java.util.List;
-import com.cloud.sync.vo.ServeTableVo;
+import com.cloud.sync.vo.TableConfigVo;
 
 /**
  * @author liulei
@@ -15,7 +15,7 @@ import com.cloud.sync.vo.ServeTableVo;
  */
 @Data
 @Schema(name = "表映射响应对象", description = "表映射响应对象")
-public class TableMapVo {
+public class ServeVo {
 	/**
      * id
      */
@@ -23,17 +23,16 @@ public class TableMapVo {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 	/**
+     * 名称
+     */
+    @Schema(description = "表映射名称")
+    private String name;
+	/**
      * 采集数据Id
      */
     @Schema(description = "表映射采集数据Id")
     @JsonSerialize(using = ToStringSerializer.class)
     private Long readConnectId;
-	/**
-     * 读取表Id
-     */
-    @Schema(description = "表映射读取表Id")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long readTableId;
 	/**
      * 写入数据库Id
      */
@@ -41,15 +40,14 @@ public class TableMapVo {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long writeConnectId;
 	/**
-     * 写入表Id
+     * 版本
      */
-    @Schema(description = "表映射写入表Id")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long writeTableId;
+    @Schema(description = "表映射版本")
+    private Integer version;
 
 	/**
-     * 同步表
+     * 同步表配置
      */
-    @Schema(description = "表映射同步表")
-    private List<ServeTableVo> serveTableVoList;
+    @Schema(description = "表映射同步表配置")
+    private List<TableConfigVo> tableConfigVoList;
 }

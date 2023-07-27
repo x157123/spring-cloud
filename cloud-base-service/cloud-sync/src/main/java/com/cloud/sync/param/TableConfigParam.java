@@ -22,11 +22,16 @@ public class TableConfigParam {
     private Long id;
 
 	/**
-     * 数据库id
+     * 服务id
      */
-    @NotNull(message = "同步表配置数据库id[TableConfigVo.connectId]不能为null")
-    @Schema(description = "数据库id", requiredMode = Schema.RequiredMode.REQUIRED)
-    private Long connectId;
+    @Schema(description = "服务id")
+    private Long serveId;
+
+	/**
+     * 1读，2写
+     */
+    @Schema(description = "1读，2写")
+    private Integer type;
 
 	/**
      * 数据库表
@@ -46,5 +51,5 @@ public class TableConfigParam {
      * 版本
      */
     @Schema(description = "版本")
-    private Long version;
+    private Integer version;
 }

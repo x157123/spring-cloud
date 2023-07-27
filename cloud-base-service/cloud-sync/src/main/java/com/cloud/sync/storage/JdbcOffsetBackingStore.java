@@ -1,10 +1,15 @@
 package com.cloud.sync.storage;
 
+import com.alibaba.fastjson2.JSONObject;
+import com.cloud.sync.param.ServeConfigParam;
+import com.cloud.sync.service.ServeConfigService;
+import com.cloud.sync.vo.ServeConfigVo;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.runtime.WorkerConfig;
 import org.apache.kafka.connect.storage.OffsetBackingStore;
 import org.apache.kafka.connect.util.Callback;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
@@ -24,7 +29,13 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
 
     protected ExecutorService executor;
 
-    protected Long serverId;
+    protected Long serveId;
+
+    private static ConfigurableApplicationContext ac;
+
+    public static void setAc(ConfigurableApplicationContext applicationContext) {
+        ac = applicationContext;
+    }
 
     @Override
     public void start() {
@@ -32,7 +43,6 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
         executor = new ThreadPoolExecutor(5, 200, 0L, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(1024), namedThreadFactory,
                 new ThreadPoolExecutor.AbortPolicy());
-        load();
     }
 
     @Override
@@ -96,22 +106,38 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
     @Override
     public void configure(WorkerConfig workerConfig) {
         String str = workerConfig.originals().get("database.server.id").toString();
-        serverId = Long.parseLong(str);
+        serveId = Long.parseLong(str);
+        load();
     }
 
     /**
      * 获取数据库
      */
     private void load() {
-        String key = "[\"debezium_1\",{\"server\":\"debezium_1\"}]";
-        String value = "{\"transaction_id\":null,\"ts_sec\":1690273273,\"file\":\"mysql-bin.000149\",\"pos\":5655,\"gtids\":\"6e743415-ca40-11e8-8a55-10f0059aec86:1-33837\",\"row\":1,\"server_id\":1,\"event\":2}";
-        data.put(ByteBuffer.wrap(key.getBytes()), ByteBuffer.wrap(value.getBytes()));
+        ServeConfigService serveConfigService = ac.getBean(ServeConfigService.class);
+        if (serveConfigService != null) {
+            ServeConfigVo serveConfigVo = serveConfigService.findByServerId(serveId);
+            if (serveConfigVo != null) {
+                String offset = serveConfigVo.getOffSet();
+                JSONObject jsonObject = JSONObject.parseObject(offset);
+                data.put(ByteBuffer.wrap(jsonObject.getString("key").getBytes()), ByteBuffer.wrap(jsonObject.getString("value").getBytes()));
+            }
+        }
     }
 
     /**
      * 写入数据库
      */
     private void save(String key, String value) {
-
+        ServeConfigService serveConfigService = ac.getBean(ServeConfigService.class);
+        if (serveConfigService != null) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("key", key);
+            jsonObject.put("value", value);
+            ServeConfigParam serveConfigParam = new ServeConfigParam();
+            serveConfigParam.setServeId(serveId);
+            serveConfigParam.setOffSet(jsonObject.toString());
+            serveConfigService.save(serveConfigParam);
+        }
     }
 }

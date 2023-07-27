@@ -11,9 +11,6 @@
             <if test="param.id != null">
                 and id = #{param.id}
             </if>
-            <if test="param.connectId != null">
-                and connect_id = #{param.connectId}
-            </if>
             <if test="param.tableId != null">
                 and table_id = #{param.tableId}
             </if>
@@ -26,14 +23,11 @@
             <if test="param.columnType != null and param.columnType != ''">
                 and column_type like concat('%',#{param.columnType},'%')
             </if>
-            <if test="param.columnLength != null">
-                and column_length = #{param.columnLength}
-            </if>
-            <if test="param.columnRequired != null">
-                and column_required = #{param.columnRequired}
-            </if>
             <if test="param.columnPrimaryKey != null">
                 and column_primary_key = #{param.columnPrimaryKey}
+            </if>
+            <if test="param.def != null and param.def != ''">
+                and def like concat('%',#{param.def},'%')
             </if>
         </where>
     </select>

@@ -16,10 +16,16 @@ public class TableConfigQuery {
     private Long id;
 
 	/**
-     * 数据库id
+     * 服务id
      */
-    @Schema(description = "同步表配置数据库id")
-    private Long connectId;
+    @Schema(description = "同步表配置服务id")
+    private Long serveId;
+
+	/**
+     * 1读，2写
+     */
+    @Schema(description = "同步表配置1读，2写")
+    private Integer type;
 
 	/**
      * 数据库表

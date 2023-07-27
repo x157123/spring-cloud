@@ -21,12 +21,6 @@ public class ColumnConfigParam {
     private Long id;
 
 	/**
-     * 数据库Id
-     */
-    @Schema(description = "数据库Id")
-    private Long connectId;
-
-	/**
      * 表Id
      */
     @Schema(description = "表Id")
@@ -54,26 +48,21 @@ public class ColumnConfigParam {
     private String columnType;
 
 	/**
-     * 长度
-     */
-    @Schema(description = "长度")
-    private Integer columnLength;
-
-	/**
-     * 是否必填
-     */
-    @Schema(description = "是否必填")
-    private Integer columnRequired;
-
-	/**
      * 主键
      */
     @Schema(description = "主键")
     private Integer columnPrimaryKey;
 
 	/**
+     * 默认值
+     */
+    @Length(max = 100, message = "同步数据库列配置默认值[ColumnConfigVo.def]长度不能超过100个字符")
+    @Schema(description = "默认值")
+    private String def;
+
+	/**
      * 版本
      */
     @Schema(description = "版本")
-    private Long version;
+    private Integer version;
 }

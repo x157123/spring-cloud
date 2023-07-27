@@ -37,7 +37,7 @@ public class ConnectConfigQuery {
      * 数据库
      */
     @Schema(description = "数据库配置数据库")
-    private String database;
+    private String databaseName;
 
 	/**
      * 用户

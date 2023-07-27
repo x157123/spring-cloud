@@ -7,7 +7,7 @@ import lombok.Data;
  * 表映射
  */
 @Data
-public class TableMapQuery {
+public class ServeQuery {
 
 	/**
      * id
@@ -16,26 +16,20 @@ public class TableMapQuery {
     private Long id;
 
 	/**
+     * 名称
+     */
+    @Schema(description = "表映射名称")
+    private String name;
+
+	/**
      * 采集数据Id
      */
     @Schema(description = "表映射采集数据Id")
     private Long readConnectId;
 
 	/**
-     * 读取表Id
-     */
-    @Schema(description = "表映射读取表Id")
-    private Long readTableId;
-
-	/**
      * 写入数据库Id
      */
     @Schema(description = "表映射写入数据库Id")
     private Long writeConnectId;
-
-	/**
-     * 写入表Id
-     */
-    @Schema(description = "表映射写入表Id")
-    private Long writeTableId;
 }

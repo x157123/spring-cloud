@@ -44,9 +44,9 @@ public class ConnectConfigParam {
 	/**
      * 数据库
      */
-    @Length(max = 100, message = "数据库配置数据库[ConnectConfigVo.database]长度不能超过100个字符")
+    @Length(max = 100, message = "数据库配置数据库[ConnectConfigVo.databaseName]长度不能超过100个字符")
     @Schema(description = "数据库")
-    private String database;
+    private String databaseName;
 
 	/**
      * 用户
@@ -80,5 +80,5 @@ public class ConnectConfigParam {
      * 版本
      */
     @Schema(description = "版本")
-    private Long version;
+    private Integer version;
 }

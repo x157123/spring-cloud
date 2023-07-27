@@ -11,8 +11,8 @@
             <if test="param.id != null">
                 and id = #{param.id}
             </if>
-            <if test="param.readConnectId != null">
-                and read_connect_id = #{param.readConnectId}
+            <if test="param.serveId != null">
+                and serve_id = #{param.serveId}
             </if>
             <if test="param.state != null">
                 and state = #{param.state}

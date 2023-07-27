@@ -61,29 +61,16 @@ public class ConnectConfigVo {
      */
     @Schema(description = "数据库配置备注")
     private String remark;
-
     /**
-     * 同步数据库列配置
+     * 版本
      */
-    @Schema(description = "数据库配置同步数据库列配置")
-    private List<ColumnConfigVo> columnConfigVoList;
-
-    /**
-     * 同步启动服务
-     */
-    @Schema(description = "数据库配置同步启动服务")
-    private List<ServeConfigVo> serveConfigVoList;
-
-    /**
-     * 同步表配置
-     */
-    @Schema(description = "数据库配置同步表配置")
-    private List<TableConfigVo> tableConfigVoList;
+    @Schema(description = "数据库配置版本")
+    private Integer version;
 
     /**
      * 表映射
      */
     @Schema(description = "数据库配置表映射")
-    private List<TableMapVo> tableMapVoList;
+    private List<ServeVo> serveVoList;
 
 }

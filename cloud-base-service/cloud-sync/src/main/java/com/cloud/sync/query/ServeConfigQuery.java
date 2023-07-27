@@ -16,10 +16,10 @@ public class ServeConfigQuery {
     private Long id;
 
 	/**
-     * 采集数据库Id
+     * 服务名称
      */
-    @Schema(description = "同步启动服务采集数据库Id")
-    private Long readConnectId;
+    @Schema(description = "同步启动服务服务名称")
+    private Long serveId;
 
 	/**
      * 状态0未启动，1停用中，5待启动，10启动

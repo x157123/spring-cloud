@@ -42,7 +42,7 @@ public class ${nameClass}Vo {
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted" && col.nameClass != "version">
+        && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
 	/**
      * ${col.comment}
      */

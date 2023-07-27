@@ -49,3 +49,7 @@ eureka:
 logging:
   level:
     learning: error
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl

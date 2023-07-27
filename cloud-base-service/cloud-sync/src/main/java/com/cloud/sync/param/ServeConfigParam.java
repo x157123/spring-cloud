@@ -5,7 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
-import java.util.List;
 
 /**
  * @author liulei
@@ -22,10 +21,10 @@ public class ServeConfigParam {
     private Long id;
 
 	/**
-     * 采集数据库Id
+     * 服务名称
      */
-    @Schema(description = "采集数据库Id")
-    private Long readConnectId;
+    @Schema(description = "服务名称")
+    private Long serveId;
 
 	/**
      * 状态0未启动，1停用中，5待启动，10启动
@@ -36,7 +35,7 @@ public class ServeConfigParam {
 	/**
      * 数据库采集偏移情况
      */
-    @Length(max = 200, message = "同步启动服务数据库采集偏移情况[ServeConfigVo.offSet]长度不能超过200个字符")
+    @Length(max = 400, message = "同步启动服务数据库采集偏移情况[ServeConfigVo.offSet]长度不能超过400个字符")
     @Schema(description = "数据库采集偏移情况")
     private String offSet;
 
@@ -44,5 +43,5 @@ public class ServeConfigParam {
      * 版本
      */
     @Schema(description = "版本")
-    private Long version;
+    private Integer version;
 }

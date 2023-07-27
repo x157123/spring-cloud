@@ -20,8 +20,8 @@
             <if test="param.port != null">
                 and port = #{param.port}
             </if>
-            <if test="param.database != null and param.database != ''">
-                and database like concat('%',#{param.database},'%')
+            <if test="param.databaseName != null and param.databaseName != ''">
+                and database_name like concat('%',#{param.databaseName},'%')
             </if>
             <if test="param.user != null and param.user != ''">
                 and user like concat('%',#{param.user},'%')

@@ -1,7 +1,9 @@
 package com.cloud.sync;
 
+import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * @author liulei
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class SyncApplication {
     public static void main(String[] args) {
-        SpringApplication.run(SyncApplication.class, args);
+        ConfigurableApplicationContext applicationContext = SpringApplication.run(SyncApplication.class, args);
+        JdbcOffsetBackingStore.setAc(applicationContext);
     }
 }

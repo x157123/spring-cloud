@@ -2,11 +2,13 @@ package com.cloud.sync.service.impl;
 
 import com.cloud.sync.builder.DateTimeConverter;
 import com.cloud.sync.service.ConnectConfigService;
-import com.cloud.sync.service.ServeTableService;
+import com.cloud.sync.service.ServeService;
 import com.cloud.sync.service.SyncService;
-import com.cloud.sync.service.TableMapService;
+import com.cloud.sync.service.TableConfigService;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.vo.ServeVo;
+import com.cloud.sync.vo.TableConfigVo;
 import com.cloud.sync.writer.CommonWriter;
 import com.cloud.sync.writer.DataBaseType;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -17,14 +19,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author Administrator
@@ -32,25 +32,26 @@ import java.util.concurrent.TimeUnit;
 @Component
 public class SyncServiceImpl implements SyncService {
 
+    private final ServeService serviceService;
+
+    private final TableConfigService tableConfigService;
+
     private final ConnectConfigService connectConfigService;
 
-    private final ServeTableService serveTableService;
-
-    private final TableMapService tableMapService;
 
     private KafkaTemplate<String, String> kafkaTemplate;
+
 
     private Map<String, CommonWriter> writerMap = new HashMap<>();
 
     @Value("${spring.kafka.topic.startTopic}")
     private String debeziumTopic;
 
-    public SyncServiceImpl(ConnectConfigService connectConfigService, KafkaTemplate<String, String> kafkaTemplate
-            , ServeTableService serveTableService, TableMapService tableMapService) {
-        this.connectConfigService = connectConfigService;
+    public SyncServiceImpl(KafkaTemplate<String, String> kafkaTemplate, ServeService serviceService, TableConfigService tableConfigService, ConnectConfigService connectConfigService) {
+        this.serviceService = serviceService;
         this.kafkaTemplate = kafkaTemplate;
-        this.serveTableService = serveTableService;
-        this.tableMapService = tableMapService;
+        this.tableConfigService = tableConfigService;
+        this.connectConfigService = connectConfigService;
     }
 
     ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("pool-%d").build();
@@ -62,27 +63,26 @@ public class SyncServiceImpl implements SyncService {
 
 
     @Override
-    public void begin(Long connectId) {
-        ConnectConfigVo connectConfigVo = connectConfigService.findById(connectId);
-        DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(connectConfigVo);
+    public void begin(Long serveId) {
+        ServeVo serveVo = serviceService.findById(serveId);
+        ConnectConfigVo connectConfigVo = connectConfigService.findById(serveVo.getReadConnectId());
+        DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(serveId, connectConfigVo);
         executor.execute(engine);
-        map.put(debeziumTopic + connectConfigVo.getId().toString(), engine);
+        map.put(debeziumTopic + serveId.toString(), engine);
     }
 
 
     @Override
-    public void start(Long connectId) {
-        ConnectConfigVo connectConfigVo = connectConfigService.findById(connectId);
-        DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + connectConfigVo.getId().toString());
+    public void start(Long serveId) {
+        DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + serveId.toString());
         executor.execute(mysql);
     }
 
 
     @Override
-    public void stop(Long connectId) {
-        ConnectConfigVo connectConfigVo = connectConfigService.findById(connectId);
+    public void stop(Long serveId) {
         try {
-            DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + connectConfigVo.getId().toString());
+            DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + serveId.toString());
             mysql.close();
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,8 +132,8 @@ public class SyncServiceImpl implements SyncService {
         }
     }
 
-    private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(ConnectConfigVo connectConfigVo) {
-        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(Json.class).using(getProperties(connectConfigVo)).notifying(record -> {
+    private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(Long serveId, ConnectConfigVo connectConfigVo) {
+        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(Json.class).using(getProperties(serveId, connectConfigVo)).notifying(record -> {
 //            System.out.println("record.value() =》 " + record.destination());
 //            System.out.println("record.value() =》 " + record.value());
             kafkaTemplate.send(record.destination(), record.value());
@@ -149,11 +149,11 @@ public class SyncServiceImpl implements SyncService {
     }
 
 
-    private Properties getProperties(ConnectConfigVo connectConfigVo) {
+    private Properties getProperties(Long serveId, ConnectConfigVo connectConfigVo) {
         final Properties props = getProperties();
-        props.setProperty("name", debeziumTopic + connectConfigVo.getId().toString());
-        props.setProperty("topic.prefix", debeziumTopic + connectConfigVo.getId().toString());
-        props.setProperty("database.server.id", connectConfigVo.getId().toString());
+        props.setProperty("name", debeziumTopic + serveId);
+        props.setProperty("topic.prefix", debeziumTopic + serveId);
+        props.setProperty("database.server.id", serveId.toString());
         props.setProperty("connector.class", DataBaseType.getDataBaseType(connectConfigVo.getType()).getDebeziumConnector());
         props.setProperty("database.hostname", connectConfigVo.getHostname());
         props.setProperty("database.port", connectConfigVo.getPort().toString());
@@ -161,8 +161,14 @@ public class SyncServiceImpl implements SyncService {
         props.setProperty("database.password", connectConfigVo.getPassword());
         /** 采集表配置 */
         props.setProperty("database.include.list", connectConfigVo.getDatabaseName());
+
+        List<TableConfigVo> tableConfigVos = tableConfigService.findByServeId(Arrays.asList(serveId), 1);
+
+        String str = tableConfigVos
+                .stream().map(t -> connectConfigVo.getDatabaseName() + "." + t.getTableName())
+                .collect(Collectors.joining(","));
         /** 采集表配置 */
-        props.setProperty("table.include.list", "test.gp_area_info");
+        props.setProperty("table.include.list", str);
         return props;
     }
 

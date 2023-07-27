@@ -12,8 +12,10 @@ import com.cloud.sync.entity.ConnectConfig;
 import com.cloud.sync.mapper.ConnectConfigMapper;
 import com.cloud.sync.param.ConnectConfigParam;
 import com.cloud.sync.query.ConnectConfigQuery;
-import com.cloud.sync.service.*;
-import com.cloud.sync.vo.*;
+import com.cloud.sync.service.ConnectConfigService;
+import com.cloud.sync.service.ServeService;
+import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.vo.ServeVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -32,25 +34,16 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
 
     private final ConnectConfigMapper connectConfigMapper;
 
-    private final ColumnConfigService columnConfigService;
-
-    private final ServeConfigService serveConfigService;
-
-    private final TableConfigService tableConfigService;
-
-    private final TableMapService tableMapService;
+    private final ServeService serveService;
 
     /**
      * 使用构造方法注入
      *
      * @param connectConfigMapper 数据库配置Mapper服务
      */
-    public ConnectConfigServiceImpl(ConnectConfigMapper connectConfigMapper, ColumnConfigService columnConfigService, ServeConfigService serveConfigService, TableConfigService tableConfigService, TableMapService tableMapService) {
+    public ConnectConfigServiceImpl(ConnectConfigMapper connectConfigMapper, ServeService serveService) {
         this.connectConfigMapper = connectConfigMapper;
-        this.columnConfigService = columnConfigService;
-        this.serveConfigService = serveConfigService;
-        this.tableConfigService = tableConfigService;
-        this.tableMapService = tableMapService;
+        this.serveService = serveService;
     }
 
     /**
@@ -179,15 +172,9 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     private void setParam(List<ConnectConfigVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(ConnectConfigVo::getId).collect(Collectors.toList());
-            Map<Long, List<ColumnConfigVo>> columnConfigMap = columnConfigService.findByConnectId(ids).stream().collect(Collectors.groupingBy(ColumnConfigVo::getId));
-            Map<Long, List<ServeConfigVo>> serveConfigMap = serveConfigService.findByReadConnectId(ids).stream().collect(Collectors.groupingBy(ServeConfigVo::getId));
-            Map<Long, List<TableConfigVo>> tableConfigMap = tableConfigService.findByConnectId(ids).stream().collect(Collectors.groupingBy(TableConfigVo::getId));
-            Map<Long, List<TableMapVo>> tableMapMap = tableMapService.findByReadConnectId(ids).stream().collect(Collectors.groupingBy(TableMapVo::getId));
+            Map<Long, List<ServeVo>> serveMap = serveService.findByReadConnectId(ids).stream().collect(Collectors.groupingBy(ServeVo::getId));
             for (ConnectConfigVo connectConfig : list) {
-                connectConfig.setColumnConfigVoList(columnConfigMap.get(connectConfig.getId()));
-                connectConfig.setServeConfigVoList(serveConfigMap.get(connectConfig.getId()));
-                connectConfig.setTableConfigVoList(tableConfigMap.get(connectConfig.getId()));
-                connectConfig.setTableMapVoList(tableMapMap.get(connectConfig.getId()));
+                connectConfig.setServeVoList(serveMap.get(connectConfig.getId()));
             }
         }
     }

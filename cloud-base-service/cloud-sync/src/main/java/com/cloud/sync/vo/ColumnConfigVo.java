@@ -21,12 +21,6 @@ public class ColumnConfigVo {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 	/**
-     * 数据库Id
-     */
-    @Schema(description = "同步数据库列配置数据库Id")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long connectId;
-	/**
      * 表Id
      */
     @Schema(description = "同步数据库列配置表Id")
@@ -48,18 +42,18 @@ public class ColumnConfigVo {
     @Schema(description = "同步数据库列配置数据类型")
     private String columnType;
 	/**
-     * 长度
-     */
-    @Schema(description = "同步数据库列配置长度")
-    private Integer columnLength;
-	/**
-     * 是否必填
-     */
-    @Schema(description = "同步数据库列配置是否必填")
-    private Integer columnRequired;
-	/**
      * 主键
      */
     @Schema(description = "同步数据库列配置主键")
     private Integer columnPrimaryKey;
+	/**
+     * 默认值
+     */
+    @Schema(description = "同步数据库列配置默认值")
+    private String def;
+	/**
+     * 版本
+     */
+    @Schema(description = "同步数据库列配置版本")
+    private Integer version;
 }

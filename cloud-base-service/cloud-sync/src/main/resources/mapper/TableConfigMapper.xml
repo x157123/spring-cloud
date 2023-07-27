@@ -11,8 +11,11 @@
             <if test="param.id != null">
                 and id = #{param.id}
             </if>
-            <if test="param.connectId != null">
-                and connect_id = #{param.connectId}
+            <if test="param.serveId != null">
+                and serve_id = #{param.serveId}
+            </if>
+            <if test="param.type != null">
+                and type = #{param.type}
             </if>
             <if test="param.tableName != null and param.tableName != ''">
                 and table_name like concat('%',#{param.tableName},'%')

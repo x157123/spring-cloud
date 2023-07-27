@@ -38,13 +38,16 @@ public class ReadMysqlTable {
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
         String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-base-service\\" + projectName + "\\";
+
+        if (sg) {
+            url = "jdbc:mysql://localhost:3306/test_sg";
+            ftlPath = "cloud-sg";
+            projectName = "tq-project-dl-issue-service";
+            filePath = "D:\\tianque\\project\\service\\tq-project-danlings\\" + projectName + "\\";
+            packagePath = "com.tianque.scgrid.service";
+        }
+
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
-            if (sg) {
-                ftlPath = "cloud-sg";
-                projectName = "tq-project-zongzhi-service";
-                filePath = "E:\\test\\project\\service\\tq-project-zongzhi\\" + projectName + "\\";
-                packagePath = "com.tianque.generalgrid.service.project";
-            }
 
             //  获取表结果集
             List<MysqlTable> tables = getTables(conn, packagePath, prefix);
