@@ -1,10 +1,7 @@
 package com.cloud.sync.service.impl;
 
 import com.cloud.sync.builder.DateTimeConverter;
-import com.cloud.sync.service.ConnectConfigService;
-import com.cloud.sync.service.ServeService;
-import com.cloud.sync.service.SyncService;
-import com.cloud.sync.service.TableConfigService;
+import com.cloud.sync.service.*;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
 import com.cloud.sync.vo.ServeVo;
@@ -38,20 +35,22 @@ public class SyncServiceImpl implements SyncService {
 
     private final ConnectConfigService connectConfigService;
 
+    private final ServeConfigService serveConfigService;
 
     private KafkaTemplate<String, String> kafkaTemplate;
-
 
     private Map<String, CommonWriter> writerMap = new HashMap<>();
 
     @Value("${spring.kafka.topic.startTopic}")
     private String debeziumTopic;
 
-    public SyncServiceImpl(KafkaTemplate<String, String> kafkaTemplate, ServeService serviceService, TableConfigService tableConfigService, ConnectConfigService connectConfigService) {
+    public SyncServiceImpl(KafkaTemplate<String, String> kafkaTemplate, ServeService serviceService
+            , TableConfigService tableConfigService, ConnectConfigService connectConfigService, ServeConfigService serveConfigService) {
         this.serviceService = serviceService;
         this.kafkaTemplate = kafkaTemplate;
         this.tableConfigService = tableConfigService;
         this.connectConfigService = connectConfigService;
+        this.serveConfigService = serveConfigService;
     }
 
     ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("pool-%d").build();
@@ -69,13 +68,7 @@ public class SyncServiceImpl implements SyncService {
         DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(serveId, connectConfigVo);
         executor.execute(engine);
         map.put(debeziumTopic + serveId.toString(), engine);
-    }
-
-
-    @Override
-    public void start(Long serveId) {
-        DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + serveId.toString());
-        executor.execute(mysql);
+        serveConfigService.state(serveId, 1);
     }
 
 
@@ -84,9 +77,12 @@ public class SyncServiceImpl implements SyncService {
         try {
             DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + serveId.toString());
             mysql.close();
+            map.remove(debeziumTopic + serveId);
+            serveConfigService.state(serveId, 0);
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
 

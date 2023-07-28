@@ -11,11 +11,6 @@ public interface SyncService {
     void begin(Long connectId);
 
     /**
-     * 开启服务
-     */
-    void start(Long connectId);
-
-    /**
      * 停止服务
      */
     void stop(Long connectId);

@@ -138,27 +138,6 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
 	/**
      * 传入多个Id 查询数据
      *
-     * @param connectIds id集合
-     * @return  返回查询结果
-     */
-    @Override
-    public List<ColumnConfigVo> findByConnectId(List<Long> connectIds){
-        if (connectIds == null || connectIds.size() == 0) {
-            return new ArrayList<>();
-        }
-        List<ColumnConfigVo> dataList = new ArrayList<>();
-        LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
-        List<List<Long>> subLists = ListUtils.partition(connectIds, 5000);
-        for(List<Long> list : subLists) {
-            queryWrapper.in(ColumnConfig::getConnectId, list);
-            dataList.addAll(queryWrapper(queryWrapper));
-        }
-        return dataList;
-    }
-	
-	/**
-     * 传入多个Id 查询数据
-     *
      * @param tableIds id集合
      * @return  返回查询结果
      */

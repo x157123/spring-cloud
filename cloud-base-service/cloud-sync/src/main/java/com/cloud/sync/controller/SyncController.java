@@ -22,12 +22,6 @@ public class SyncController {
         syncService.begin(connectId);
     }
 
-    @GetMapping("/start")
-    @ResponseBody
-    public void start(Long connectId) {
-        syncService.start(connectId);
-    }
-
 
     @GetMapping("/stop")
     @ResponseBody

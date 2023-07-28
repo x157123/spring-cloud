@@ -119,8 +119,12 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
             ServeConfigVo serveConfigVo = serveConfigService.findByServerId(serveId);
             if (serveConfigVo != null) {
                 String offset = serveConfigVo.getOffSet();
-                JSONObject jsonObject = JSONObject.parseObject(offset);
-                data.put(ByteBuffer.wrap(jsonObject.getString("key").getBytes()), ByteBuffer.wrap(jsonObject.getString("value").getBytes()));
+                if (offset != null && offset.trim().length() > 0) {
+                    JSONObject jsonObject = JSONObject.parseObject(offset);
+                    if (jsonObject.getString("key") != null && jsonObject.getString("value") != null) {
+                        data.put(ByteBuffer.wrap(jsonObject.getString("key").getBytes()), ByteBuffer.wrap(jsonObject.getString("value").getBytes()));
+                    }
+                }
             }
         }
     }

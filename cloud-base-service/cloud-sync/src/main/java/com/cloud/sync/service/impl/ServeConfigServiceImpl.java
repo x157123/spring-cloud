@@ -9,24 +9,18 @@ import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import com.cloud.sync.entity.ServeConfig;
-import com.cloud.sync.vo.ServeConfigVo;
 import com.cloud.sync.mapper.ServeConfigMapper;
+import com.cloud.sync.param.ServeConfigParam;
 import com.cloud.sync.query.ServeConfigQuery;
 import com.cloud.sync.service.ServeConfigService;
-import com.cloud.sync.param.ServeConfigParam;
-import com.cloud.sync.vo.ServeTableVo;
-import com.cloud.sync.service.ServeTableService;
-import org.apache.commons.collections4.ListUtils;
+import com.cloud.sync.vo.ServeConfigVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author liulei
@@ -36,16 +30,13 @@ public class ServeConfigServiceImpl implements ServeConfigService {
 
     private final ServeConfigMapper serveConfigMapper;
 
-    private final ServeTableService serveTableService;
-
     /**
      * 使用构造方法注入
      *
      * @param serveConfigMapper 同步启动服务Mapper服务
      */
-    public ServeConfigServiceImpl(ServeConfigMapper serveConfigMapper, ServeTableService serveTableService){
+    public ServeConfigServiceImpl(ServeConfigMapper serveConfigMapper) {
         this.serveConfigMapper = serveConfigMapper;
-        this.serveTableService = serveTableService;
     }
 
     /**
@@ -58,11 +49,20 @@ public class ServeConfigServiceImpl implements ServeConfigService {
     @Transactional
     public Boolean save(ServeConfigParam serveConfigParam) {
         ValidationUtils.validate(serveConfigParam);
-        ServeConfig serveConfig = BeanUtil.copyProperties(serveConfigParam, ServeConfig::new);
+        ServeConfigVo serveConfigVo = this.findByServerId(serveConfigParam.getServeId());
+        ServeConfig serveConfig = BeanUtil.copyProperties(serveConfigVo, ServeConfig::new);
         if (serveConfig != null && serveConfig.getId() != null) {
+            if (serveConfigParam.getOffSet() != null) {
+                serveConfig.setOffSet(serveConfigParam.getOffSet());
+            }
+            if (serveConfigParam.getState() != null) {
+                serveConfig.setState(serveConfigParam.getState());
+            }
             this.update(serveConfig);
-        }else{
+        } else {
+            serveConfig = BeanUtil.copyProperties(serveConfigParam, ServeConfig::new);
             serveConfig.setVersion(DataVersionUtils.next());
+            serveConfig.setState(1);
             serveConfigMapper.insert(serveConfig);
         }
         return Boolean.TRUE;
@@ -87,7 +87,7 @@ public class ServeConfigServiceImpl implements ServeConfigService {
      * 传入多个Id 查询数据
      *
      * @param ids 多个id
-     * @return  返回list结果
+     * @return 返回list结果
      */
     @Override
     public List<ServeConfigVo> findByIds(List<Long> ids) {
@@ -97,9 +97,7 @@ public class ServeConfigServiceImpl implements ServeConfigService {
         LambdaQueryWrapper<ServeConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ServeConfig::getId, ids);
         List<ServeConfigVo> list = queryWrapper(queryWrapper);
-        //封装关联数据
-		this.setParam(list);
-		return list;
+        return list;
     }
 
     /**
@@ -111,8 +109,6 @@ public class ServeConfigServiceImpl implements ServeConfigService {
     @Override
     public List<ServeConfigVo> findByList(ServeConfigQuery serveConfigQuery) {
         IPage<ServeConfigVo> iPage = this.queryPage(serveConfigQuery, new PageParam());
-        //封装关联数据
-		this.setParam(iPage.getRecords());
         return iPage.getRecords();
     }
 
@@ -137,43 +133,51 @@ public class ServeConfigServiceImpl implements ServeConfigService {
      * 数据分页查询
      *
      * @param serveConfigQuery 查询条件
-     * @param pageParam 分页条件
+     * @param pageParam        分页条件
      * @return 分页数据
      */
     @Override
     public IPage<ServeConfigVo> queryPage(ServeConfigQuery serveConfigQuery, PageParam pageParam) {
         IPage<ServeConfig> iPage = serveConfigMapper.queryPage(OrderUtil.getPage(pageParam), serveConfigQuery);
-        IPage<ServeConfigVo> page = iPage.convert(serveConfig -> BeanUtil.copyProperties(serveConfig, ServeConfigVo::new));
-		this.setParam(page.getRecords());
-        return page;
+        return iPage.convert(serveConfig -> BeanUtil.copyProperties(serveConfig, ServeConfigVo::new));
     }
-	
-	/**
-     * 传入多个Id 查询数据
+
+    /**
+     * 通过服务名获取配置
      *
-     * @param readConnectIds id集合
-     * @return  返回查询结果
+     * @param serveId
+     * @return
      */
     @Override
-    public List<ServeConfigVo> findByReadConnectId(List<Long> readConnectIds){
-        if (readConnectIds == null || readConnectIds.size() == 0) {
-            return new ArrayList<>();
-        }
-        List<ServeConfigVo> dataList = new ArrayList<>();
+    public ServeConfigVo findByServerId(Long serveId) {
         LambdaQueryWrapper<ServeConfig> queryWrapper = new LambdaQueryWrapper<>();
-        List<List<Long>> subLists = ListUtils.partition(readConnectIds, 5000);
-        for(List<Long> list : subLists) {
-            queryWrapper.in(ServeConfig::getReadConnectId, list);
-            dataList.addAll(queryWrapper(queryWrapper));
+        queryWrapper.eq(ServeConfig::getServeId, serveId);
+        List<ServeConfigVo> serveConfigVos = queryWrapper(queryWrapper);
+        if (CollectionUtils.isEmpty(serveConfigVos)) {
+            return null;
         }
-        return dataList;
+        return CollectionUtils.firstElement(serveConfigVos);
+    }
+
+    /**
+     * 更新状态
+     *
+     * @param serveId
+     * @param state
+     */
+    @Override
+    public void state(Long serveId, int state) {
+        ServeConfigParam serveConfigParam = new ServeConfigParam();
+        serveConfigParam.setServeId(serveId);
+        serveConfigParam.setState(state);
+        this.save(serveConfigParam);
     }
 
     /**
      * 通过Id 更新数据
      *
      * @param serveConfig 前端更新集合
-     * @return  更新成功状态
+     * @return 更新成功状态
      */
     private Boolean update(ServeConfig serveConfig) {
         LambdaQueryWrapper<ServeConfig> queryWrapper = new LambdaQueryWrapper<>();
@@ -187,28 +191,14 @@ public class ServeConfigServiceImpl implements ServeConfigService {
         return Boolean.TRUE;
     }
 
-	/**
-     * 补充关联表数据查询
-     *
-     * @param list 列表数据
-     */
-    private void setParam(List<ServeConfigVo> list) {
-        if (list != null) {
-            List<Long> ids = list.stream().map(ServeConfigVo::getId).collect(Collectors.toList());
-            Map<Long, List<ServeTableVo>> serveTableMap = serveTableService.findByServeId(ids).stream().collect(Collectors.groupingBy(ServeTableVo::getId));
-            for (ServeConfigVo serveConfig : list) {
-                serveConfig.setServeTableVoList(serveTableMap.get(serveConfig.getId()));
-            }
-        }
-    }
 
     /**
      * 查询数据列表
      *
      * @param queryWrapper 查询条件
-     * @return  返回转化后的数据
+     * @return 返回转化后的数据
      */
-    private List<ServeConfigVo> queryWrapper(LambdaQueryWrapper<ServeConfig> queryWrapper){
+    private List<ServeConfigVo> queryWrapper(LambdaQueryWrapper<ServeConfig> queryWrapper) {
         // 数据查询
         List<ServeConfig> serveConfigEntities = serveConfigMapper.selectList(queryWrapper);
         // 数据转换

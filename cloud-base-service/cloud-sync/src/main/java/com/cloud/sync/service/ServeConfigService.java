@@ -70,4 +70,12 @@ public interface ServeConfigService {
      * @return
      */
     ServeConfigVo findByServerId(Long serveId);
+
+    /**
+     * 更新状态
+     *
+     * @param serveId
+     * @param i
+     */
+    void state(Long serveId, int i);
 }
