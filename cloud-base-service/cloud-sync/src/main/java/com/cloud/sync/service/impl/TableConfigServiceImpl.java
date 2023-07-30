@@ -169,6 +169,7 @@ public class TableConfigServiceImpl implements TableConfigService {
             }
             dataList.addAll(queryWrapper(queryWrapper));
         }
+        setParam(dataList);
         return dataList;
     }
 
@@ -198,7 +199,7 @@ public class TableConfigServiceImpl implements TableConfigService {
     private void setParam(List<TableConfigVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(TableConfigVo::getId).collect(Collectors.toList());
-            Map<Long, List<ColumnConfigVo>> columnConfigMap = columnConfigService.findByTableId(ids).stream().collect(Collectors.groupingBy(ColumnConfigVo::getId));
+            Map<Long, List<ColumnConfigVo>> columnConfigMap = columnConfigService.findByTableId(ids).stream().collect(Collectors.groupingBy(ColumnConfigVo::getTableId));
             for (TableConfigVo tableConfig : list) {
                 tableConfig.setColumnConfigVoList(columnConfigMap.get(tableConfig.getId()));
             }

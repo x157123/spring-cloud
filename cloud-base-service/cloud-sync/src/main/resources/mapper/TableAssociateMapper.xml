@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cloud.sync.mapper.TableAssociateMapper">
+
+    <select id="queryPage" resultType="com.cloud.sync.entity.TableAssociate"
+            parameterType="com.cloud.sync.query.TableAssociateQuery">
+        select * from sync_table_associate
+        <where>
+            <if test="param.id != null">
+                and id = #{param.id}
+            </if>
+            <if test="param.serveId != null">
+                and serve_id = #{param.serveId}
+            </if>
+            <if test="param.readTableId != null">
+                and read_table_id = #{param.readTableId}
+            </if>
+            <if test="param.writeTableId != null">
+                and write_table_id = #{param.writeTableId}
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -13,8 +13,10 @@ import com.cloud.sync.mapper.ServeMapper;
 import com.cloud.sync.param.ServeParam;
 import com.cloud.sync.query.ServeQuery;
 import com.cloud.sync.service.ServeService;
+import com.cloud.sync.service.TableAssociateService;
 import com.cloud.sync.service.TableConfigService;
 import com.cloud.sync.vo.ServeVo;
+import com.cloud.sync.vo.TableAssociateVo;
 import com.cloud.sync.vo.TableConfigVo;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
@@ -37,14 +39,17 @@ public class ServeServiceImpl implements ServeService {
 
     private final TableConfigService tableConfigService;
 
+    private final TableAssociateService tableAssociateService;
+
     /**
      * 使用构造方法注入
      *
      * @param serveMapper 表映射Mapper服务
      */
-    public ServeServiceImpl(ServeMapper serveMapper, TableConfigService tableConfigService) {
+    public ServeServiceImpl(ServeMapper serveMapper, TableConfigService tableConfigService, TableAssociateService tableAssociateService) {
         this.serveMapper = serveMapper;
         this.tableConfigService = tableConfigService;
+        this.tableAssociateService = tableAssociateService;
     }
 
     /**
@@ -216,9 +221,12 @@ public class ServeServiceImpl implements ServeService {
         if (list != null) {
             List<Long> ids = list.stream().map(ServeVo::getId).collect(Collectors.toList());
             Map<Long, List<TableConfigVo>> tableConfigMap = tableConfigService.findByServeId(ids, null)
-                    .stream().collect(Collectors.groupingBy(TableConfigVo::getId));
+                    .stream().collect(Collectors.groupingBy(TableConfigVo::getServeId));
+            Map<Long, List<TableAssociateVo>> tableAssociateMap = tableAssociateService.findByServeId(ids)
+                    .stream().collect(Collectors.groupingBy(TableAssociateVo::getServeId));
             for (ServeVo serve : list) {
                 serve.setTableConfigVoList(tableConfigMap.get(serve.getId()));
+                serve.setTableAssociateVoList(tableAssociateMap.get(serve.getId()));
             }
         }
     }

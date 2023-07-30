@@ -39,18 +39,22 @@ public class SyncServiceImpl implements SyncService {
 
     private KafkaTemplate<String, String> kafkaTemplate;
 
+    private ColumnConfigService columnConfigService;
+
     private Map<String, CommonWriter> writerMap = new HashMap<>();
 
     @Value("${spring.kafka.topic.startTopic}")
     private String debeziumTopic;
 
     public SyncServiceImpl(KafkaTemplate<String, String> kafkaTemplate, ServeService serviceService
-            , TableConfigService tableConfigService, ConnectConfigService connectConfigService, ServeConfigService serveConfigService) {
+            , TableConfigService tableConfigService, ConnectConfigService connectConfigService
+            , ServeConfigService serveConfigService, ColumnConfigService columnConfigService) {
         this.serviceService = serviceService;
         this.kafkaTemplate = kafkaTemplate;
         this.tableConfigService = tableConfigService;
         this.connectConfigService = connectConfigService;
         this.serveConfigService = serveConfigService;
+        this.columnConfigService = columnConfigService;
     }
 
     ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("pool-%d").build();
@@ -64,10 +68,28 @@ public class SyncServiceImpl implements SyncService {
     @Override
     public void begin(Long serveId) {
         ServeVo serveVo = serviceService.findById(serveId);
-        ConnectConfigVo connectConfigVo = connectConfigService.findById(serveVo.getReadConnectId());
-        DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(serveId, connectConfigVo);
+        
+        ConnectConfigVo readConnect = connectConfigService.findById(serveVo.getReadConnectId());
+        ConnectConfigVo writeConnect = connectConfigService.findById(serveVo.getWriteConnectId());
+
+
+        List<TableConfigVo> tableConfigVos = tableConfigService.findByServeId(Arrays.asList(serveId), null);
+
+        List<TableConfigVo> readerTable = tableConfigVos.stream().filter(tableConfigVo -> tableConfigVo.getType().equals(1)).collect(Collectors.toList());
+        List<TableConfigVo> writerTable = tableConfigVos.stream().filter(tableConfigVo -> tableConfigVo.getType().equals(2)).collect(Collectors.toList());
+
+
+        DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(serveId, readConnect, readerTable);
         executor.execute(engine);
         map.put(debeziumTopic + serveId.toString(), engine);
+
+
+        //读取所有读入入表
+
+        //读取所有写入表
+
+        //读入
+
         serveConfigService.state(serveId, 1);
     }
 
@@ -128,24 +150,25 @@ public class SyncServiceImpl implements SyncService {
         }
     }
 
-    private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(Long serveId, ConnectConfigVo connectConfigVo) {
-        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(Json.class).using(getProperties(serveId, connectConfigVo)).notifying(record -> {
+    private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {
+        DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(Json.class)
+                .using(getProperties(serveId, connectConfigVo, tableConfigVos)).notifying(record -> {
 //            System.out.println("record.value() =》 " + record.destination());
 //            System.out.println("record.value() =》 " + record.value());
-            kafkaTemplate.send(record.destination(), record.value());
-        }).using((success, message, error) -> {
-            // 强烈建议加上此部分的回调代码，方便查看错误信息
-            if (!success && error != null) {
-                // 报错回调
-                System.out.println("----------同步异常----------");
-                System.out.println("error:" + message);
-            }
-        }).build();
+                    kafkaTemplate.send(record.destination(), record.value());
+                }).using((success, message, error) -> {
+                    // 强烈建议加上此部分的回调代码，方便查看错误信息
+                    if (!success && error != null) {
+                        // 报错回调
+                        System.out.println("----------同步异常----------");
+                        System.out.println("error:" + message);
+                    }
+                }).build();
         return engine;
     }
 
 
-    private Properties getProperties(Long serveId, ConnectConfigVo connectConfigVo) {
+    private Properties getProperties(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {
         final Properties props = getProperties();
         props.setProperty("name", debeziumTopic + serveId);
         props.setProperty("topic.prefix", debeziumTopic + serveId);
@@ -157,11 +180,8 @@ public class SyncServiceImpl implements SyncService {
         props.setProperty("database.password", connectConfigVo.getPassword());
         /** 采集表配置 */
         props.setProperty("database.include.list", connectConfigVo.getDatabaseName());
-
-        List<TableConfigVo> tableConfigVos = tableConfigService.findByServeId(Arrays.asList(serveId), 1);
-
         String str = tableConfigVos
-                .stream().map(t -> connectConfigVo.getDatabaseName() + "." + t.getTableName())
+                .stream().map(t -> connectConfigVo.getTablePrefix() + "." + t.getTableName())
                 .collect(Collectors.joining(","));
         /** 采集表配置 */
         props.setProperty("table.include.list", str);

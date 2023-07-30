@@ -12,9 +12,6 @@ import java.util.List;
 
 public class CommonWriter {
 
-    protected Long connectionId;
-
-    protected String table;
 
     protected List<String> columns;
 
@@ -28,33 +25,11 @@ public class CommonWriter {
 
     protected DataBaseType dataBaseType;
 
-    private String url;
-
-    private String username;
-
-    private String password;
-
     protected static final Logger LOG = LoggerFactory.getLogger(CommonWriter.class);
 
-    public void writer(List<Record> buffer) throws Exception {
-        this.doBatchInsert(buffer);
-    }
 
-    protected void init(Long connectionId, DataBaseType dataBaseType, String url, String username, String password, String table, List<String> columns) {
-        this.connectionId = connectionId;
-        this.dataBaseType = dataBaseType;
-        this.url = url;
-        this.username = username;
-        this.password = password;
-        this.table = table;
-        this.columns = columns;
-        this.resultSetMetaData = DBUtil.getColumnMetaData(getConnection(), table, columns);
-    }
-
-
-    protected void doBatchInsert(List<Record> buffer)
+    protected void doBatchInsert(List<Record> buffer, Connection connection)
             throws SQLException {
-        Connection connection = getConnection();
         PreparedStatement preparedStatement = null;
         try {
             connection.setAutoCommit(false);
@@ -148,8 +123,6 @@ public class CommonWriter {
                     preparedStatement.setString(columnIndex + 1, strValue);
                 }
                 break;
-
-            //tinyint is a little special in some database like mysql {boolean->tinyint(1)}
             case Types.TINYINT:
                 Long longValue = column.asLong();
                 if (null == longValue) {
@@ -158,13 +131,10 @@ public class CommonWriter {
                     preparedStatement.setString(columnIndex + 1, longValue.toString());
                 }
                 break;
-
-            // for mysql bug, see http://bugs.mysql.com/bug.php?id=35115
             case Types.DATE:
                 if (typeName == null) {
                     typeName = this.resultSetMetaData.getRight().get(columnIndex);
                 }
-
                 if (typeName.equalsIgnoreCase("year")) {
                     if (column.asBigInteger() == null) {
                         preparedStatement.setString(columnIndex + 1, null);
@@ -251,10 +221,5 @@ public class CommonWriter {
         return preparedStatement;
     }
 
-
-    protected Connection getConnection() {
-        Connection connection = DBUtil.getConnect(this.connectionId, this.dataBaseType.getDriverClassName(), this.url, this.username, this.password);
-        return connection;
-    }
 
 }

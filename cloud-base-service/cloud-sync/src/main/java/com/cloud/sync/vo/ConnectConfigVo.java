@@ -72,5 +72,4 @@ public class ConnectConfigVo {
      */
     @Schema(description = "数据库配置表映射")
     private List<ServeVo> serveVoList;
-
 }

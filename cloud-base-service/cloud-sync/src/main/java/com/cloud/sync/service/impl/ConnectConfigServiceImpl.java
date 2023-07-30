@@ -172,7 +172,7 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     private void setParam(List<ConnectConfigVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(ConnectConfigVo::getId).collect(Collectors.toList());
-            Map<Long, List<ServeVo>> serveMap = serveService.findByReadConnectId(ids).stream().collect(Collectors.groupingBy(ServeVo::getId));
+            Map<Long, List<ServeVo>> serveMap = serveService.findByWriteConnectId(ids).stream().collect(Collectors.groupingBy(ServeVo::getWriteConnectId));
             for (ConnectConfigVo connectConfig : list) {
                 connectConfig.setServeVoList(serveMap.get(connectConfig.getId()));
             }

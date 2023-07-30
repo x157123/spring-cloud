@@ -285,7 +285,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         if (list != null) {
             List<Long> ids = list.stream().map(${nameClass}Vo::getId).collect(Collectors.toList());
 	<#list foreignKeys as foreignKey>
-            Map<Long, List<${foreignKey.joinTableNameClass}Vo>> ${foreignKey.joinTableNameClass? uncap_first}Map = <#if foreignKey.joinTableNameClass != nameClass>${foreignKey.joinTableNameClass? uncap_first}Service.</#if>findBy${foreignKey.joinColumnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.joinTableNameClass}Vo::get${foreignKey.columnNameClass}));
+            Map<Long, List<${foreignKey.joinTableNameClass}Vo>> ${foreignKey.joinTableNameClass? uncap_first}Map = <#if foreignKey.joinTableNameClass != nameClass>${foreignKey.joinTableNameClass? uncap_first}Service.</#if>findBy${foreignKey.joinColumnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.joinTableNameClass}Vo::get${foreignKey.joinColumnNameClass}));
 	</#list>
             for (${nameClass}Vo ${nameClass? uncap_first} : list) {
 	<#list foreignKeys as foreignKey>
