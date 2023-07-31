@@ -13,8 +13,10 @@ import com.cloud.sync.mapper.ConnectConfigMapper;
 import com.cloud.sync.param.ConnectConfigParam;
 import com.cloud.sync.query.ConnectConfigQuery;
 import com.cloud.sync.service.ConnectConfigService;
+import com.cloud.sync.service.JoinTableService;
 import com.cloud.sync.service.ServeService;
 import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.vo.JoinTableVo;
 import com.cloud.sync.vo.ServeVo;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,6 +36,8 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
 
     private final ConnectConfigMapper connectConfigMapper;
 
+    private final JoinTableService joinTableService;
+
     private final ServeService serveService;
 
     /**
@@ -41,8 +45,9 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
      *
      * @param connectConfigMapper 数据库配置Mapper服务
      */
-    public ConnectConfigServiceImpl(ConnectConfigMapper connectConfigMapper, ServeService serveService) {
+    public ConnectConfigServiceImpl(ConnectConfigMapper connectConfigMapper, JoinTableService joinTableService, ServeService serveService) {
         this.connectConfigMapper = connectConfigMapper;
+        this.joinTableService = joinTableService;
         this.serveService = serveService;
     }
 
@@ -172,8 +177,10 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     private void setParam(List<ConnectConfigVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(ConnectConfigVo::getId).collect(Collectors.toList());
-            Map<Long, List<ServeVo>> serveMap = serveService.findByWriteConnectId(ids).stream().collect(Collectors.groupingBy(ServeVo::getWriteConnectId));
+            Map<Long, List<JoinTableVo>> joinTableMap = joinTableService.findByConnectId(ids).stream().collect(Collectors.groupingBy(JoinTableVo::getConnectId));
+            Map<Long, List<ServeVo>> serveMap = serveService.findByReadConnectId(ids).stream().collect(Collectors.groupingBy(ServeVo::getReadConnectId));
             for (ConnectConfigVo connectConfig : list) {
+                connectConfig.setJoinTableVoList(joinTableMap.get(connectConfig.getId()));
                 connectConfig.setServeVoList(serveMap.get(connectConfig.getId()));
             }
         }

@@ -68,6 +68,12 @@ public class ConnectConfigVo {
     private Integer version;
 
     /**
+     *
+     */
+    @Schema(description = "数据库配置")
+    private List<JoinTableVo> joinTableVoList;
+
+    /**
      * 表映射
      */
     @Schema(description = "数据库配置表映射")

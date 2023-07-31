@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.cloud.sync.mapper.JoinTableMapper">
+
+    <select id="queryPage" resultType="com.cloud.sync.entity.JoinTable"
+            parameterType="com.cloud.sync.query.JoinTableQuery">
+        select * from sync_join_table
+        <where>
+            <if test="param.id != null">
+                and id = #{param.id}
+            </if>
+            <if test="param.connectId != null">
+                and connect_id = #{param.connectId}
+            </if>
+            <if test="param.name != null and param.name != ''">
+                and name like concat('%',#{param.name},'%')
+            </if>
+            <if test="param.joinTable != null and param.joinTable != ''">
+                and join_table like concat('%',#{param.joinTable},'%')
+            </if>
+        </where>
+    </select>
+</mapper>

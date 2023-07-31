@@ -14,8 +14,8 @@
             <if test="param.tableId != null">
                 and table_id = #{param.tableId}
             </if>
-            <if test="param.index != null">
-                and index = #{param.index}
+            <if test="param.seq != null">
+                and seq = #{param.seq}
             </if>
             <if test="param.columnName != null and param.columnName != ''">
                 and column_name like concat('%',#{param.columnName},'%')

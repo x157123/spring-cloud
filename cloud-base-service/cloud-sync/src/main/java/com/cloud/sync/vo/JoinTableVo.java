@@ -13,7 +13,7 @@ import lombok.Data;
  */
 @Data
 @Schema(name = "响应对象", description = "响应对象")
-public class TableAssociateVo {
+public class JoinTableVo {
 	/**
      * id
      */
@@ -21,23 +21,21 @@ public class TableAssociateVo {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long id;
 	/**
-     * 服务Id
+     * 连接ID
      */
-    @Schema(description = "服务Id")
+    @Schema(description = "连接ID")
     @JsonSerialize(using = ToStringSerializer.class)
-    private Long serveId;
+    private Long connectId;
 	/**
-     * 读取表
+     * 名称
      */
-    @Schema(description = "读取表")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long readTableId;
+    @Schema(description = "名称")
+    private String name;
 	/**
-     * 写入表
+     * 关联表
      */
-    @Schema(description = "写入表")
-    @JsonSerialize(using = ToStringSerializer.class)
-    private Long writeTableId;
+    @Schema(description = "关联表")
+    private String joinTable;
 	/**
      * 版本
      */

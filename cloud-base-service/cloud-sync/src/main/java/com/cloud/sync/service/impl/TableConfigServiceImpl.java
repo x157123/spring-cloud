@@ -151,7 +151,6 @@ public class TableConfigServiceImpl implements TableConfigService {
      * 传入多个Id 查询数据
      *
      * @param serveIds id集合
-     * @param type     type
      * @return 返回查询结果
      */
     @Override

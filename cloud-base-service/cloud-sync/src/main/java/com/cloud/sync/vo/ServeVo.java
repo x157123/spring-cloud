@@ -44,14 +44,14 @@ public class ServeVo {
     private Integer version;
 
     /**
+     *
+     */
+    @Schema(description = "表映射")
+    private List<TableAssociateVo> tableAssociateVoList;
+
+    /**
      * 同步表配置
      */
     @Schema(description = "表映射同步表配置")
     private List<TableConfigVo> tableConfigVoList;
-
-    /**
-     * 表映射
-     */
-    @Schema(description = "表映射同步表配置")
-    private List<TableAssociateVo> tableAssociateVoList;
 }

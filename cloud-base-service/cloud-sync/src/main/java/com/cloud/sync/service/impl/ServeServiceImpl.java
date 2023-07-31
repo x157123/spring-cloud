@@ -37,19 +37,19 @@ public class ServeServiceImpl implements ServeService {
 
     private final ServeMapper serveMapper;
 
-    private final TableConfigService tableConfigService;
-
     private final TableAssociateService tableAssociateService;
+
+    private final TableConfigService tableConfigService;
 
     /**
      * 使用构造方法注入
      *
      * @param serveMapper 表映射Mapper服务
      */
-    public ServeServiceImpl(ServeMapper serveMapper, TableConfigService tableConfigService, TableAssociateService tableAssociateService) {
+    public ServeServiceImpl(ServeMapper serveMapper, TableAssociateService tableAssociateService, TableConfigService tableConfigService) {
         this.serveMapper = serveMapper;
-        this.tableConfigService = tableConfigService;
         this.tableAssociateService = tableAssociateService;
+        this.tableConfigService = tableConfigService;
     }
 
     /**
@@ -220,13 +220,11 @@ public class ServeServiceImpl implements ServeService {
     private void setParam(List<ServeVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(ServeVo::getId).collect(Collectors.toList());
-            Map<Long, List<TableConfigVo>> tableConfigMap = tableConfigService.findByServeId(ids, null)
-                    .stream().collect(Collectors.groupingBy(TableConfigVo::getServeId));
-            Map<Long, List<TableAssociateVo>> tableAssociateMap = tableAssociateService.findByServeId(ids)
-                    .stream().collect(Collectors.groupingBy(TableAssociateVo::getServeId));
+            Map<Long, List<TableAssociateVo>> tableAssociateMap = tableAssociateService.findByServeId(ids).stream().collect(Collectors.groupingBy(TableAssociateVo::getServeId));
+            Map<Long, List<TableConfigVo>> tableConfigMap = tableConfigService.findByServeId(ids, null).stream().collect(Collectors.groupingBy(TableConfigVo::getServeId));
             for (ServeVo serve : list) {
-                serve.setTableConfigVoList(tableConfigMap.get(serve.getId()));
                 serve.setTableAssociateVoList(tableAssociateMap.get(serve.getId()));
+                serve.setTableConfigVoList(tableConfigMap.get(serve.getId()));
             }
         }
     }

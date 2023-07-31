@@ -37,11 +37,6 @@ public interface TableAssociateService {
      */
     List<TableAssociateVo> findByIds(List<Long> ids);
 
-    /**
-     * @param serveIds
-     * @return
-     */
-    List<TableAssociateVo> findByServeId(List<Long> serveIds);
 
     /**
      * 根据查询条件 查询列表
@@ -68,4 +63,11 @@ public interface TableAssociateService {
      */
     IPage<TableAssociateVo> queryPage(TableAssociateQuery tableAssociateQuery, PageParam pageParam);
 
+    /**
+     * 传入多个业务Id 查询数据
+     *
+     * @param serveIds 查询结果集
+     * @return 返回结果
+     */
+    List<TableAssociateVo> findByServeId(List<Long> serveIds);
 }
