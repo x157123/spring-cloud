@@ -3,11 +3,12 @@ package com.cloud.sync.writer;
 import com.zaxxer.hikari.HikariDataSource;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Triple;
-import org.springframework.boot.jdbc.DataSourceBuilder;
 
-import javax.sql.DataSource;
 import java.sql.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class DBUtil {
 
@@ -28,11 +29,21 @@ public class DBUtil {
         return dataSource;
     }
 
+    public static synchronized Connection getConnect(Long connectionId) {
+        try {
+            HikariDataSource dataSource = dataSourceMap.get(connectionId);
+            return dataSource.getConnection();
+        } catch (Exception e) {
+            throw new RuntimeException("获取数据库链接错误：" + connectionId);
+        }
+    }
+
     public static synchronized Connection getConnect(Long connectionId, String url, String username, String password, String driver) {
         try {
             HikariDataSource dataSource = dataSourceMap.get(connectionId);
             if (dataSource == null || dataSource.isClosed()) {
                 dataSource = getDataSource(url, username, password, driver);
+                dataSourceMap.put(connectionId, dataSource);
             }
             return dataSource.getConnection();
         } catch (Exception e) {
@@ -75,7 +86,6 @@ public class DBUtil {
             rs = statement.executeQuery(queryColumnSql);
             ResultSetMetaData rsMetaData = rs.getMetaData();
             for (int i = 0, len = rsMetaData.getColumnCount(); i < len; i++) {
-
                 columnMetaData.getLeft().add(rsMetaData.getColumnName(i + 1));
                 columnMetaData.getMiddle().add(rsMetaData.getColumnType(i + 1));
                 columnMetaData.getRight().add(

@@ -1,5 +1,7 @@
 package com.cloud.sync.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.cloud.sync.builder.DateTimeConverter;
 import com.cloud.sync.service.*;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
@@ -8,6 +10,7 @@ import com.cloud.sync.vo.ServeVo;
 import com.cloud.sync.vo.TableConfigVo;
 import com.cloud.sync.writer.CommonWriter;
 import com.cloud.sync.writer.DataBaseType;
+import com.cloud.sync.writer.DataWriter;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.debezium.engine.ChangeEvent;
 import io.debezium.engine.DebeziumEngine;
@@ -68,27 +71,21 @@ public class SyncServiceImpl implements SyncService {
     @Override
     public void begin(Long serveId) {
         ServeVo serveVo = serviceService.findById(serveId);
-        
+
         ConnectConfigVo readConnect = connectConfigService.findById(serveVo.getReadConnectId());
         ConnectConfigVo writeConnect = connectConfigService.findById(serveVo.getWriteConnectId());
 
 
-        List<TableConfigVo> tableConfigVos = tableConfigService.findByServeId(Arrays.asList(serveId), null);
+        List<TableConfigVo> tableConfigVos = serveVo.getTableConfigVoList();
 
         List<TableConfigVo> readerTable = tableConfigVos.stream().filter(tableConfigVo -> tableConfigVo.getType().equals(1)).collect(Collectors.toList());
         List<TableConfigVo> writerTable = tableConfigVos.stream().filter(tableConfigVo -> tableConfigVo.getType().equals(2)).collect(Collectors.toList());
 
+        DataWriter.init(serveVo, readerTable, writerTable, writeConnect);
 
         DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(serveId, readConnect, readerTable);
         executor.execute(engine);
         map.put(debeziumTopic + serveId.toString(), engine);
-
-
-        //读取所有读入入表
-
-        //读取所有写入表
-
-        //读入
 
         serveConfigService.state(serveId, 1);
     }
@@ -133,19 +130,23 @@ public class SyncServiceImpl implements SyncService {
                 for (String tmp : keys) {
                     System.out.println(tmp);
                 }
-                System.out.println(map.get(key));
-//                //读取表结构信息
-//                CommonWriter commonWriter = writerMap.get(key);
-//                if (commonWriter == null) {
-//                    //调用插入语句
-//                    commonWriter = MysqlWriter.getMysqlWriter(1,url,username,password,table,new ArrayList<>());
-//                    writerMap.put(key, commonWriter);
-//                }
-//                try {
-//                    commonWriter.writer(new ArrayList<>());
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
+                String str = map.get(key).toString();
+                // 将 JSON 字符串转换为 JSONArray
+                JSONArray jsonArray = JSONArray.parseArray(str);
+
+                // 创建 List<Map<String, Object>> 列表
+                List<Map<String, String>> list = new ArrayList<>();
+
+                // 遍历 JSONArray 并将每个对象转换为 Map
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JSONObject jsonObject = jsonArray.getJSONObject(i);
+                    Map<String, String> newMap = new HashMap<>();
+                    for (String tmp : jsonObject.keySet()) {
+                        newMap.put(tmp, jsonObject.getString(tmp));
+                    }
+                    list.add(newMap);
+                }
+                DataWriter.writer(Long.parseLong(keys[1]), keys[3], list);
             }
         }
     }

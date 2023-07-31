@@ -36,10 +36,10 @@ public class ConsumerListener {
                     case "r":
                     case "c":
                     case "u":
-                        putData(map, op + "." + message.topic(), jsonObject.get("after").toString());
+                        putData(map, "c." + message.topic(), jsonObject.get("after").toString());
                         break;
                     case "d":
-                        putData(map, op + "." + message.topic(), jsonObject.get("before").toString());
+//                        putData(map, op + "." + message.topic(), jsonObject.get("before").toString());
                         break;
                 }
             }

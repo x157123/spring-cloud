@@ -6,6 +6,4 @@ public final class Constant {
     static final int SOCKET_TIMEOUT_INSECOND = 172800;
 
 
-
-
 }
