@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
+        boolean star = false;
         boolean sg = false;
         String url = "jdbc:mysql://localhost:3306/cloud_sync";
         String username = "root";
@@ -31,6 +32,7 @@ public class ReadMysqlTable {
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
 
+
 //        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
 
 //        pom.addAll(Arrays.asList("pom.xml.ftl"));
@@ -39,6 +41,9 @@ public class ReadMysqlTable {
 
         String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-base-service\\" + projectName + "\\";
 
+        if (!star) {
+            return;
+        }
         if (sg) {
             url = "jdbc:mysql://localhost:3306/test_sg";
             ftlPath = "cloud-sg";
