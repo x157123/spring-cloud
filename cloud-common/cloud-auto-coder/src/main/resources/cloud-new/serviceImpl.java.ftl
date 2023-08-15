@@ -120,11 +120,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         ValidationUtils.validate(${nameClass? uncap_first}Param);
         ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
         if (${nameClass? uncap_first} != null && ${nameClass? uncap_first}.getId() != null) {
+            ${nameClass? uncap_first}.setUpdateDate(new Date());
             this.update(${nameClass? uncap_first});
         }else{
 <#if showVersion==1 >
             ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
 </#if>
+            ${nameClass? uncap_first}.setCreateDate(new Date());
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
 <#if mergeTables?? && (mergeTables?size > 0) >

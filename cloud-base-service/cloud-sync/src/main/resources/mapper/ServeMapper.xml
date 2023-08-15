@@ -20,6 +20,7 @@
             <if test="param.writeConnectId != null">
                 and write_connect_id = #{param.writeConnectId}
             </if>
+            and is_delete=0
         </where>
     </select>
 </mapper>

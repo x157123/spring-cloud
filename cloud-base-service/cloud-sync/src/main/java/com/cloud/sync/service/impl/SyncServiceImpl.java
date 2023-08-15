@@ -3,6 +3,8 @@ package com.cloud.sync.service.impl;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.cloud.sync.builder.DateTimeConverter;
+import com.cloud.sync.param.ServeParam;
+import com.cloud.sync.param.SyncConfigParam;
 import com.cloud.sync.service.*;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
@@ -149,6 +151,17 @@ public class SyncServiceImpl implements SyncService {
                 DataWriter.writer(Long.parseLong(keys[1]), keys[3], list);
             }
         }
+    }
+
+    /**
+     * 保存 数据
+     *
+     * @param syncConfig
+     */
+    @Override
+    public void saveSyncConfig(SyncConfigParam syncConfig) {
+        ServeParam serveParam = new ServeParam();
+        serviceService.save(serveParam);
     }
 
     private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {

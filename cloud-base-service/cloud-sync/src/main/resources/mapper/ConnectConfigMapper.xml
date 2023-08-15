@@ -35,6 +35,7 @@
             <if test="param.remark != null and param.remark != ''">
                 and remark like concat('%',#{param.remark},'%')
             </if>
+            and is_delete=0
         </where>
     </select>
 </mapper>

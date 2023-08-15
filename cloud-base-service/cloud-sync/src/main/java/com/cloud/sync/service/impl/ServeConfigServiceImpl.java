@@ -14,6 +14,7 @@ import com.cloud.sync.param.ServeConfigParam;
 import com.cloud.sync.query.ServeConfigQuery;
 import com.cloud.sync.service.ServeConfigService;
 import com.cloud.sync.vo.ServeConfigVo;
+import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -171,6 +172,27 @@ public class ServeConfigServiceImpl implements ServeConfigService {
         serveConfigParam.setServeId(serveId);
         serveConfigParam.setState(state);
         this.save(serveConfigParam);
+    }
+
+    /**
+     * 传入多个业务Id 查询数据
+     *
+     * @param serveIds 查询结果集
+     * @return 返回结果
+     */
+    @Override
+    public List<ServeConfigVo> findByServeId(List<Long> serveIds) {
+        if (serveIds == null || serveIds.size() == 0) {
+            return new ArrayList<>();
+        }
+        List<ServeConfigVo> dataList = new ArrayList<>();
+        LambdaQueryWrapper<ServeConfig> queryWrapper = new LambdaQueryWrapper<>();
+        List<List<Long>> subLists = ListUtils.partition(serveIds, 5000);
+        for (List<Long> list : subLists) {
+            queryWrapper.in(ServeConfig::getServeId, list);
+            dataList.addAll(queryWrapper(queryWrapper));
+        }
+        return dataList;
     }
 
     /**

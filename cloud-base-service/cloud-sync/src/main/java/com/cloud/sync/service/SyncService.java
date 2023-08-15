@@ -1,5 +1,7 @@
 package com.cloud.sync.service;
 
+import com.cloud.sync.param.SyncConfigParam;
+
 import java.util.List;
 import java.util.Map;
 
@@ -26,4 +28,11 @@ public interface SyncService {
      * @param map
      */
     void writeData(Map<String, List<String>> map);
+
+    /**
+     * 保存 数据
+     *
+     * @param syncConfig
+     */
+    void saveSyncConfig(SyncConfigParam syncConfig);
 }

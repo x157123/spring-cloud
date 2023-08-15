@@ -1,5 +1,6 @@
 package com.cloud.common.core.entity;
 
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -26,6 +27,7 @@ public class BaseEntity implements Serializable {
     /**
      * 删除
      */
+    @TableLogic
     private Integer isDelete;
 
     /**

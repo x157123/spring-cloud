@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class SyncConfig {
+public class SyncConfigParam {
 
     private Long serveId;
 
@@ -15,5 +15,5 @@ public class SyncConfig {
 
     private Long writerDb;
 
-    private List<AssociateTable> associateTable;
+    private List<AssociateTableParam> associateTable;
 }

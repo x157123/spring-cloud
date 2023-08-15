@@ -20,6 +20,7 @@
             <if test="param.joinTable != null and param.joinTable != ''">
                 and join_table like concat('%',#{param.joinTable},'%')
             </if>
+            and is_delete=0
         </where>
     </select>
 </mapper>

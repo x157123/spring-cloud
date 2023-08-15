@@ -20,6 +20,7 @@
             <if test="param.writeTableId != null">
                 and write_table_id = #{param.writeTableId}
             </if>
+            and is_delete=0
         </where>
     </select>
 </mapper>

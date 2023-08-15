@@ -20,6 +20,7 @@
             <if test="param.offSet != null and param.offSet != ''">
                 and off_set like concat('%',#{param.offSet},'%')
             </if>
+            and is_delete=0
         </where>
     </select>
 </mapper>

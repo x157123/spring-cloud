@@ -1,5 +1,7 @@
 package com.cloud.sync.service.impl;
 
+import com.alibaba.fastjson2.JSONArray;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.exceptions.DataException;
@@ -18,14 +20,16 @@ import com.cloud.sync.service.ServeService;
 import com.cloud.sync.vo.ConnectConfigVo;
 import com.cloud.sync.vo.JoinTableVo;
 import com.cloud.sync.vo.ServeVo;
+import com.cloud.sync.writer.ColumnData;
+import com.cloud.sync.writer.DBUtil;
+import com.cloud.sync.writer.DataBaseType;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.sql.Connection;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +56,72 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     }
 
     /**
+     * 获取数据库表信息
+     *
+     * @param connectId
+     * @return
+     */
+    @Override
+    public JSONArray getTables(Long connectId) {
+        JSONArray jsonArray = new JSONArray();
+        ConnectConfigVo connectConfigParam = this.findById(connectId);
+        if (connectConfigParam == null) {
+            return jsonArray;
+        }
+        HikariDataSource dataSource = DBUtil.getDataSource(
+                DataBaseType.getDataBaseType(connectConfigParam.getType()).getJdbcUrl(connectConfigParam.getHostname(), connectConfigParam.getPort(), connectConfigParam.getDatabaseName())
+                , connectConfigParam.getUser(), connectConfigParam.getPassword(), DataBaseType.getDataBaseType(connectConfigParam.getType()).getDriverClassName());
+        if (dataSource != null) {
+            try {
+                Connection connection = dataSource.getConnection();
+                if (dataSource.getConnection() != null) {
+                    List<String> tables = DBUtil.getTables(connection);
+                    for (String str : tables) {
+                        List<ColumnData> columnDataList = DBUtil.getColumnDatas(connection, str);
+                        JSONObject jsonObject = new JSONObject();
+                        jsonObject.put("name", str);
+                        jsonObject.put("column", columnDataList);
+                        jsonArray.add(jsonObject);
+                    }
+                    DBUtil.closeDBResources(null, connection);
+                }
+            } catch (Exception e) {
+                throw new DataException("数据库连接错误");
+            } finally {
+                dataSource.close();
+            }
+        }
+        return jsonArray;
+    }
+
+    /**
+     * 保存对象
+     *
+     * @param connectConfigParam 前端传入对象
+     * @return 返回保存成功状态
+     */
+    @Override
+    public Boolean test(ConnectConfigParam connectConfigParam) {
+        HikariDataSource dataSource = DBUtil.getDataSource(
+                DataBaseType.getDataBaseType(connectConfigParam.getType()).getJdbcUrl(connectConfigParam.getHostname(), connectConfigParam.getPort(), connectConfigParam.getDatabaseName())
+                , connectConfigParam.getUser(), connectConfigParam.getPassword(), DataBaseType.getDataBaseType(connectConfigParam.getType()).getDriverClassName());
+        if (dataSource != null) {
+            try {
+                Connection connection = dataSource.getConnection();
+                if (dataSource.getConnection() != null) {
+                    DBUtil.closeDBResources(null, connection);
+                }
+            } catch (Exception e) {
+                throw new DataException("数据库连接错误");
+            } finally {
+                dataSource.close();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 保存对象
      *
      * @param connectConfigParam 前端传入对象
@@ -63,9 +133,11 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
         ValidationUtils.validate(connectConfigParam);
         ConnectConfig connectConfig = BeanUtil.copyProperties(connectConfigParam, ConnectConfig::new);
         if (connectConfig != null && connectConfig.getId() != null) {
+            connectConfig.setUpdateDate(new Date());
             this.update(connectConfig);
         } else {
             connectConfig.setVersion(DataVersionUtils.next());
+            connectConfig.setCreateDate(new Date());
             connectConfigMapper.insert(connectConfig);
         }
         return Boolean.TRUE;
@@ -132,7 +204,10 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
         }
         LambdaQueryWrapper<ConnectConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ConnectConfig::getId, ids);
-        connectConfigMapper.delete(queryWrapper);
+        Integer count = connectConfigMapper.delete(queryWrapper);
+        if (count < ids.size()) {
+            throw new DataException("删除一条数据错误");
+        }
         return Boolean.TRUE;
     }
 

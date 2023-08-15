@@ -1,6 +1,6 @@
 package com.cloud.sync.controller;
 
-import com.cloud.sync.param.SyncConfig;
+import com.cloud.sync.param.SyncConfigParam;
 import com.cloud.sync.service.SyncService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,7 +41,8 @@ public class SyncController {
 
     @GetMapping("/saveSyncConfig")
     @ResponseBody
-    public void saveSyncConfig(@RequestBody SyncConfig syncConfig) {
+    public void saveSyncConfig(@RequestBody SyncConfigParam syncConfig) {
+        syncService.saveSyncConfig(syncConfig);
         System.out.println(syncConfig);
     }
 }

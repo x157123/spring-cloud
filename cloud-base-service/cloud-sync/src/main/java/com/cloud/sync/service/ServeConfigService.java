@@ -78,4 +78,13 @@ public interface ServeConfigService {
      * @param i
      */
     void state(Long serveId, int i);
+
+
+    /**
+     * 传入多个业务Id 查询数据
+     *
+     * @param serveIds 查询结果集
+     * @return 返回结果
+     */
+    List<ServeConfigVo> findByServeId(List<Long> serveIds);
 }

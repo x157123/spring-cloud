@@ -10,7 +10,7 @@ public enum DataBaseType {
     MySql(1L, "mysql", "jdbc:mysql://${hostname}:${prot}/${database}", "com.mysql.jdbc.Driver", "io.debezium.connector.mysql.MySqlConnector"),
     Oracle(2L, "oracle", "", "oracle.jdbc.OracleDriver", "io.debezium.connector.oracle.OracleConnector"),
     SQLServer(3L, "sqlserver", "", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "io.debezium.connector.sqlserver.SqlServerConnector"),
-    PostgreSQL(4L, "postgresql", "", "org.postgresql.Driver", "io.debezium.connector.postgresql.PostgresConnector"),
+    PostgreSQL(4L, "postgresql", "jdbc:postgresql://${hostname}:${prot}/${database}", "org.postgresql.Driver", "io.debezium.connector.postgresql.PostgresConnector"),
     DB2(5L, "db2", "", "com.ibm.db2.jcc.DB2Driver", "io.debezium.connector.db2.Db2Connector"),
     Tddl(6L, "mysql", "", "com.mysql.jdbc.Driver", ""),
     DRDS(7L, "drds", "", "com.mysql.jdbc.Driver", ""),

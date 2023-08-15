@@ -12,9 +12,11 @@ import com.cloud.sync.entity.Serve;
 import com.cloud.sync.mapper.ServeMapper;
 import com.cloud.sync.param.ServeParam;
 import com.cloud.sync.query.ServeQuery;
+import com.cloud.sync.service.ServeConfigService;
 import com.cloud.sync.service.ServeService;
 import com.cloud.sync.service.TableAssociateService;
 import com.cloud.sync.service.TableConfigService;
+import com.cloud.sync.vo.ServeConfigVo;
 import com.cloud.sync.vo.ServeVo;
 import com.cloud.sync.vo.TableAssociateVo;
 import com.cloud.sync.vo.TableConfigVo;
@@ -41,15 +43,19 @@ public class ServeServiceImpl implements ServeService {
 
     private final TableConfigService tableConfigService;
 
+    private final ServeConfigService serveConfigService;
+
     /**
      * 使用构造方法注入
      *
      * @param serveMapper 表映射Mapper服务
      */
-    public ServeServiceImpl(ServeMapper serveMapper, TableAssociateService tableAssociateService, TableConfigService tableConfigService) {
+    public ServeServiceImpl(ServeMapper serveMapper, TableAssociateService tableAssociateService
+            , TableConfigService tableConfigService, ServeConfigService serveConfigService) {
         this.serveMapper = serveMapper;
         this.tableAssociateService = tableAssociateService;
         this.tableConfigService = tableConfigService;
+        this.serveConfigService = serveConfigService;
     }
 
     /**
@@ -63,12 +69,12 @@ public class ServeServiceImpl implements ServeService {
     public Boolean save(ServeParam serveParam) {
         ValidationUtils.validate(serveParam);
         Serve serve = BeanUtil.copyProperties(serveParam, Serve::new);
-        if (serve != null && serve.getId() != null) {
-            this.update(serve);
-        } else {
-            serve.setVersion(DataVersionUtils.next());
-            serveMapper.insert(serve);
-        }
+//        if (serve != null && serve.getId() != null) {
+//            this.update(serve);
+//        } else {
+//            serve.setVersion(DataVersionUtils.next());
+//            serveMapper.insert(serve);
+//        }
         return Boolean.TRUE;
     }
 
@@ -220,9 +226,15 @@ public class ServeServiceImpl implements ServeService {
     private void setParam(List<ServeVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(ServeVo::getId).collect(Collectors.toList());
+            Map<Long, ServeConfigVo> serveConfigMap = serveConfigService.findByServeId(ids).stream().collect(Collectors.toMap(ServeConfigVo::getServeId, a -> a, (k1, k2) -> k1));
             Map<Long, List<TableAssociateVo>> tableAssociateMap = tableAssociateService.findByServeId(ids).stream().collect(Collectors.groupingBy(TableAssociateVo::getServeId));
             Map<Long, List<TableConfigVo>> tableConfigMap = tableConfigService.findByServeId(ids, null).stream().collect(Collectors.groupingBy(TableConfigVo::getServeId));
             for (ServeVo serve : list) {
+                ServeConfigVo serveConfigVo = serveConfigMap.get(serve.getId());
+                if (serveConfigVo != null) {
+                    serve.setState(serveConfigVo.getState());
+                    serve.setOffSet(serveConfigVo.getOffSet());
+                }
                 serve.setTableAssociateVoList(tableAssociateMap.get(serve.getId()));
                 serve.setTableConfigVoList(tableConfigMap.get(serve.getId()));
             }

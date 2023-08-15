@@ -32,6 +32,7 @@
             <if test="param.def != null and param.def != ''">
                 and def like concat('%',#{param.def},'%')
             </if>
+            and is_delete=0
         </where>
     </select>
 </mapper>
