@@ -5,30 +5,20 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.exceptions.DataException;
 import com.cloud.common.core.utils.BeanUtil;
 import com.cloud.common.core.utils.DataVersionUtils;
-import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import com.cloud.sync.entity.Serve;
 import com.cloud.sync.mapper.ServeMapper;
-import com.cloud.sync.param.ServeParam;
+import com.cloud.sync.param.*;
 import com.cloud.sync.query.ServeQuery;
-import com.cloud.sync.service.ServeConfigService;
-import com.cloud.sync.service.ServeService;
-import com.cloud.sync.service.TableAssociateService;
-import com.cloud.sync.service.TableConfigService;
-import com.cloud.sync.vo.ServeConfigVo;
-import com.cloud.sync.vo.ServeVo;
-import com.cloud.sync.vo.TableAssociateVo;
-import com.cloud.sync.vo.TableConfigVo;
+import com.cloud.sync.service.*;
+import com.cloud.sync.vo.*;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -45,17 +35,21 @@ public class ServeServiceImpl implements ServeService {
 
     private final ServeConfigService serveConfigService;
 
+    private final ColumnConfigService columnConfigService;
+
     /**
      * 使用构造方法注入
      *
      * @param serveMapper 表映射Mapper服务
      */
     public ServeServiceImpl(ServeMapper serveMapper, TableAssociateService tableAssociateService
-            , TableConfigService tableConfigService, ServeConfigService serveConfigService) {
+            , TableConfigService tableConfigService, ServeConfigService serveConfigService
+            , ColumnConfigService columnConfigService) {
         this.serveMapper = serveMapper;
         this.tableAssociateService = tableAssociateService;
         this.tableConfigService = tableConfigService;
         this.serveConfigService = serveConfigService;
+        this.columnConfigService = columnConfigService;
     }
 
     /**
@@ -67,16 +61,89 @@ public class ServeServiceImpl implements ServeService {
     @Override
     @Transactional
     public Boolean save(ServeParam serveParam) {
-        ValidationUtils.validate(serveParam);
         Serve serve = BeanUtil.copyProperties(serveParam, Serve::new);
-//        if (serve != null && serve.getId() != null) {
-//            this.update(serve);
-//        } else {
-//            serve.setVersion(DataVersionUtils.next());
-//            serveMapper.insert(serve);
-//        }
+        if (serve != null && serve.getId() != null) {
+            this.update(serve);
+        } else {
+            serve.setVersion(DataVersionUtils.next());
+            serveMapper.insert(serve);
+        }
+        List<AssociateTableParam> list = serveParam.getTableConfig();
+
+        List<TableConfigParam> tableConfigParams = new ArrayList<>();
+        List<TableAssociateParam> tableAssociateParams = new ArrayList<>();
+        List<ColumnConfigParam> columnConfigParams = new ArrayList<>();
+
+        for (AssociateTableParam associateTableParam : list) {
+
+            TableConfigParam redaTable = new TableConfigParam(serve.getId(), 1, associateTableParam.getReadTable());
+            TableConfigParam writeTable = new TableConfigParam(serve.getId(), 2, associateTableParam.getWriteTable());
+
+            TableAssociateParam tableAssociateParam = new TableAssociateParam(serve.getId(),
+                    associateTableParam.getName(), 1, redaTable.getId(), redaTable.getTableName(),
+                    writeTable.getId(), redaTable.getTableName());
+
+            tableConfigParams.add(redaTable);
+            tableConfigParams.add(writeTable);
+            tableAssociateParams.add(tableAssociateParam);
+
+            List<AssociateColumnParam> columns = associateTableParam.getColumns();
+            Integer seq = 0;
+            for (AssociateColumnParam associateColumnParam : columns) {
+                seq++;
+                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), seq, associateColumnParam.getReadColumn(), 1);
+                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), seq, associateColumnParam.getWriteColumn(), 1);
+                columnConfigParams.add(readColumnConfigParam);
+                columnConfigParams.add(writeColumnConfigParam);
+            }
+        }
+
+        //表配置
+        tableConfigService.save(tableConfigParams);
+        //表关联
+        tableAssociateService.save(tableAssociateParams);
+        //列保存
+        columnConfigService.save(columnConfigParams);
         return Boolean.TRUE;
     }
+
+    /**
+     * 通过Id查询  用于页面显示
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public ServeParam findServeParamById(Long id) {
+        List<AssociateTableParam> associateTableParamList = new ArrayList<>();
+        ServeVo serveVo = this.findById(id);
+        ServeParam serve = BeanUtil.copyProperties(serveVo, ServeParam::new);
+        List<TableAssociateVo> tableAssociateVoList = serveVo.getTableAssociateVoList();
+        List<TableConfigVo> tableConfigVoList = serveVo.getTableConfigVoList();
+        Map<Long, TableConfigVo> appleMap = tableConfigVoList.stream().collect(Collectors.toMap(TableConfigVo::getId, a -> a, (k1, k2) -> k1));
+        for (TableAssociateVo tableAssociateVo : tableAssociateVoList) {
+            AssociateTableParam associateTableParam = BeanUtil.copyProperties(tableAssociateVo, AssociateTableParam::new);
+            TableConfigVo read = appleMap.get(tableAssociateVo.getReadTableId());
+            TableConfigVo write = appleMap.get(tableAssociateVo.getWriteTableId());
+            associateTableParam.setReadTable(read.getTableName());
+            associateTableParam.setWriteTable(write.getTableName());
+            List<AssociateColumnParam> associateColumnParams = new ArrayList<>();
+            associateTableParam.setColumns(associateColumnParams);
+            List<ColumnConfigVo> reader = read.getColumnConfigVoList().stream().sorted(Comparator.comparing(ColumnConfigVo::getSeq)).collect(Collectors.toList());
+            List<ColumnConfigVo> writer = write.getColumnConfigVoList().stream().sorted(Comparator.comparing(ColumnConfigVo::getSeq)).collect(Collectors.toList());
+            for (int i = 0; i < writer.size(); i++) {
+                AssociateColumnParam associateColumnParam = new AssociateColumnParam();
+                associateColumnParam.setReadColumn(reader.get(i).getColumnName());
+                associateColumnParam.setWriteColumn(writer.get(i).getColumnName());
+                associateColumnParam.setKey(writer.get(i).getColumnPrimaryKey() == 1 ? Boolean.TRUE : Boolean.FALSE);
+                associateColumnParams.add(associateColumnParam);
+            }
+            associateTableParamList.add(associateTableParam);
+        }
+        serve.setTableConfig(associateTableParamList);
+        return serve;
+    }
+
 
     /**
      * 通过Id查询数据

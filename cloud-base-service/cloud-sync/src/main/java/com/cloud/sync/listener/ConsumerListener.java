@@ -30,6 +30,10 @@ public class ConsumerListener {
         Map<String, List<String>> map = new HashMap<>();
         for (ConsumerRecord<String, String> message : messages) {
             JSONObject jsonObject = JSONObject.parseObject(message.value());
+            if (jsonObject == null) {
+                continue;
+            }
+            System.out.println("打印数据:-->" + jsonObject);
             String op = jsonObject.getString("op");
             if (op != null) {
                 switch (op) {

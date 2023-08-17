@@ -119,20 +119,20 @@ public class DBUtil {
             // 当前数据库名
             String catalog = conn.getCatalog();
             try (ResultSet rs = metaData.getColumns(catalog, null, tableName, "%")) {
+                ResultSet keys = conn.getMetaData().getPrimaryKeys(catalog, null, tableName);
+                List<String> keyList = new ArrayList<>();
+                while (keys.next()) {
+                    keyList.add(keys.getString("COLUMN_NAME"));
+                }
                 while (rs.next()) {
                     String columnName = rs.getString("COLUMN_NAME");
                     String columnType = getTypeName(rs.getInt("DATA_TYPE"));
                     Boolean required = !"YES".equals(rs.getString("IS_NULLABLE")) ? Boolean.TRUE : Boolean.FALSE;
                     int columnSize = rs.getInt("COLUMN_SIZE");
                     String columnComment = rs.getString("REMARKS");
-                    ResultSet index = conn.createStatement().executeQuery("SHOW COLUMNS FROM " + catalog + "." + tableName + " WHERE Field='" + columnName + "'");
                     Boolean uni = false;
-                    if (index.next()) {
-                        String key = index.getString("Key");
-                        if ("UNI".equals(key)) {
-                            // columnName字段为唯一索引
-                            uni = true;
-                        }
+                    if (keyList.size() > 0 && keyList.contains(columnName)) {
+                        uni = true;
                     }
                     list.add(new ColumnData(columnName, columnType, required, uni, columnSize, columnComment));
                 }

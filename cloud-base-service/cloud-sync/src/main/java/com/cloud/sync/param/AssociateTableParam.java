@@ -8,6 +8,9 @@ import java.util.List;
 @Data
 public class AssociateTableParam {
 
+    @Schema(description = "名称")
+    private String name;
+
     @Schema(description = "读取table")
     private String readTable;
 

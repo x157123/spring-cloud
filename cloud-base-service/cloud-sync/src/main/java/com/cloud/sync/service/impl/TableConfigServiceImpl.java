@@ -50,17 +50,15 @@ public class TableConfigServiceImpl implements TableConfigService {
     /**
      * 保存对象
      *
-     * @param tableConfigParam 前端传入对象
+     * @param tableConfigParams 前端传入对象
      * @return 返回保存成功状态
      */
     @Override
     @Transactional
-    public Boolean save(TableConfigParam tableConfigParam) {
-        ValidationUtils.validate(tableConfigParam);
-        TableConfig tableConfig = BeanUtil.copyProperties(tableConfigParam, TableConfig::new);
-        if (tableConfig != null && tableConfig.getId() != null) {
-            this.update(tableConfig);
-        } else {
+    public Boolean save(List<TableConfigParam> tableConfigParams) {
+        ValidationUtils.validate(tableConfigParams);
+        List<TableConfig> list = BeanUtil.copyListProperties(tableConfigParams, TableConfig::new);
+        for (TableConfig tableConfig : list) {
             tableConfig.setVersion(DataVersionUtils.next());
             tableConfigMapper.insert(tableConfig);
         }

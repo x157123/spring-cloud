@@ -16,10 +16,10 @@ public interface TableConfigService {
     /**
      * 保存对象
      *
-     * @param tableConfigParam 前端传入对象
+     * @param tableConfigParams 前端传入对象
      * @return 返回保存成功状态
      */
-    Boolean save(TableConfigParam tableConfigParam);
+    Boolean save(List<TableConfigParam> tableConfigParams);
 
     /**
      * 通过Id查询数据

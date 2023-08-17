@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.exceptions.DataException;
 import com.cloud.common.core.utils.BeanUtil;
 import com.cloud.common.core.utils.DataVersionUtils;
-import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import com.cloud.sync.entity.TableAssociate;
@@ -43,17 +42,14 @@ public class TableAssociateServiceImpl implements TableAssociateService {
     /**
      * 保存对象
      *
-     * @param tableAssociateParam 前端传入对象
+     * @param tableAssociateParams 前端传入对象
      * @return 返回保存成功状态
      */
     @Override
     @Transactional
-    public Boolean save(TableAssociateParam tableAssociateParam) {
-        ValidationUtils.validate(tableAssociateParam);
-        TableAssociate tableAssociate = BeanUtil.copyProperties(tableAssociateParam, TableAssociate::new);
-        if (tableAssociate != null && tableAssociate.getId() != null) {
-            this.update(tableAssociate);
-        } else {
+    public Boolean save(List<TableAssociateParam> tableAssociateParams) {
+        List<TableAssociate> list = BeanUtil.copyListProperties(tableAssociateParams, TableAssociate::new);
+        for (TableAssociate tableAssociate : list) {
             tableAssociate.setVersion(DataVersionUtils.next());
             tableAssociateMapper.insert(tableAssociate);
         }

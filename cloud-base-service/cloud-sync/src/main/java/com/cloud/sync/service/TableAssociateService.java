@@ -16,10 +16,10 @@ public interface TableAssociateService {
     /**
      * 保存对象
      *
-     * @param tableAssociateParam 前端传入对象
+     * @param tableAssociateParams 前端传入对象
      * @return 返回保存成功状态
      */
-    Boolean save(TableAssociateParam tableAssociateParam);
+    Boolean save(List<TableAssociateParam> tableAssociateParams);
 
     /**
      * 通过Id查询数据

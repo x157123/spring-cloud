@@ -5,21 +5,19 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.cloud.common.core.exceptions.DataException;
 import com.cloud.common.core.utils.BeanUtil;
 import com.cloud.common.core.utils.DataVersionUtils;
-import com.cloud.common.core.utils.ValidationUtils;
 import com.cloud.common.mybatis.page.PageParam;
 import com.cloud.common.mybatis.util.OrderUtil;
 import com.cloud.sync.entity.ColumnConfig;
-import com.cloud.sync.vo.ColumnConfigVo;
 import com.cloud.sync.mapper.ColumnConfigMapper;
+import com.cloud.sync.param.ColumnConfigParam;
 import com.cloud.sync.query.ColumnConfigQuery;
 import com.cloud.sync.service.ColumnConfigService;
-import com.cloud.sync.param.ColumnConfigParam;
+import com.cloud.sync.vo.ColumnConfigVo;
 import org.apache.commons.collections4.ListUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -37,24 +35,21 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
      *
      * @param columnConfigMapper 同步数据库列配置Mapper服务
      */
-    public ColumnConfigServiceImpl(ColumnConfigMapper columnConfigMapper){
+    public ColumnConfigServiceImpl(ColumnConfigMapper columnConfigMapper) {
         this.columnConfigMapper = columnConfigMapper;
     }
 
     /**
      * 保存对象
      *
-     * @param columnConfigParam 前端传入对象
+     * @param columnConfigParams 前端传入对象
      * @return 返回保存成功状态
      */
     @Override
     @Transactional
-    public Boolean save(ColumnConfigParam columnConfigParam) {
-        ValidationUtils.validate(columnConfigParam);
-        ColumnConfig columnConfig = BeanUtil.copyProperties(columnConfigParam, ColumnConfig::new);
-        if (columnConfig != null && columnConfig.getId() != null) {
-            this.update(columnConfig);
-        }else{
+    public Boolean save(List<ColumnConfigParam> columnConfigParams) {
+        List<ColumnConfig> columnConfigs = BeanUtil.copyListProperties(columnConfigParams, ColumnConfig::new);
+        for (ColumnConfig columnConfig : columnConfigs) {
             columnConfig.setVersion(DataVersionUtils.next());
             columnConfigMapper.insert(columnConfig);
         }
@@ -80,7 +75,7 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
      * 传入多个Id 查询数据
      *
      * @param ids 多个id
-     * @return  返回list结果
+     * @return 返回list结果
      */
     @Override
     public List<ColumnConfigVo> findByIds(List<Long> ids) {
@@ -90,7 +85,7 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
         LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(ColumnConfig::getId, ids);
         List<ColumnConfigVo> list = queryWrapper(queryWrapper);
-		return list;
+        return list;
     }
 
     /**
@@ -126,7 +121,7 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
      * 数据分页查询
      *
      * @param columnConfigQuery 查询条件
-     * @param pageParam 分页条件
+     * @param pageParam         分页条件
      * @return 分页数据
      */
     @Override
@@ -134,22 +129,22 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
         IPage<ColumnConfig> iPage = columnConfigMapper.queryPage(OrderUtil.getPage(pageParam), columnConfigQuery);
         return iPage.convert(columnConfig -> BeanUtil.copyProperties(columnConfig, ColumnConfigVo::new));
     }
-	
-	/**
+
+    /**
      * 传入多个Id 查询数据
      *
      * @param tableIds id集合
-     * @return  返回查询结果
+     * @return 返回查询结果
      */
     @Override
-    public List<ColumnConfigVo> findByTableId(List<Long> tableIds){
+    public List<ColumnConfigVo> findByTableId(List<Long> tableIds) {
         if (tableIds == null || tableIds.size() == 0) {
             return new ArrayList<>();
         }
         List<ColumnConfigVo> dataList = new ArrayList<>();
         LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
         List<List<Long>> subLists = ListUtils.partition(tableIds, 5000);
-        for(List<Long> list : subLists) {
+        for (List<Long> list : subLists) {
             queryWrapper.in(ColumnConfig::getTableId, list);
             dataList.addAll(queryWrapper(queryWrapper));
         }
@@ -160,7 +155,7 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
      * 通过Id 更新数据
      *
      * @param columnConfig 前端更新集合
-     * @return  更新成功状态
+     * @return 更新成功状态
      */
     private Boolean update(ColumnConfig columnConfig) {
         LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
@@ -179,9 +174,9 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
      * 查询数据列表
      *
      * @param queryWrapper 查询条件
-     * @return  返回转化后的数据
+     * @return 返回转化后的数据
      */
-    private List<ColumnConfigVo> queryWrapper(LambdaQueryWrapper<ColumnConfig> queryWrapper){
+    private List<ColumnConfigVo> queryWrapper(LambdaQueryWrapper<ColumnConfig> queryWrapper) {
         // 数据查询
         List<ColumnConfig> columnConfigEntities = columnConfigMapper.selectList(queryWrapper);
         // 数据转换
