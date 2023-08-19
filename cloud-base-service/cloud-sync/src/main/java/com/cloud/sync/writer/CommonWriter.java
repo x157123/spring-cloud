@@ -248,6 +248,26 @@ public class CommonWriter {
                     .append(String.join(", ", Collections.nCopies(columns.size(), "?")))
                     .append(")").toString();
 
+        }
+        if (dataBaseType == DataBaseType.PostgreSQL) {
+            List<String> keys = columnConfigVoList.stream().filter(b -> b.getColumnPrimaryKey() > 0).map(ColumnConfigVo::getColumnName).collect(Collectors.toList());
+            //update只在mysql下使用
+            StringBuilder stringBuilder = new StringBuilder()
+                    .append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ","))
+                    .append(") VALUES(")
+                    .append(String.join(", ", Collections.nCopies(columns.size(), "?")))
+                    .append(")")
+                    .append("ON CONFLICT (" + String.join(",", keys) + ")")
+                    .append(")")
+                    .append("DO UPDATE SET ");
+            for (ColumnConfigVo columnConfigVo : columnConfigVoList) {
+                if (!keys.contains(columnConfigVo.getColumnName())) {
+                    stringBuilder.append(columnConfigVo.getColumnName() + "= EXCLUDED." + columnConfigVo.getColumnName() + ",");
+                }
+            }
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            writeDataSqlTemplate = stringBuilder.toString();
+
         } else {
             List<String> keys = columnConfigVoList.stream().filter(b -> b.getColumnPrimaryKey() > 0).map(ColumnConfigVo::getColumnName).collect(Collectors.toList());
             //update只在mysql下使用
