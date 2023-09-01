@@ -14,6 +14,7 @@ import com.cloud.sync.query.ServeQuery;
 import com.cloud.sync.service.*;
 import com.cloud.sync.vo.*;
 import org.apache.commons.collections4.ListUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -37,6 +38,8 @@ public class ServeServiceImpl implements ServeService {
 
     private final ColumnConfigService columnConfigService;
 
+    private final ConnectConfigService connectConfigService;
+
     /**
      * 使用构造方法注入
      *
@@ -44,12 +47,13 @@ public class ServeServiceImpl implements ServeService {
      */
     public ServeServiceImpl(ServeMapper serveMapper, TableAssociateService tableAssociateService
             , TableConfigService tableConfigService, ServeConfigService serveConfigService
-            , ColumnConfigService columnConfigService) {
+            , ColumnConfigService columnConfigService, @Lazy ConnectConfigService connectConfigService) {
         this.serveMapper = serveMapper;
         this.tableAssociateService = tableAssociateService;
         this.tableConfigService = tableConfigService;
         this.serveConfigService = serveConfigService;
         this.columnConfigService = columnConfigService;
+        this.connectConfigService = connectConfigService;
     }
 
     /**
@@ -91,8 +95,8 @@ public class ServeServiceImpl implements ServeService {
             Integer seq = 0;
             for (AssociateColumnParam associateColumnParam : columns) {
                 seq++;
-                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), seq, associateColumnParam.getReadColumn(), 1);
-                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), seq, associateColumnParam.getWriteColumn(), 1);
+                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), seq, associateColumnParam.getReadColumn(), associateColumnParam.isKey() ? 1 : 0);
+                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), seq, associateColumnParam.getWriteColumn(), associateColumnParam.isKey() ? 1 : 0);
                 columnConfigParams.add(readColumnConfigParam);
                 columnConfigParams.add(writeColumnConfigParam);
             }
@@ -114,10 +118,9 @@ public class ServeServiceImpl implements ServeService {
      * @return
      */
     @Override
-    public ServeParam findServeParamById(Long id) {
+    public ServeVo findServeParamById(Long id) {
         List<AssociateTableParam> associateTableParamList = new ArrayList<>();
         ServeVo serveVo = this.findById(id);
-        ServeParam serve = BeanUtil.copyProperties(serveVo, ServeParam::new);
         List<TableAssociateVo> tableAssociateVoList = serveVo.getTableAssociateVoList();
         List<TableConfigVo> tableConfigVoList = serveVo.getTableConfigVoList();
         Map<Long, TableConfigVo> appleMap = tableConfigVoList.stream().collect(Collectors.toMap(TableConfigVo::getId, a -> a, (k1, k2) -> k1));
@@ -140,8 +143,8 @@ public class ServeServiceImpl implements ServeService {
             }
             associateTableParamList.add(associateTableParam);
         }
-        serve.setTableConfig(associateTableParamList);
-        return serve;
+        serveVo.setTableConfig(associateTableParamList);
+        return serveVo;
     }
 
 
@@ -293,6 +296,10 @@ public class ServeServiceImpl implements ServeService {
     private void setParam(List<ServeVo> list) {
         if (list != null) {
             List<Long> ids = list.stream().map(ServeVo::getId).collect(Collectors.toList());
+            Set<Long> readDb = list.stream().map(ServeVo::getReadConnectId).collect(Collectors.toSet());
+            Set<Long> writeDb = list.stream().map(ServeVo::getWriteConnectId).collect(Collectors.toSet());
+            readDb.addAll(writeDb);
+            Map<Long, ConnectConfigVo> configVoMap = connectConfigService.findByIds(new ArrayList<>(readDb)).stream().collect(Collectors.toMap(ConnectConfigVo::getId, a -> a, (k1, k2) -> k1));
             Map<Long, ServeConfigVo> serveConfigMap = serveConfigService.findByServeId(ids).stream().collect(Collectors.toMap(ServeConfigVo::getServeId, a -> a, (k1, k2) -> k1));
             Map<Long, List<TableAssociateVo>> tableAssociateMap = tableAssociateService.findByServeId(ids).stream().collect(Collectors.groupingBy(TableAssociateVo::getServeId));
             Map<Long, List<TableConfigVo>> tableConfigMap = tableConfigService.findByServeId(ids, null).stream().collect(Collectors.groupingBy(TableConfigVo::getServeId));
@@ -301,6 +308,16 @@ public class ServeServiceImpl implements ServeService {
                 if (serveConfigVo != null) {
                     serve.setState(serveConfigVo.getState());
                     serve.setOffSet(serveConfigVo.getOffSet());
+                }
+                ConnectConfigVo connectConfigVo = configVoMap.get(serve.getReadConnectId());
+                if (connectConfigVo != null) {
+                    serve.setReadConnectName(connectConfigVo.getRemark());
+                    serve.setReadConnectType(connectConfigVo.getType());
+                }
+                connectConfigVo = configVoMap.get(serve.getWriteConnectId());
+                if (connectConfigVo != null) {
+                    serve.setWriteConnectName(connectConfigVo.getRemark());
+                    serve.setWriteConnectType(connectConfigVo.getType());
                 }
                 serve.setTableAssociateVoList(tableAssociateMap.get(serve.getId()));
                 serve.setTableConfigVoList(tableConfigMap.get(serve.getId()));

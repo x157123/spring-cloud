@@ -58,6 +58,9 @@ public class TableConfigServiceImpl implements TableConfigService {
     public Boolean save(List<TableConfigParam> tableConfigParams) {
         ValidationUtils.validate(tableConfigParams);
         List<TableConfig> list = BeanUtil.copyListProperties(tableConfigParams, TableConfig::new);
+        LambdaQueryWrapper<TableConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TableConfig::getServeId, tableConfigParams.get(0).getServeId());
+        tableConfigMapper.delete(queryWrapper);
         for (TableConfig tableConfig : list) {
             tableConfig.setVersion(DataVersionUtils.next());
             tableConfigMapper.insert(tableConfig);

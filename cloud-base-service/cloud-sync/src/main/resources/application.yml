@@ -7,6 +7,7 @@ spring:
     url: jdbc:mysql://localhost/cloud_sync?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
     username: root
     password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       maximumPoolSize: 10
       minimumIdle: 2
@@ -15,7 +16,7 @@ spring:
       maxLifetime: 1800000
   kafka:
     #本地虚拟机kafka伪集群
-    bootstrap-servers: 127.0.0.1:9092
+    bootstrap-servers: 198.46.158.227:9002
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.apache.kafka.common.serialization.StringSerializer
@@ -51,8 +52,8 @@ logging:
     learning: error
 
 mybatis-plus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  #  configuration:
+  #    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       logic-delete-field: flag # 全局逻辑删除的实体字段名(since 3.3.0,配置后可以忽略不配置步骤2)

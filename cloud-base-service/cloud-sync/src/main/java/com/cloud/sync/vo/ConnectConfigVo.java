@@ -27,6 +27,11 @@ public class ConnectConfigVo {
     @JsonSerialize(using = ToStringSerializer.class)
     private Long type;
     /**
+     * 数据库类型
+     */
+    @Schema(description = "数据库配置数据库类型")
+    private String typeStr;
+    /**
      * 连接地址
      */
     @Schema(description = "数据库配置连接地址")

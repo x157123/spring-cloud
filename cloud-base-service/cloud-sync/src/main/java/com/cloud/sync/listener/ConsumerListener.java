@@ -33,7 +33,7 @@ public class ConsumerListener {
             if (jsonObject == null) {
                 continue;
             }
-            System.out.println("打印数据:-->" + jsonObject);
+            System.out.println("kafka消费打印数据:-->" + jsonObject);
             String op = jsonObject.getString("op");
             if (op != null) {
                 switch (op) {

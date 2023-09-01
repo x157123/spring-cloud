@@ -186,8 +186,6 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
     @Override
     public List<ConnectConfigVo> findByList(ConnectConfigQuery connectConfigQuery) {
         IPage<ConnectConfigVo> iPage = this.queryPage(connectConfigQuery, new PageParam());
-        //封装关联数据
-        this.setParam(iPage.getRecords());
         return iPage.getRecords();
     }
 
@@ -257,6 +255,8 @@ public class ConnectConfigServiceImpl implements ConnectConfigService {
             for (ConnectConfigVo connectConfig : list) {
                 connectConfig.setJoinTableVoList(joinTableMap.get(connectConfig.getId()));
                 connectConfig.setServeVoList(serveMap.get(connectConfig.getId()));
+                DataBaseType dataBaseType = DataBaseType.getDataBaseType(connectConfig.getType());
+                connectConfig.setTypeStr(dataBaseType.getTypeName());
             }
         }
     }

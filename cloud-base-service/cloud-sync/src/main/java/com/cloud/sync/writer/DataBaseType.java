@@ -46,6 +46,10 @@ public enum DataBaseType {
         return this.debeziumConnector;
     }
 
+    public String getTypeName() {
+        return this.typeName;
+    }
+
     public Long getType() {
         return this.type;
     }

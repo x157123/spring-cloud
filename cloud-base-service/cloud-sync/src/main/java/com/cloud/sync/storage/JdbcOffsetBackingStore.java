@@ -65,7 +65,7 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
 
     @Override
     public Future<Map<ByteBuffer, ByteBuffer>> get(Collection<ByteBuffer> collection) {
-        System.out.println("------------->:get()");
+//        System.out.println("------------->:get()");
         //读取数据库数据
         return executor.submit(() -> {
             Map<ByteBuffer, ByteBuffer> result = new HashMap<>();
@@ -78,7 +78,7 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
 
     @Override
     public Future<Void> set(Map<ByteBuffer, ByteBuffer> map, Callback<Void> callback) {
-        System.out.println("------------->:set()");
+//        System.out.println("------------->:set()");
         //写入数据库
         return executor.submit(() -> {
             for (Map.Entry<ByteBuffer, ByteBuffer> entry : map.entrySet()) {
@@ -89,9 +89,8 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
                     CharsetDecoder decoder = charset.newDecoder();
                     CharBuffer keyBuffer = decoder.decode(entry.getKey());
                     CharBuffer valueBuffer = decoder.decode(entry.getValue());
-
-                    System.out.println("key-->:" + keyBuffer.toString());
-                    System.out.println("value-->:" + valueBuffer.toString());
+//                    System.out.println("key-->:" + keyBuffer.toString());
+//                    System.out.println("value-->:" + valueBuffer.toString());
                     //写入数据库
                     save(keyBuffer.toString(), valueBuffer.toString());
                 }

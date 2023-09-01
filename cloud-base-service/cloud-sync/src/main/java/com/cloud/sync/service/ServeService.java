@@ -28,7 +28,7 @@ public interface ServeService {
      * @param id
      * @return
      */
-    ServeParam findServeParamById(Long id);
+    ServeVo findServeParamById(Long id);
 
     /**
      * 通过Id查询数据

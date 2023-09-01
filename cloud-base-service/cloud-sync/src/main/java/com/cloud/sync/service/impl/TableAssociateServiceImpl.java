@@ -49,6 +49,11 @@ public class TableAssociateServiceImpl implements TableAssociateService {
     @Transactional
     public Boolean save(List<TableAssociateParam> tableAssociateParams) {
         List<TableAssociate> list = BeanUtil.copyListProperties(tableAssociateParams, TableAssociate::new);
+
+        LambdaQueryWrapper<TableAssociate> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(TableAssociate::getServeId, tableAssociateParams.get(0).getServeId());
+        tableAssociateMapper.delete(queryWrapper);
+
         for (TableAssociate tableAssociate : list) {
             tableAssociate.setVersion(DataVersionUtils.next());
             tableAssociateMapper.insert(tableAssociate);

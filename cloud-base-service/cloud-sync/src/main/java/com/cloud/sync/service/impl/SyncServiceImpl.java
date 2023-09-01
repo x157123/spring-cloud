@@ -96,8 +96,10 @@ public class SyncServiceImpl implements SyncService {
     @Override
     public void stop(Long serveId) {
         try {
-            DebeziumEngine<ChangeEvent<String, String>> mysql = map.get(debeziumTopic + serveId.toString());
-            mysql.close();
+            DebeziumEngine<ChangeEvent<String, String>> debeziumEngine = map.get(debeziumTopic + serveId.toString());
+            if (debeziumEngine != null) {
+                debeziumEngine.close();
+            }
             map.remove(debeziumTopic + serveId);
             serveConfigService.state(serveId, 0);
         } catch (Exception e) {
@@ -129,9 +131,9 @@ public class SyncServiceImpl implements SyncService {
             for (String key : map.keySet()) {
                 String keyTmp = key.replace("debezium_", "");
                 String[] keys = keyTmp.split("\\.");
-                for (String tmp : keys) {
-                    System.out.println(tmp);
-                }
+//                for (String tmp : keys) {
+//                    System.out.println(tmp);
+//                }
                 String str = map.get(key).toString();
                 // 将 JSON 字符串转换为 JSONArray
                 JSONArray jsonArray = JSONArray.parseArray(str);
@@ -167,8 +169,8 @@ public class SyncServiceImpl implements SyncService {
     private DebeziumEngine<ChangeEvent<String, String>> getDebeziumEngine(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {
         DebeziumEngine<ChangeEvent<String, String>> engine = DebeziumEngine.create(Json.class)
                 .using(getProperties(serveId, connectConfigVo, tableConfigVos)).notifying(record -> {
-//            System.out.println("record.value() =》 " + record.destination());
-//            System.out.println("record.value() =》 " + record.value());
+//                    System.out.println("record.value() =》 " + record.destination());
+//                    System.out.println("record.value() =》 " + record.value());
                     kafkaTemplate.send(record.destination(), record.value());
                 }).using((success, message, error) -> {
                     // 强烈建议加上此部分的回调代码，方便查看错误信息
@@ -183,6 +185,41 @@ public class SyncServiceImpl implements SyncService {
 
 
     private Properties getProperties(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {
+        if (connectConfigVo.getType() == DataBaseType.MySql.getType()) {
+            return getMysql(serveId, connectConfigVo, tableConfigVos);
+        } else if (connectConfigVo.getType() == DataBaseType.PostgreSQL.getType()) {
+            return getPgsql(serveId, connectConfigVo, tableConfigVos);
+        }
+        return getProperties();
+    }
+
+    private Properties getPgsql(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {
+        final Properties props = getProperties();
+        props.setProperty("name", debeziumTopic + serveId);
+        props.setProperty("slot.name", debeziumTopic + serveId);
+        props.setProperty("topic.prefix", debeziumTopic + serveId);
+        props.setProperty("database.server.id", serveId.toString());
+        props.setProperty("connector.class", DataBaseType.getDataBaseType(connectConfigVo.getType()).getDebeziumConnector());
+        props.setProperty("database.hostname", connectConfigVo.getHostname());
+        props.setProperty("database.port", connectConfigVo.getPort().toString());
+        props.setProperty("database.user", connectConfigVo.getUser());
+        props.setProperty("database.password", connectConfigVo.getPassword());
+        props.setProperty("database.dbname", connectConfigVo.getDatabaseName());
+
+        props.setProperty("plugin.name", "pgoutput");
+
+        /** 采集表配置 */
+        String str = tableConfigVos
+                .stream().map(t -> connectConfigVo.getTablePrefix() + "." + t.getTableName())
+                .collect(Collectors.joining(","));
+        /** 采集表配置 */
+        props.setProperty("table.include.list", str);
+
+
+        return props;
+    }
+
+    private Properties getMysql(Long serveId, ConnectConfigVo connectConfigVo, List<TableConfigVo> tableConfigVos) {
         final Properties props = getProperties();
         props.setProperty("name", debeziumTopic + serveId);
         props.setProperty("topic.prefix", debeziumTopic + serveId);
@@ -199,6 +236,16 @@ public class SyncServiceImpl implements SyncService {
                 .collect(Collectors.joining(","));
         /** 采集表配置 */
         props.setProperty("table.include.list", str);
+
+
+        /** 使用文件存储数据库模式历史 */
+//        props.setProperty("schema.history.internal", "io.debezium.storage.file.history.FileSchemaHistory");
+//        props.setProperty("schema.history.internal.file.filename", "D:/dbhistory.dat");
+
+        //使用kafka存储数据库模式历史
+        props.setProperty("schema.history.internal.kafka.topic", "debezium.database.history");
+        props.setProperty("schema.history.internal.kafka.bootstrap.servers", "198.46.158.227:9002");
+
         return props;
     }
 
@@ -212,7 +259,6 @@ public class SyncServiceImpl implements SyncService {
         //日期时间类型转换器自定义属性（属性前缀为转换器名称）
         props.setProperty("converters", DateTimeConverter.CONVERTERS_NAME);
         props.setProperty(DateTimeConverter.CONVERTERS_TYPE, DateTimeConverter.class.getCanonicalName());
-
         props.setProperty(DateTimeConverter.FORMATTER_PATTERN_TIME, "HH:mm:ss");
         props.setProperty(DateTimeConverter.FORMATTER_PATTERN_DATE, "yyyy-MM-dd");
         props.setProperty(DateTimeConverter.FORMATTER_PATTERN_DATETIME, "yyyy-MM-dd HH:mm:ss");
@@ -229,16 +275,6 @@ public class SyncServiceImpl implements SyncService {
         props.setProperty("value.converter", "org.apache.kafka.connect.json.JsonConverter");
         props.setProperty("key.converter.schemas.enable", "false");
         props.setProperty("value.converter.schemas.enable", "false");
-
-
-        /** 使用文件存储数据库模式历史 */
-        props.setProperty("schema.history.internal", "io.debezium.storage.file.history.FileSchemaHistory");
-        props.setProperty("schema.history.internal.file.filename", "D:/dbhistory.dat");
-
-        //使用kafka存储数据库模式历史
-//        props.setProperty("database.history", KafkaDatabaseHistory.class.getCanonicalName());
-//        props.setProperty("database.history.kafka.topic", "debezium.database.history");
-//        props.setProperty("database.history.kafka.bootstrap.servers", "kafka-node:9092");
 
         /* 使用数据库存储移量 */
         props.setProperty("offset.storage", JdbcOffsetBackingStore.class.getCanonicalName());

@@ -26,6 +26,8 @@
         <module>cloud-user</module>
         <!--同步-->
         <module>cloud-sync</module>
+        <module>cloud-flink</module>
+        <module>cloud-doc</module>
     </modules>
 
     <description>基础服务 用户 菜单 权限 部门 数据字典</description>

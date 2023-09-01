@@ -34,8 +34,7 @@ public class CommonWriter {
 
     private final Logger LOG = LoggerFactory.getLogger(CommonWriter.class);
 
-    public static CommonWriter getCommonWriter(Long connectionId, String tableName, List<ColumnConfigVo> columnConfigVoList
-            , Triple<List<String>, List<Integer>, List<String>> resultSetMetaData, DataBaseType dataBaseType, Map<String, String> associateColumn) {
+    public static CommonWriter getCommonWriter(Long connectionId, String tableName, List<ColumnConfigVo> columnConfigVoList, Triple<List<String>, List<Integer>, List<String>> resultSetMetaData, DataBaseType dataBaseType, Map<String, String> associateColumn) {
         CommonWriter commonWriter = new CommonWriter();
         commonWriter.connectionId = connectionId;
         commonWriter.resultSetMetaData = resultSetMetaData;
@@ -47,18 +46,15 @@ public class CommonWriter {
     }
 
 
-    public void doBatchInsert(List<Map<String, String>> buffer)
-            throws SQLException {
+    public void doBatchInsert(List<Map<String, String>> buffer) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
             connection = DBUtil.getConnect(this.connectionId);
             connection.setAutoCommit(false);
-            preparedStatement = connection
-                    .prepareStatement(this.writeRecordSql);
+            preparedStatement = connection.prepareStatement(this.writeRecordSql);
             for (Map<String, String> record : buffer) {
-                preparedStatement = fillPreparedStatement(
-                        preparedStatement, record);
+                preparedStatement = fillPreparedStatement(preparedStatement, record);
                 preparedStatement.addBatch();
             }
             preparedStatement.executeBatch();
@@ -79,12 +75,10 @@ public class CommonWriter {
         PreparedStatement preparedStatement = null;
         try {
             connection.setAutoCommit(true);
-            preparedStatement = connection
-                    .prepareStatement(this.writeRecordSql);
+            preparedStatement = connection.prepareStatement(this.writeRecordSql);
             for (Map<String, String> record : buffer) {
                 try {
-                    preparedStatement = fillPreparedStatement(
-                            preparedStatement, record);
+                    preparedStatement = fillPreparedStatement(preparedStatement, record);
                     preparedStatement.execute();
                 } catch (SQLException e) {
                     LOG.debug(e.toString());
@@ -103,19 +97,18 @@ public class CommonWriter {
 
 
     // 直接使用了两个类变量：columnNumber,resultSetMetaData
-    private PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Map<String, String> record)
-            throws SQLException {
+    private PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Map<String, String> record) throws SQLException {
         for (int i = 0; i < this.columnNumber; i++) {
             int columnSqltype = this.resultSetMetaData.getMiddle().get(i);
             String typeName = this.resultSetMetaData.getRight().get(i);
             String name = this.resultSetMetaData.getLeft().get(i);
             preparedStatement = fillPreparedStatementColumnType(preparedStatement, i, columnSqltype, typeName, record.get(associateColumn.get(name)));
+            System.out.printf(preparedStatement.toString());
         }
         return preparedStatement;
     }
 
-    private PreparedStatement fillPreparedStatementColumnType(PreparedStatement preparedStatement, int columnIndex,
-                                                              int columnSqltype, String typeName, String column) throws SQLException {
+    private PreparedStatement fillPreparedStatementColumnType(PreparedStatement preparedStatement, int columnIndex, int columnSqltype, String typeName, String column) throws SQLException {
         java.util.Date utilDate;
         switch (columnSqltype) {
             case Types.CHAR:
@@ -199,8 +192,7 @@ public class CommonWriter {
                 }
 
                 if (null != utilDate) {
-                    sqlTimestamp = new java.sql.Timestamp(
-                            utilDate.getTime());
+                    sqlTimestamp = new java.sql.Timestamp(utilDate.getTime());
                 }
                 preparedStatement.setTimestamp(columnIndex + 1, sqlTimestamp);
                 break;
@@ -226,14 +218,7 @@ public class CommonWriter {
                 }
                 break;
             default:
-                throw new RuntimeException(String.format(
-                        "数据库写入这种字段类型. 字段名:[%s], 字段类型:[%d], 字段Java类型:[%s]. 请修改表中该字段的类型或者不同步该字段.",
-                        this.resultSetMetaData.getLeft()
-                                .get(columnIndex),
-                        this.resultSetMetaData.getMiddle()
-                                .get(columnIndex),
-                        this.resultSetMetaData.getRight()
-                                .get(columnIndex)));
+                throw new RuntimeException(String.format("数据库写入这种字段类型. 字段名:[%s], 字段类型:[%d], 字段Java类型:[%s]. 请修改表中该字段的类型或者不同步该字段.", this.resultSetMetaData.getLeft().get(columnIndex), this.resultSetMetaData.getMiddle().get(columnIndex), this.resultSetMetaData.getRight().get(columnIndex)));
         }
         return preparedStatement;
     }
@@ -242,24 +227,21 @@ public class CommonWriter {
         List<String> columns = columnConfigVoList.stream().map(ColumnConfigVo::getColumnName).collect(Collectors.toList());
         String writeDataSqlTemplate;
         if (dataBaseType == DataBaseType.MySql) {
-            writeDataSqlTemplate = new StringBuilder()
-                    .append("REPLACE INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ","))
-                    .append(") VALUES(")
-                    .append(String.join(", ", Collections.nCopies(columns.size(), "?")))
-                    .append(")").toString();
-
-        }
-        if (dataBaseType == DataBaseType.PostgreSQL) {
+            List<String> keys = columnConfigVoList.stream().filter(b -> b.getColumnPrimaryKey() > 0).map(ColumnConfigVo::getColumnName).collect(Collectors.toList());
+            StringBuilder stringBuilder = new StringBuilder().append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ",")).append(") VALUES(").append(String.join(", ", Collections.nCopies(columns.size(), "?"))).append(") ON DUPLICATE KEY UPDATE ");
+            for (ColumnConfigVo columnConfigVo : columnConfigVoList) {
+                if (!keys.contains(columnConfigVo.getColumnName())) {
+                    stringBuilder.append(columnConfigVo.getColumnName() + "=VALUES(" + columnConfigVo.getColumnName() + "),");
+                }
+            }
+            stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+            writeDataSqlTemplate = stringBuilder.toString();
+        } else if (dataBaseType == DataBaseType.StarRocks) {
+            writeDataSqlTemplate = new StringBuilder().append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ",")).append(") VALUES(").append(String.join(", ", Collections.nCopies(columns.size(), "?"))).append(")").toString();
+        } else if (dataBaseType == DataBaseType.PostgreSQL) {
             List<String> keys = columnConfigVoList.stream().filter(b -> b.getColumnPrimaryKey() > 0).map(ColumnConfigVo::getColumnName).collect(Collectors.toList());
             //update只在mysql下使用
-            StringBuilder stringBuilder = new StringBuilder()
-                    .append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ","))
-                    .append(") VALUES(")
-                    .append(String.join(", ", Collections.nCopies(columns.size(), "?")))
-                    .append(")")
-                    .append("ON CONFLICT (" + String.join(",", keys) + ")")
-                    .append(")")
-                    .append("DO UPDATE SET ");
+            StringBuilder stringBuilder = new StringBuilder().append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ",")).append(") VALUES(").append(String.join(", ", Collections.nCopies(columns.size(), "?"))).append(" )").append(" ON CONFLICT (" + String.join(",", keys) + ")").append(" DO UPDATE SET ");
             for (ColumnConfigVo columnConfigVo : columnConfigVoList) {
                 if (!keys.contains(columnConfigVo.getColumnName())) {
                     stringBuilder.append(columnConfigVo.getColumnName() + "= EXCLUDED." + columnConfigVo.getColumnName() + ",");
@@ -267,41 +249,12 @@ public class CommonWriter {
             }
             stringBuilder.deleteCharAt(stringBuilder.length() - 1);
             writeDataSqlTemplate = stringBuilder.toString();
-
         } else {
             List<String> keys = columnConfigVoList.stream().filter(b -> b.getColumnPrimaryKey() > 0).map(ColumnConfigVo::getColumnName).collect(Collectors.toList());
             //update只在mysql下使用
-            writeDataSqlTemplate = new StringBuilder()
-                    .append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ","))
-                    .append(") VALUES(")
-                    .append(String.join(", ", Collections.nCopies(columns.size(), "?")))
-                    .append(")")
-                    .append(onDuplicateKeyUpdateString(keys))
-                    .toString();
+            writeDataSqlTemplate = new StringBuilder().append("INSERT INTO ").append(tableName).append(" (").append(StringUtils.join(columns, ",")).append(") VALUES(").append(String.join(", ", Collections.nCopies(columns.size(), "?"))).append(")").toString();
         }
         this.writeRecordSql = writeDataSqlTemplate;
-    }
-
-    private static String onDuplicateKeyUpdateString(List<String> columnHolders) {
-        if (columnHolders == null || columnHolders.size() < 1) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder();
-        sb.append(" ON DUPLICATE KEY UPDATE ");
-        boolean first = true;
-        for (String column : columnHolders) {
-            if (!first) {
-                sb.append(",");
-            } else {
-                first = false;
-            }
-            sb.append(column);
-            sb.append("=VALUES(");
-            sb.append(column);
-            sb.append(")");
-        }
-
-        return sb.toString();
     }
 
     private static Date getData(String str) throws ParseException {
