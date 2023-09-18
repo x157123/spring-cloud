@@ -22,5 +22,18 @@ public class AssociateColumnParam {
      * 写入表是否是主键
      */
     @Schema(description = "写入表是否是主键")
-    private boolean key;
+    private Integer key;
+
+    /**
+     * 数据加工
+     */
+    @Schema(description = "数据加工")
+    private String convertFun;
+
+    /**
+     * 默认值
+     */
+    @Schema(description = "默认值")
+    private String defaultValue;
+
 }

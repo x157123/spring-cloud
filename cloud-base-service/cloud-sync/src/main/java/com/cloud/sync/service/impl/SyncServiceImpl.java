@@ -178,6 +178,8 @@ public class SyncServiceImpl implements SyncService {
                         // 报错回调
                         System.out.println("----------同步异常----------");
                         System.out.println("error:" + message);
+                        System.out.println("error:" + error.getMessage());
+                        this.stop(serveId);
                     }
                 }).build();
         return engine;

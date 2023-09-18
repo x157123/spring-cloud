@@ -95,8 +95,12 @@ public class ServeServiceImpl implements ServeService {
             Integer seq = 0;
             for (AssociateColumnParam associateColumnParam : columns) {
                 seq++;
-                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), seq, associateColumnParam.getReadColumn(), associateColumnParam.isKey() ? 1 : 0);
-                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), seq, associateColumnParam.getWriteColumn(), associateColumnParam.isKey() ? 1 : 0);
+                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), seq,
+                        associateColumnParam.getReadColumn(), associateColumnParam.getKey() != null ? associateColumnParam.getKey() : 0
+                        , associateColumnParam.getDefaultValue(), associateColumnParam.getConvertFun());
+                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), seq,
+                        associateColumnParam.getWriteColumn(), associateColumnParam.getKey() != null ? associateColumnParam.getKey() : 0
+                        , associateColumnParam.getDefaultValue(), associateColumnParam.getConvertFun());
                 columnConfigParams.add(readColumnConfigParam);
                 columnConfigParams.add(writeColumnConfigParam);
             }
@@ -138,7 +142,9 @@ public class ServeServiceImpl implements ServeService {
                 AssociateColumnParam associateColumnParam = new AssociateColumnParam();
                 associateColumnParam.setReadColumn(reader.get(i).getColumnName());
                 associateColumnParam.setWriteColumn(writer.get(i).getColumnName());
-                associateColumnParam.setKey(writer.get(i).getColumnPrimaryKey() == 1 ? Boolean.TRUE : Boolean.FALSE);
+                associateColumnParam.setKey(writer.get(i).getColumnPrimaryKey());
+                associateColumnParam.setDefaultValue(writer.get(i).getDef());
+                associateColumnParam.setConvertFun(writer.get(i).getConvertFun());
                 associateColumnParams.add(associateColumnParam);
             }
             associateTableParamList.add(associateTableParam);

@@ -2,6 +2,7 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.google.common.collect.Lists;
 <#assign showVersion = 0>
 <#list column as col>
     <#if col.nameClass != "version">
@@ -201,8 +202,8 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         List<${nameClass}Vo> dataList = new ArrayList<>();
 		LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
         List<List<Long>> subLists = Lists.partition(${key.columnNameClass? uncap_first}s, 5000);
-        for(List<Long> list : subList) {
-            queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, subLists);
+        for(List<Long> list : subLists) {
+            queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, list);
             dataList.addAll(queryWrapper(queryWrapper));
         }
         return dataList;
@@ -251,7 +252,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
                     ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}Vo(${foreignKey.joinTableNameClass? uncap_first}Vos.get(0));
                 }
         <#else>
-                ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VOList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
+                ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VoList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
     </#list>
             }

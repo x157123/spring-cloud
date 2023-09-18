@@ -13,11 +13,13 @@ import org.hibernate.validator.constraints.Length;
 @Schema(name = "同步数据库列配置响应对象", description = "同步数据库列配置响应对象")
 public class ColumnConfigParam {
 
-    public ColumnConfigParam(Long tableId, Integer seq, String columnName, Integer columnPrimaryKey) {
+    public ColumnConfigParam(Long tableId, Integer seq, String columnName, Integer columnPrimaryKey, String def, String convertFun) {
         this.tableId = tableId;
         this.seq = seq;
         this.columnName = columnName;
         this.columnPrimaryKey = columnPrimaryKey;
+        this.def = def;
+        this.convertFun = convertFun;
     }
 
     /**
@@ -71,6 +73,12 @@ public class ColumnConfigParam {
     @Length(max = 100, message = "同步数据库列配置默认值[ColumnConfigVo.def]长度不能超过100个字符")
     @Schema(description = "默认值")
     private String def;
+
+    /**
+     * 数据加工
+     */
+    @Schema(description = "数据加工")
+    private String convertFun;
 
     /**
      * 版本

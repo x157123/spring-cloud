@@ -13,8 +13,8 @@ import java.util.stream.Collectors;
 public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
-        boolean star = false;
-        boolean sg = false;
+        boolean star = true;
+        boolean sg = true;
         String url = "jdbc:mysql://localhost:3306/cloud_sync";
         String username = "root";
         String password = "123456";
@@ -46,9 +46,9 @@ public class ReadMysqlTable {
         if (sg) {
             url = "jdbc:mysql://localhost:3306/test_sg";
             ftlPath = "cloud-sg";
-            projectName = "tq-project-dl-issue-service";
-            filePath = "D:\\tianque\\project\\service\\tq-project-danlings\\" + projectName + "\\";
-            packagePath = "com.tianque.scgrid.service";
+            projectName = "tq-scgrid-office-service";
+            filePath = "D:\\tianque\\project\\service\\tq-scgrid-office\\" + projectName + "\\";
+            packagePath = "com.tianque.scgrid.office.service.document";
         }
 
         try (Connection conn = DriverManager.getConnection(url, username, password)) {
@@ -67,11 +67,11 @@ public class ReadMysqlTable {
 
             List<MysqlTable> mergeTables = tables.stream().filter(table -> table.getName().matches("(.*)_merge$")).toList();
 
-            writer(writerTables, ftlList, ftlPath, filePath + "src\\main\\");
-
-            writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
-
-            writer(writerTables, pom, ftlPath, filePath);
+//            writer(writerTables, ftlList, ftlPath, filePath + "src\\main\\");
+//
+//            writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
+//
+//            writer(writerTables, pom, ftlPath, filePath);
 
             createPgSql(tables);
         }
