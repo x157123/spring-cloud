@@ -39,8 +39,8 @@ public class DBUtil {
     }
 
     public static synchronized Connection getConnect(Long connectionId, String url, String username, String password, String driver) {
+        HikariDataSource dataSource = null;
         try {
-            HikariDataSource dataSource;
             if (connectionId != null) {
                 dataSource = dataSourceMap.get(connectionId);
                 if (dataSource == null || dataSource.isClosed()) {
@@ -52,6 +52,10 @@ public class DBUtil {
             }
             return dataSource.getConnection();
         } catch (Exception e) {
+            if (dataSource != null) {
+                dataSource.close();
+            }
+            dataSourceMap.remove(connectionId);
             throw new RuntimeException("创建数据库链接错误：" + url);
         }
     }

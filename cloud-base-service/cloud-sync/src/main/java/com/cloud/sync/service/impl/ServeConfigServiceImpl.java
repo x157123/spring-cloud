@@ -63,7 +63,7 @@ public class ServeConfigServiceImpl implements ServeConfigService {
         } else {
             serveConfig = BeanUtil.copyProperties(serveConfigParam, ServeConfig::new);
             serveConfig.setVersion(DataVersionUtils.next());
-            serveConfig.setState(1);
+            serveConfig.setState(serveConfigParam.getState() == null ? 0 : serveConfigParam.getState());
             serveConfigMapper.insert(serveConfig);
         }
         return Boolean.TRUE;
@@ -193,6 +193,21 @@ public class ServeConfigServiceImpl implements ServeConfigService {
             dataList.addAll(queryWrapper(queryWrapper));
         }
         return dataList;
+    }
+
+    /**
+     * 删除记录
+     *
+     * @param serveId
+     */
+    @Override
+    public void removeByServerId(Long serveId) {
+        if (serveId == null) {
+            return;
+        }
+        LambdaQueryWrapper<ServeConfig> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ServeConfig::getServeId, serveId);
+        serveConfigMapper.delete(queryWrapper);
     }
 
     /**

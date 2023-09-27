@@ -75,9 +75,9 @@ public interface ServeConfigService {
      * 更新状态
      *
      * @param serveId
-     * @param i
+     * @param state
      */
-    void state(Long serveId, int i);
+    void state(Long serveId, int state);
 
 
     /**
@@ -87,4 +87,11 @@ public interface ServeConfigService {
      * @return 返回结果
      */
     List<ServeConfigVo> findByServeId(List<Long> serveIds);
+
+    /**
+     * 删除记录
+     *
+     * @param serveId
+     */
+    void removeByServerId(Long serveId);
 }

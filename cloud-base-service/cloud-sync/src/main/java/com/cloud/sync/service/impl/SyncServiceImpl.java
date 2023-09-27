@@ -8,6 +8,7 @@ import com.cloud.sync.param.SyncConfigParam;
 import com.cloud.sync.service.*;
 import com.cloud.sync.storage.JdbcOffsetBackingStore;
 import com.cloud.sync.vo.ConnectConfigVo;
+import com.cloud.sync.vo.ServeConfigVo;
 import com.cloud.sync.vo.ServeVo;
 import com.cloud.sync.vo.TableConfigVo;
 import com.cloud.sync.writer.CommonWriter;
@@ -88,8 +89,7 @@ public class SyncServiceImpl implements SyncService {
         DebeziumEngine<ChangeEvent<String, String>> engine = getDebeziumEngine(serveId, readConnect, readerTable);
         executor.execute(engine);
         map.put(debeziumTopic + serveId.toString(), engine);
-
-        serveConfigService.state(serveId, 1);
+        serveConfigService.state(serveId, 10);
     }
 
 
@@ -101,13 +101,26 @@ public class SyncServiceImpl implements SyncService {
                 debeziumEngine.close();
             }
             map.remove(debeziumTopic + serveId);
-            serveConfigService.state(serveId, 0);
+            serveConfigService.state(serveId, 1);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    /**
+     * 重置
+     *
+     * @param serveId
+     */
+    @Override
+    public void repeat(Long serveId) {
+        ServeConfigVo serveConfigVo = serveConfigService.findByServerId(serveId);
+        if (serveConfigVo != null && serveConfigVo.getState() != 10) {
+            //删除记录
+            serveConfigService.removeByServerId(serveId);
+        }
+    }
 
     @Override
     public void msg() {
@@ -176,7 +189,7 @@ public class SyncServiceImpl implements SyncService {
                     // 强烈建议加上此部分的回调代码，方便查看错误信息
                     if (!success && error != null) {
                         // 报错回调
-                        System.out.println("----------同步异常----------");
+                        System.out.println("----------同步异常 停止任务----------");
                         System.out.println("error:" + message);
                         System.out.println("error:" + error.getMessage());
                         this.stop(serveId);

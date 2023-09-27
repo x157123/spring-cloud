@@ -34,7 +34,9 @@ public class CommonWriter {
 
     private final Logger LOG = LoggerFactory.getLogger(CommonWriter.class);
 
-    public static CommonWriter getCommonWriter(Long connectionId, String tableName, List<ColumnConfigVo> columnConfigVoList, Triple<List<String>, List<Integer>, List<String>> resultSetMetaData, DataBaseType dataBaseType, Map<String, String> associateColumn) {
+    public static CommonWriter getCommonWriter(Long connectionId, String tableName, List<ColumnConfigVo> columnConfigVoList,
+                                               Triple<List<String>, List<Integer>, List<String>> resultSetMetaData,
+                                               DataBaseType dataBaseType, Map<String, String> associateColumn) {
         CommonWriter commonWriter = new CommonWriter();
         commonWriter.connectionId = connectionId;
         commonWriter.resultSetMetaData = resultSetMetaData;
@@ -99,10 +101,10 @@ public class CommonWriter {
     // 直接使用了两个类变量：columnNumber,resultSetMetaData
     private PreparedStatement fillPreparedStatement(PreparedStatement preparedStatement, Map<String, String> record) throws SQLException {
         for (int i = 0; i < this.columnNumber; i++) {
-            int columnSqltype = this.resultSetMetaData.getMiddle().get(i);
+            int columnSqlType = this.resultSetMetaData.getMiddle().get(i);
             String typeName = this.resultSetMetaData.getRight().get(i);
             String name = this.resultSetMetaData.getLeft().get(i);
-            preparedStatement = fillPreparedStatementColumnType(preparedStatement, i, columnSqltype, typeName, record.get(associateColumn.get(name)));
+            preparedStatement = fillPreparedStatementColumnType(preparedStatement, i, columnSqlType, typeName, record.get(associateColumn.get(name)));
             System.out.printf(preparedStatement.toString());
         }
         return preparedStatement;

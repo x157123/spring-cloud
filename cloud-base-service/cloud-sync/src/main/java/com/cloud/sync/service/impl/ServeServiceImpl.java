@@ -95,10 +95,10 @@ public class ServeServiceImpl implements ServeService {
             Integer seq = 0;
             for (AssociateColumnParam associateColumnParam : columns) {
                 seq++;
-                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), seq,
+                ColumnConfigParam readColumnConfigParam = new ColumnConfigParam(redaTable.getId(), serve.getId(), seq,
                         associateColumnParam.getReadColumn(), associateColumnParam.getKey() != null ? associateColumnParam.getKey() : 0
                         , associateColumnParam.getDefaultValue(), associateColumnParam.getConvertFun());
-                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), seq,
+                ColumnConfigParam writeColumnConfigParam = new ColumnConfigParam(writeTable.getId(), serve.getId(), seq,
                         associateColumnParam.getWriteColumn(), associateColumnParam.getKey() != null ? associateColumnParam.getKey() : 0
                         , associateColumnParam.getDefaultValue(), associateColumnParam.getConvertFun());
                 columnConfigParams.add(readColumnConfigParam);

@@ -21,8 +21,6 @@ import org.springframework.util.CollectionUtils;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author liulei
@@ -50,10 +48,9 @@ public class ColumnConfigServiceImpl implements ColumnConfigService {
     @Override
     @Transactional
     public Boolean save(List<ColumnConfigParam> columnConfigParams) {
-        Set<Long> ids = columnConfigParams.stream().map(ColumnConfigParam::getTableId).collect(Collectors.toSet());
         List<ColumnConfig> columnConfigs = BeanUtil.copyListProperties(columnConfigParams, ColumnConfig::new);
         LambdaQueryWrapper<ColumnConfig> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(ColumnConfig::getTableId, ids);
+        queryWrapper.in(ColumnConfig::getServeId, columnConfigParams.get(0).getServeId());
         columnConfigMapper.delete(queryWrapper);
         for (ColumnConfig columnConfig : columnConfigs) {
             columnConfig.setVersion(DataVersionUtils.next());

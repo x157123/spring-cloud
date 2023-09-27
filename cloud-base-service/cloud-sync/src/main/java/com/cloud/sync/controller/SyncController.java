@@ -25,13 +25,23 @@ public class SyncController {
         syncService.begin(connectId);
     }
 
-
     @GetMapping("/stop")
     @ResponseBody
     public void stop(Long connectId) {
         syncService.stop(connectId);
     }
 
+
+    /**
+     * 重置采集 从新开始
+     *
+     * @param connectId
+     */
+    @GetMapping("/repeat")
+    @ResponseBody
+    public void repeat(Long connectId) {
+        syncService.repeat(connectId);
+    }
 
     @GetMapping("/msg")
     @ResponseBody

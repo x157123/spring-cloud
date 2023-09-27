@@ -53,7 +53,6 @@ public class TableAssociateServiceImpl implements TableAssociateService {
         LambdaQueryWrapper<TableAssociate> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(TableAssociate::getServeId, tableAssociateParams.get(0).getServeId());
         tableAssociateMapper.delete(queryWrapper);
-
         for (TableAssociate tableAssociate : list) {
             tableAssociate.setVersion(DataVersionUtils.next());
             tableAssociateMapper.insert(tableAssociate);

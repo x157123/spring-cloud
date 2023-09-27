@@ -18,6 +18,11 @@ public class ColumnConfig extends BaseEntity {
     private Long tableId;
 
     /**
+     * 服务Id
+     */
+    private Long serveId;
+
+    /**
      * 顺序对应
      */
     private Integer seq;

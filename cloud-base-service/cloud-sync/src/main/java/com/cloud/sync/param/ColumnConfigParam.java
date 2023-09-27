@@ -13,8 +13,9 @@ import org.hibernate.validator.constraints.Length;
 @Schema(name = "同步数据库列配置响应对象", description = "同步数据库列配置响应对象")
 public class ColumnConfigParam {
 
-    public ColumnConfigParam(Long tableId, Integer seq, String columnName, Integer columnPrimaryKey, String def, String convertFun) {
+    public ColumnConfigParam(Long tableId, Long serveId, Integer seq, String columnName, Integer columnPrimaryKey, String def, String convertFun) {
         this.tableId = tableId;
+        this.serveId = serveId;
         this.seq = seq;
         this.columnName = columnName;
         this.columnPrimaryKey = columnPrimaryKey;
@@ -23,10 +24,16 @@ public class ColumnConfigParam {
     }
 
     /**
-     *
+     * id
      */
     @Schema(description = "id")
     private Long id;
+
+    /**
+     * 服务Id
+     */
+    @Schema(description = "服务Id")
+    private Long serveId;
 
     /**
      * 表Id

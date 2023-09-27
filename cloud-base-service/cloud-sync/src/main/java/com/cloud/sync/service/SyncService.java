@@ -10,12 +10,20 @@ public interface SyncService {
     /**
      * 启动
      */
-    void begin(Long connectId);
+    void begin(Long serveId);
 
     /**
      * 停止服务
      */
-    void stop(Long connectId);
+    void stop(Long serveId);
+
+    /**
+     * 重置
+     *
+     * @param serveId
+     */
+    void repeat(Long serveId);
+
 
     /**
      * 获取信息
