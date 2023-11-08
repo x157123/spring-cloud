@@ -3,7 +3,6 @@ package org.cloud.flowable.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.Data;
 import org.cloud.flowable.service.MyService;
-import org.flowable.engine.repository.Deployment;
 import org.flowable.task.api.Task;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class MyRestController {
@@ -33,6 +33,11 @@ public class MyRestController {
         myService.createDeployment(resourceName, key, bpmnXmlStr);
     }
 
+    /**
+     * 删除数据
+     *
+     * @param deployId
+     */
     @PostMapping(value = "/delete")
     public void delete(String deployId) {
         // true 允许级联删除 ,不设置会导致数据库外键关联异常
@@ -45,7 +50,7 @@ public class MyRestController {
     }
 
     @PostMapping(value = "/getDeployment")
-    public List<Deployment> getDeployment() {
+    public List<Map<String, String>> getDeployment() {
         return myService.getDeployment();
     }
 

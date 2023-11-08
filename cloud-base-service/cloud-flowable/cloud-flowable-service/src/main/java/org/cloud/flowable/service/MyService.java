@@ -11,6 +11,7 @@ import org.flowable.engine.runtime.ProcessInstance;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.Task;
+import org.flowable.task.api.TaskQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +47,7 @@ public class MyService {
     @Transactional
     public void createDeployment(String resourceName, String key, String bpmnXmlStr) {
         Deployment deployment = repositoryService.createDeployment()
-                .addString(resourceName, bpmnXmlStr)
+                .addString(key + ".bpmn20.xml", bpmnXmlStr)
                 .key(key)
                 .name(resourceName)
                 .deploy();
@@ -54,13 +55,18 @@ public class MyService {
     }
 
 
-    @Transactional
-    public List<Deployment> getDeployment() {
+    public List<Map<String, String>> getDeployment() {
+        List<Map<String, String>> data = new ArrayList<>();
         List<Deployment> list = repositoryService.createDeploymentQuery().list();
         list.stream().forEach(deployment -> {
             System.out.println("id:" + deployment.getId() + "   key:" + deployment.getKey());
+            Map<String, String> map = new HashMap<>();
+            map.put("id", deployment.getId());
+            map.put("key", deployment.getKey());
+            map.put("name", deployment.getName());
+            data.add(map);
         });
-        return list;
+        return data;
     }
 
     public void single(String deployId) {
@@ -124,7 +130,14 @@ public class MyService {
      * @return
      */
     public List<Task> getTasks(String assignee, String group) {
-        return taskService.createTaskQuery().or().taskAssignee(assignee).taskCandidateGroup(group).endOr().list();
+        TaskQuery taskQuery = taskService.createTaskQuery().or();
+        if (assignee != null) {
+            taskQuery = taskQuery.taskAssignee(assignee);
+        }
+        if (group != null) {
+            taskQuery = taskQuery.taskCandidateGroup(group);
+        }
+        return taskQuery.endOr().list();
     }
 
     /**

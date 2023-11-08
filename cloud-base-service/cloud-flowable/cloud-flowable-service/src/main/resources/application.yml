@@ -11,3 +11,7 @@ spring:
 #logging:
 #  level:
 #    org.flowable: DEBUG
+
+flowable:
+  async-executor-activate: false
+  database-schema-update: true
