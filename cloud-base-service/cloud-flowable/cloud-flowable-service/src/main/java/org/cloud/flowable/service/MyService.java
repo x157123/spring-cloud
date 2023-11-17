@@ -1,6 +1,7 @@
 package org.cloud.flowable.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.cloud.flowable.utils.XmlUtil;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
@@ -45,7 +46,10 @@ public class MyService {
     IdentityService identityService;
 
     @Transactional
-    public void createDeployment(String resourceName, String key, String bpmnXmlStr) {
+    public void createDeployment(String bpmnXmlStr) {
+        Map<String, String> map = XmlUtil.getXmlMsg(bpmnXmlStr);
+        String resourceName = map.get("name");
+        String key = map.get("id");
         Deployment deployment = repositoryService.createDeployment()
                 .addString(key + ".bpmn20.xml", bpmnXmlStr)
                 .key(key)
@@ -55,15 +59,16 @@ public class MyService {
     }
 
 
-    public List<Map<String, String>> getDeployment() {
-        List<Map<String, String>> data = new ArrayList<>();
-        List<Deployment> list = repositoryService.createDeploymentQuery().list();
+    public List<Map<String, Object>> getDeployment() {
+        List<Map<String, Object>> data = new ArrayList<>();
+        List<Deployment> list = repositoryService.createDeploymentQuery().orderByDeploymentTime().desc().list();
         list.stream().forEach(deployment -> {
             System.out.println("id:" + deployment.getId() + "   key:" + deployment.getKey());
-            Map<String, String> map = new HashMap<>();
+            Map<String, Object> map = new HashMap<>();
             map.put("id", deployment.getId());
             map.put("key", deployment.getKey());
             map.put("name", deployment.getName());
+            map.put("time", deployment.getDeploymentTime());
             data.add(map);
         });
         return data;
@@ -160,15 +165,29 @@ public class MyService {
      * @param day
      * @param assignee
      */
-    public void startFlow(Integer day, String assignee, String flowKey) {
+    public void startFlow(Integer day, String assignee, String processKey) {
         Map<String, Object> map = new HashMap<>();
         map.put("day", day);
         map.put("studentUser", "小明");
-        ProcessInstance studentLeave = runtimeService.startProcessInstanceByKey(flowKey, map);
+
+        ProcessDefinition processDefinition = getLatestProcessDefinition(processKey);
+        ProcessInstance studentLeave = runtimeService.startProcessInstanceById(processDefinition.getId(), map);
         Task task = taskService.createTaskQuery().processInstanceId(studentLeave.getId()).singleResult();
-        taskService.setAssignee(task.getId(), assignee);
+//        taskService.setAssignee(task.getId(), assignee);
         taskService.complete(task.getId());
         System.out.println(studentLeave.getId());
+    }
+
+
+
+    // 获取最新版本的流程定义
+    private ProcessDefinition getLatestProcessDefinition(String processKey) {
+        ProcessDefinition processDefinition = processEngine.getRepositoryService()
+                .createProcessDefinitionQuery()
+                .processDefinitionKey(processKey)
+                .latestVersion()
+                .singleResult();
+        return processDefinition;
     }
 
     /**

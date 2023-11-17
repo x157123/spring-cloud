@@ -24,13 +24,11 @@ public class MyRestController {
     /**
      * 创建流程
      *
-     * @param resourceName
-     * @param key
      * @param bpmnXmlStr
      */
     @PostMapping(value = "/createDeployment")
-    public void createDeployment(String resourceName, String key, String bpmnXmlStr) {
-        myService.createDeployment(resourceName, key, bpmnXmlStr);
+    public void createDeployment(String bpmnXmlStr) {
+        myService.createDeployment(bpmnXmlStr);
     }
 
     /**
@@ -50,7 +48,7 @@ public class MyRestController {
     }
 
     @PostMapping(value = "/getDeployment")
-    public List<Map<String, String>> getDeployment() {
+    public List<Map<String, Object>> getDeployment() {
         return myService.getDeployment();
     }
 
