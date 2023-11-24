@@ -3,12 +3,17 @@ package org.cloud.flowable.service;
 import jakarta.servlet.http.HttpServletResponse;
 import org.cloud.flowable.utils.XmlUtil;
 import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.common.engine.impl.interceptor.CommandExecutor;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
+import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.impl.cmd.SetProcessInstanceNameCmd;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
 import org.flowable.engine.runtime.ProcessInstance;
+import org.flowable.identitylink.api.IdentityLink;
 import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.Task;
@@ -19,10 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MyService {
@@ -50,11 +53,7 @@ public class MyService {
         Map<String, String> map = XmlUtil.getXmlMsg(bpmnXmlStr);
         String resourceName = map.get("name");
         String key = map.get("id");
-        Deployment deployment = repositoryService.createDeployment()
-                .addString(key + ".bpmn20.xml", bpmnXmlStr)
-                .key(key)
-                .name(resourceName)
-                .deploy();
+        Deployment deployment = repositoryService.createDeployment().addString(key + ".bpmn20.xml", bpmnXmlStr).key(key).name(resourceName).deploy();
         System.out.println("部署成功:->" + deployment.getId());
     }
 
@@ -75,9 +74,7 @@ public class MyService {
     }
 
     public void single(String deployId) {
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery()
-                .deploymentId(deployId)
-                .singleResult();
+        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(deployId).singleResult();
         System.out.println("Found process definition : " + processDefinition.getName());
     }
 
@@ -97,8 +94,7 @@ public class MyService {
         taskService.complete(task.getId());
 
         // 老师审批
-        List<Task> teacherTaskList = taskService.createTaskQuery().or()
-                .taskAssignee("666").taskCandidateGroup("teacher").endOr().list();
+        List<Task> teacherTaskList = taskService.createTaskQuery().or().taskAssignee("666").taskCandidateGroup("teacher").endOr().list();
         Map<String, Object> teacherMap = new HashMap<>();
         teacherMap.put("outcome", "通过");
         for (Task teacherTask : teacherTaskList) {
@@ -107,8 +103,7 @@ public class MyService {
         }
 
         // 校长审批
-        List<Task> principalTaskList = taskService.createTaskQuery().or()
-                .taskAssignee("999").taskCandidateGroup("principal").endOr().list();
+        List<Task> principalTaskList = taskService.createTaskQuery().or().taskAssignee("999").taskCandidateGroup("principal").endOr().list();
         Map<String, Object> principalMap = new HashMap<>();
         principalMap.put("outcome", "通过");
         for (Task principalTask : principalTaskList) {
@@ -117,11 +112,7 @@ public class MyService {
         }
 
         // 查看历史
-        List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery()
-                .processInstanceId(studentLeave.getId())
-                .finished()
-                .orderByHistoricActivityInstanceEndTime().asc()
-                .list();
+        List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery().processInstanceId(studentLeave.getId()).finished().orderByHistoricActivityInstanceEndTime().asc().list();
         for (HistoricActivityInstance activity : activities) {
             System.out.println("任务名称：" + activity.getActivityName() + "，处理人：" + activity.getAssignee());
         }
@@ -134,7 +125,8 @@ public class MyService {
      * @param group
      * @return
      */
-    public List<Task> getTasks(String assignee, String group) {
+    public List<Map<String, Object>> getTasks(String assignee, String group) {
+        List<Map<String, Object>> listData = new ArrayList<>();
         TaskQuery taskQuery = taskService.createTaskQuery().or();
         if (assignee != null) {
             taskQuery = taskQuery.taskAssignee(assignee);
@@ -142,7 +134,24 @@ public class MyService {
         if (group != null) {
             taskQuery = taskQuery.taskCandidateGroup(group);
         }
-        return taskQuery.endOr().list();
+        List<Task> list = taskQuery.endOr().list();
+        if (list.size() > 0) {
+            //根据节点ID 获取流程
+            Set<String> processInstanceIds = list.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
+            List<HistoricProcessInstance> historicProcessInstances = historyService.createHistoricProcessInstanceQuery().processInstanceIds(processInstanceIds).list();
+            Map<String, HistoricProcessInstance> processInstanceMap = historicProcessInstances.stream()
+                    .collect(Collectors.toMap(HistoricProcessInstance::getId, // Key 是 HistoricProcessInstance 的 ID
+                            historicProcessInstance -> historicProcessInstance));
+            list.forEach(task -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", task.getId());
+                map.put("taskName", task.getName());
+                map.put("assignee", task.getAssignee());
+                map.put("task", processInstanceMap.get(task.getProcessInstanceId()).getName());
+                listData.add(map);
+            });
+        }
+        return listData;
     }
 
     /**
@@ -165,28 +174,50 @@ public class MyService {
      * @param day
      * @param assignee
      */
-    public void startFlow(Integer day, String assignee, String processKey) {
+    public void startFlow(Integer day, String assignee, String assignees, String processKey) {
         Map<String, Object> map = new HashMap<>();
         map.put("day", day);
         map.put("studentUser", "小明");
+        map.put("name", "小明请假流程");
+        map.put("assignee", assignee);
+        map.put("assignees", assignees);
 
         ProcessDefinition processDefinition = getLatestProcessDefinition(processKey);
-        ProcessInstance studentLeave = runtimeService.startProcessInstanceById(processDefinition.getId(), map);
-        Task task = taskService.createTaskQuery().processInstanceId(studentLeave.getId()).singleResult();
-//        taskService.setAssignee(task.getId(), assignee);
+        Authentication.setAuthenticatedUserId("123");
+        ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinition.getId(), map);
+        Authentication.setAuthenticatedUserId(null);
+
+
+        // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
+        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+        CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
+        commandExecutor.execute(new SetProcessInstanceNameCmd(processInstance.getId(), "小明请假流程"));
+
+
+        Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+        taskService.setAssignee(task.getId(), assignee);
         taskService.complete(task.getId());
-        System.out.println(studentLeave.getId());
+        System.out.println(processInstance.getId());
     }
 
-
+    public List<Map<String, Object>> getUserStartFlow(String userId) {
+        List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery().startedBy(userId).orderByProcessInstanceStartTime().desc().list();
+        List<Map<String, Object>> listData = new ArrayList<>();
+        list.forEach(t -> {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", t.getId());
+            map.put("name", t.getName());
+            map.put("processName", t.getProcessDefinitionName());
+            map.put("startTime", t.getStartTime());
+            map.put("status", t.getBusinessStatus());
+            listData.add(map);
+        });
+        return listData;
+    }
 
     // 获取最新版本的流程定义
     private ProcessDefinition getLatestProcessDefinition(String processKey) {
-        ProcessDefinition processDefinition = processEngine.getRepositoryService()
-                .createProcessDefinitionQuery()
-                .processDefinitionKey(processKey)
-                .latestVersion()
-                .singleResult();
+        ProcessDefinition processDefinition = processEngine.getRepositoryService().createProcessDefinitionQuery().processDefinitionKey(processKey).latestVersion().singleResult();
         return processDefinition;
     }
 
@@ -200,6 +231,16 @@ public class MyService {
         taskService.setAssignee(taskId, assignee);
     }
 
+    /**
+     * 指定节点处理人
+     *
+     * @param group
+     * @param taskId
+     */
+    public void setGroup(String group, String taskId) {
+        taskService.addCandidateGroup(taskId, group);
+    }
+
 
     public void getData() {
         List<ProcessInstance> list = runtimeService.createProcessInstanceQuery().active().list();
@@ -207,16 +248,50 @@ public class MyService {
     }
 
 
-    public void getHistoricActivityInstance(String processInstanceId) {
+    public List<Map<String, Object>> getHistoricActivityInstance(String processInstanceId) {
+
+        List<Map<String, Object>> list = new ArrayList<>();
         // 查看历史
-        List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery()
-                .processInstanceId(processInstanceId)
-                .finished()
-                .orderByHistoricActivityInstanceEndTime().asc()
-                .list();
+        List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery().
+                processInstanceId(processInstanceId).activityTypes(Arrays.asList("userTask").stream().collect(Collectors.toSet()))
+                .finished().orderByHistoricActivityInstanceEndTime().asc().list();
         for (HistoricActivityInstance activity : activities) {
-            System.out.println("任务名称：" + activity.getActivityName() + "，处理人：" + activity.getAssignee());
+            Map<String, Object> map = new HashMap<>();
+            map.put("activityName", activity.getActivityName());
+            map.put("assignee", activity.getAssignee());
+            map.put("endTime", activity.getEndTime());
+            list.add(map);
         }
+        return list;
+    }
+
+    public List<Map<String, Object>> getActivityInstance(String processInstanceId) {
+        List<Map<String, Object>> list = new ArrayList<>();
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).active().list();
+        String taskName = null;
+        Date taskTime = null;
+        for (Task task : tasks) {
+            taskName = task.getName();
+            taskTime = task.getCreateTime();
+            if (task.getAssignee() == null) {
+                break;
+            }
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", task.getName());
+            map.put("assignee", task.getAssignee());
+            map.put("createTime", task.getCreateTime());
+            list.add(map);
+        }
+        List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(tasks.get(0).getId()).stream()
+                .filter(link -> "candidate".equals(link.getType()) && link.getGroupId() != null).toList();
+        for (IdentityLink link : identityLinks) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("name", taskName);
+            map.put("group", link.getGroupId());
+            map.put("createTime", taskTime);
+            list.add(map);
+        }
+        return list;
     }
 
     public void genProcessDiagram(HttpServletResponse httpServletResponse, String processId) {
@@ -229,10 +304,7 @@ public class MyService {
             Task task = taskService.createTaskQuery().processInstanceId(pi.getId()).singleResult();
             //使用流程实例ID，查询正在执行的执行对象表，返回流程实例对象
             String InstanceId = task.getProcessInstanceId();
-            List<Execution> executions = runtimeService
-                    .createExecutionQuery()
-                    .processInstanceId(InstanceId)
-                    .list();
+            List<Execution> executions = runtimeService.createExecutionQuery().processInstanceId(InstanceId).list();
 
             //得到正在执行的Activity的Id
             List<String> activityIds = new ArrayList<>();
@@ -246,9 +318,7 @@ public class MyService {
             BpmnModel bpmnModel = repositoryService.getBpmnModel(pi.getProcessDefinitionId());
             ProcessEngineConfiguration engconf = processEngine.getProcessEngineConfiguration();
             ProcessDiagramGenerator diagramGenerator = engconf.getProcessDiagramGenerator();
-            InputStream in = diagramGenerator.generateDiagram(bpmnModel, "png", activityIds, flows,
-                    engconf.getActivityFontName(), engconf.getLabelFontName(), engconf.getAnnotationFontName(),
-                    engconf.getClassLoader(), 1.0, true);
+            InputStream in = diagramGenerator.generateDiagram(bpmnModel, "png", activityIds, flows, engconf.getActivityFontName(), engconf.getLabelFontName(), engconf.getAnnotationFontName(), engconf.getClassLoader(), 1.0, true);
             OutputStream out = null;
             byte[] buf = new byte[1024];
             int legth = 0;

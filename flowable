@@ -1,0 +1,21 @@
+2023-10-30T09:21:25.565+08:00  INFO 20492 --- [main] org.cloud.FlowableWebApplication         : Starting FlowableWebApplication using Java 19.0.1 with PID 20492 (D:\me\project\springCloud\service\spring-cloud\cloud-base-service\cloud-flowable\cloud-flowable-web\target\classes started by liulei in D:\me\project\springCloud\service\spring-cloud)
+2023-10-30T09:21:25.569+08:00  INFO 20492 --- [main] org.cloud.FlowableWebApplication         : No active profile set, falling back to 1 default profile: "default"
+2023-10-30T09:21:27.747+08:00  INFO 20492 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port(s): 82 (http)
+2023-10-30T09:21:27.761+08:00  INFO 20492 --- [main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2023-10-30T09:21:27.761+08:00  INFO 20492 --- [main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.4]
+2023-10-30T09:21:27.883+08:00  INFO 20492 --- [main] o.a.c.c.C.[.[localhost].[/flow-ui]       : Initializing Spring embedded WebApplicationContext
+2023-10-30T09:21:27.883+08:00  INFO 20492 --- [main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1913 ms
+2023-10-30T09:21:28.221+08:00  INFO 20492 --- [main] o.s.b.a.w.s.WelcomePageHandlerMapping    : Adding welcome page: class path resource [static/index.html]
+2023-10-30T09:21:28.440+08:00  INFO 20492 --- [main] o.s.l.c.support.AbstractContextSource    : Property 'userDn' not set - anonymous context will be used for read-write operations
+2023-10-30T09:21:28.514+08:00  WARN 20492 --- [main] .s.s.UserDetailsServiceAutoConfiguration : 
+
+Using generated security password: db09ce09-b39d-4286-a763-6a06925c3ea4
+
+This generated password is for development use only. Your security configuration must be updated before running your application in production.
+
+2023-10-30T09:21:28.706+08:00  INFO 20492 --- [main] o.s.s.web.DefaultSecurityFilterChain     : Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@11e17893, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@19eea77c, org.springframework.security.web.context.SecurityContextHolderFilter@b01cb8d, org.springframework.security.web.header.HeaderWriterFilter@375084c9, org.springframework.security.web.csrf.CsrfFilter@34d9df9f, org.springframework.security.web.authentication.logout.LogoutFilter@446b64b3, org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter@3a4e524, org.springframework.security.web.authentication.ui.DefaultLoginPageGeneratingFilter@3dc39459, org.springframework.security.web.authentication.ui.DefaultLogoutPageGeneratingFilter@6682e6a5, org.springframework.security.web.authentication.www.BasicAuthenticationFilter@10131289, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@7a814310, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@25567581, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@ac4915e, org.springframework.security.web.access.ExceptionTranslationFilter@5abf6a99, org.springframework.security.web.access.intercept.AuthorizationFilter@781dac73]
+2023-10-30T09:21:28.804+08:00  INFO 20492 --- [main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on port(s): 82 (http) with context path '/flow-ui'
+2023-10-30T09:21:28.817+08:00  INFO 20492 --- [main] org.cloud.FlowableWebApplication         : Started FlowableWebApplication in 3.891 seconds (process running for 5.919)
+2023-10-30T09:22:04.941+08:00  INFO 20492 --- [http-nio-82-exec-2] o.a.c.c.C.[.[localhost].[/flow-ui]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2023-10-30T09:22:04.942+08:00  INFO 20492 --- [http-nio-82-exec-2] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2023-10-30T09:22:04.943+08:00  INFO 20492 --- [http-nio-82-exec-2] o.s.web.servlet.DispatcherServlet        : Completed initialization in 0 ms
