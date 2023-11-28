@@ -12,7 +12,7 @@
     <artifactId>cloud-flowable-web</artifactId>
 
     <properties>
-        <flowable.version>6.7.2</flowable.version>
+        <flowable.version>7.0.0</flowable.version>
         <maven.compiler.source>19</maven.compiler.source>
         <maven.compiler.target>19</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -36,29 +36,5 @@
             <version>${flowable.version}</version>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-spring-boot-starter-ui-modeler</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-spring-boot-starter-ui-admin</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-spring-boot-starter-ui-idm</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.flowable</groupId>
-            <artifactId>flowable-spring-boot-starter-ui-task</artifactId>
-            <version>${flowable.version}</version>
-        </dependency>
     </dependencies>
 </project>

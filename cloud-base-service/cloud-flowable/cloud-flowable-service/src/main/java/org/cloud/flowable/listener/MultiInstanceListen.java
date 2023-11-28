@@ -34,6 +34,21 @@ public class MultiInstanceListen implements ExecutionListener {
             set.add("user3");
             set.add("user4");
 
+            Integer t = 1;
+
+            String s = """
+                    sss
+                    d
+                    dfa\"\"\"
+                    sdfsadf
+                    """;
+
+            switch (t){
+                case 1 -> System.out.println("t");
+                default -> System.out.println("sss");
+            }
+
+
 
 
             if (flag==null) {
