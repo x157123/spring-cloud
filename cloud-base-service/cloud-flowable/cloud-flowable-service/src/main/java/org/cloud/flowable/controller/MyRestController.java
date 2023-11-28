@@ -1,14 +1,11 @@
 package org.cloud.flowable.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Data;
 import org.cloud.flowable.service.MyService;
-import org.flowable.task.api.Task;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -47,6 +44,7 @@ public class MyRestController {
         myService.single(deployId);
     }
 
+
     @PostMapping(value = "/getDeployment")
     public List<Map<String, Object>> getDeployment() {
         return myService.getDeployment();
@@ -65,8 +63,16 @@ public class MyRestController {
      * @param flowKey
      */
     @GetMapping("startFlow")
-    public void startFlow(Integer day, String assignee, String flowKey) {
-        myService.startFlow(day, assignee, flowKey);
+    public void startFlow(Integer day, String assignee, String assignees, String flowKey) {
+        myService.startFlow(day, assignee, assignees, flowKey);
+    }
+
+    /**
+     * @param userId
+     */
+    @GetMapping("getUserStartFlow")
+    public List<Map<String, Object>> getUserStartFlow(String userId) {
+        return myService.getUserStartFlow(userId);
     }
 
 
@@ -81,6 +87,18 @@ public class MyRestController {
         myService.setAssignee(assignee, taskId);
     }
 
+
+    /**
+     * 指定节点用户组
+     *
+     * @param group
+     * @param taskId
+     */
+    @GetMapping(value = "/setGroup")
+    public void setGroup(String group, String taskId) {
+        myService.setGroup(group, taskId);
+    }
+
     /**
      * 获取任务
      *
@@ -89,13 +107,9 @@ public class MyRestController {
      * @return
      */
     @GetMapping(value = "/getTasks")
-    public List<TaskRepresentation> getTasks(String assignee, String group) {
-        List<Task> tasks = myService.getTasks(assignee, group);
-        List<TaskRepresentation> taskRepresentations = new ArrayList<>();
-        for (Task task : tasks) {
-            taskRepresentations.add(new TaskRepresentation(task.getId(), task.getName(), task.getAssignee(), task.getProcessInstanceId()));
-        }
-        return taskRepresentations;
+    public List<Map<String, Object>> getTasks(String assignee, String group) {
+        List<Map<String, Object>> tasks = myService.getTasks(assignee, group);
+        return tasks;
     }
 
 
@@ -116,12 +130,34 @@ public class MyRestController {
         myService.getData();
     }
 
+    /**
+     * 获取流程办理记录
+     *
+     * @param processInstanceId
+     * @return
+     */
     @GetMapping(value = "/getHistoricActivityInstance")
-    public void getHistoricActivityInstance(String processInstanceId) {
-        myService.getHistoricActivityInstance(processInstanceId);
+    public List<Map<String, Object>> getHistoricActivityInstance(String processInstanceId) {
+        return myService.getHistoricActivityInstance(processInstanceId);
     }
 
+    /**
+     * 获取当前办理人
+     *
+     * @param processInstanceId
+     * @return
+     */
+    @GetMapping(value = "/getActivityInstance")
+    public List<Map<String, Object>> getActivityInstance(String processInstanceId) {
+        return myService.getActivityInstance(processInstanceId);
+    }
 
+    /**
+     * 获取流程图
+     *
+     * @param httpServletResponse
+     * @param processId
+     */
     @GetMapping(value = "/genProcessDiagram")
     public void genProcessDiagram(HttpServletResponse httpServletResponse, String processId) {
         myService.genProcessDiagram(httpServletResponse, processId);
@@ -130,21 +166,5 @@ public class MyRestController {
     @GetMapping(value = "/contextLoads")
     public void contextLoads() {
         myService.contextLoads();
-    }
-
-    @Data
-    static class TaskRepresentation {
-        private String id;
-        private String name;
-        private String assignee;
-
-        private String processId;
-
-        public TaskRepresentation(String id, String name, String assignee, String processId) {
-            this.id = id;
-            this.name = name;
-            this.assignee = assignee;
-            this.processId = processId;
-        }
     }
 }
