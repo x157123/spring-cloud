@@ -53,7 +53,10 @@ public class MyService {
         Map<String, String> map = XmlUtil.getXmlMsg(bpmnXmlStr);
         String resourceName = map.get("name");
         String key = map.get("id");
-        Deployment deployment = repositoryService.createDeployment().addString(key + ".bpmn20.xml", bpmnXmlStr).key(key).name(resourceName).deploy();
+
+        Deployment deployment = repositoryService.createDeployment()
+                .addString(key + ".bpmn20.xml", bpmnXmlStr)
+                .key(key).name(resourceName).deploy();
         System.out.println("部署成功:->" + deployment.getId());
     }
 
@@ -188,15 +191,25 @@ public class MyService {
         Authentication.setAuthenticatedUserId(null);
 
 
+
         // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
         ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
         CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
         commandExecutor.execute(new SetProcessInstanceNameCmd(processInstance.getId(), "小明请假流程"));
 
 
-        Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
-        taskService.setAssignee(task.getId(), assignee);
-        taskService.complete(task.getId());
+        if (assignee != null) {
+            Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+            taskService.setAssignee(task.getId(), assignee);
+            taskService.complete(task.getId());
+        } else if (assignees != null) {
+            Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
+            taskService.addCandidateGroup(task.getId(), assignees);
+            taskService.complete(task.getId());
+        }
+
+
+
         System.out.println(processInstance.getId());
     }
 
@@ -273,21 +286,24 @@ public class MyService {
         for (Task task : tasks) {
             taskName = task.getName();
             taskTime = task.getCreateTime();
-            if (task.getAssignee() == null) {
-                break;
-            }
             Map<String, Object> map = new HashMap<>();
             map.put("name", task.getName());
+            map.put("id", task.getId());
             map.put("assignee", task.getAssignee());
             map.put("createTime", task.getCreateTime());
             list.add(map);
         }
         List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(tasks.get(0).getId()).stream()
                 .filter(link -> "candidate".equals(link.getType()) && link.getGroupId() != null).toList();
+        if (identityLinks != null && identityLinks.size() >= 0) {
+            //当有组有数据时 是显示组
+            list.clear();
+        }
         for (IdentityLink link : identityLinks) {
             Map<String, Object> map = new HashMap<>();
             map.put("name", taskName);
             map.put("group", link.getGroupId());
+            map.put("id", link.getTaskId());
             map.put("createTime", taskTime);
             list.add(map);
         }
@@ -301,7 +317,7 @@ public class MyService {
             if (pi == null) {
                 return;
             }
-            Task task = taskService.createTaskQuery().processInstanceId(pi.getId()).singleResult();
+            Task task = taskService.createTaskQuery().processInstanceId(pi.getId()).list().get(0);
             //使用流程实例ID，查询正在执行的执行对象表，返回流程实例对象
             String InstanceId = task.getProcessInstanceId();
             List<Execution> executions = runtimeService.createExecutionQuery().processInstanceId(InstanceId).list();
