@@ -192,10 +192,7 @@ public class MyService {
 
 
 
-        // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
-        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
-        CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
-        commandExecutor.execute(new SetProcessInstanceNameCmd(processInstance.getId(), "小明请假流程"));
+
 
 
         if (assignee != null) {

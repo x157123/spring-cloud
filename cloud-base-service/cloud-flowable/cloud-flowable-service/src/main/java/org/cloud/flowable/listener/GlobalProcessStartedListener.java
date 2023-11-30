@@ -1,11 +1,16 @@
 package org.cloud.flowable.listener;
 
+import org.flowable.common.engine.impl.interceptor.CommandExecutor;
+import org.flowable.engine.ProcessEngine;
+import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.event.AbstractFlowableEngineEventListener;
 import org.flowable.engine.delegate.event.FlowableProcessStartedEvent;
 import org.flowable.engine.delegate.event.impl.FlowableEntityEventImpl;
+import org.flowable.engine.impl.cmd.SetProcessInstanceNameCmd;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -19,6 +24,10 @@ import java.util.Date;
 @Component
 public class GlobalProcessStartedListener extends AbstractFlowableEngineEventListener {
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
+
+
+    @Autowired
+    private ProcessEngine processEngine;
 
     @Override
     protected void processStarted(FlowableProcessStartedEvent event) {
@@ -43,6 +52,8 @@ public class GlobalProcessStartedListener extends AbstractFlowableEngineEventLis
         logger.info("流程是否挂起标志->{}", suspensionState);
 
         logger.info("流程开始监听器------------------------End---------------------->");
+
+
 
     }
 }
