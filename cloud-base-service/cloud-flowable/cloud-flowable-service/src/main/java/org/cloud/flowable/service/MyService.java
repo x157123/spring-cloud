@@ -4,11 +4,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.cloud.flowable.utils.XmlUtil;
 import org.flowable.bpmn.model.BpmnModel;
 import org.flowable.common.engine.impl.identity.Authentication;
-import org.flowable.common.engine.impl.interceptor.CommandExecutor;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
-import org.flowable.engine.impl.cmd.SetProcessInstanceNameCmd;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
@@ -191,10 +189,6 @@ public class MyService {
         Authentication.setAuthenticatedUserId(null);
 
 
-
-
-
-
         if (assignee != null) {
             Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
             taskService.setAssignee(task.getId(), assignee);
@@ -206,12 +200,12 @@ public class MyService {
         }
 
 
-
         System.out.println(processInstance.getId());
     }
 
     public List<Map<String, Object>> getUserStartFlow(String userId) {
-        List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery().startedBy(userId).orderByProcessInstanceStartTime().desc().list();
+        List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery()
+                .startedBy(userId).orderByProcessInstanceStartTime().desc().list();
         List<Map<String, Object>> listData = new ArrayList<>();
         list.forEach(t -> {
             Map<String, Object> map = new HashMap<>();
@@ -253,7 +247,10 @@ public class MyService {
 
 
     public void getData() {
-        List<ProcessInstance> list = runtimeService.createProcessInstanceQuery().active().list();
+        List<ProcessInstance> list = runtimeService.createProcessInstanceQuery().list();
+        for (ProcessInstance processInstance : list) {
+            System.out.println(processInstance.getBusinessStatus());
+        }
         System.out.println(list.size());
     }
 
