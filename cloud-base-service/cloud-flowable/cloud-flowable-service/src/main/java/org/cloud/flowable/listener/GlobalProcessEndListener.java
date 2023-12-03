@@ -34,6 +34,9 @@ public class GlobalProcessEndListener extends AbstractFlowableEngineEventListene
     @Override
     protected void processCompleted(FlowableEngineEntityEvent event) {
         logger.info("进入流程完成监听器------------------------Start---------------------->");
+
+
+
         String eventName = event.getType().name();
 
         FlowableEntityEventImpl flowableEntityEvent = (FlowableEntityEventImpl) event;
@@ -57,7 +60,7 @@ public class GlobalProcessEndListener extends AbstractFlowableEngineEventListene
         // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
         ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
         CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
-        commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(processInstance.getId(), "结束"));
+        commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(event.getProcessInstanceId(), "结束"));
 
         logger.info("流程完成监听器------------------------End---------------------->");
     }

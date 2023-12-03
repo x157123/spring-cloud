@@ -1,13 +1,12 @@
 package org.cloud.flowable.listener;
 
+import org.flowable.common.engine.api.delegate.event.FlowableEngineEntityEvent;
 import org.flowable.common.engine.impl.interceptor.CommandExecutor;
 import org.flowable.engine.ProcessEngine;
 import org.flowable.engine.ProcessEngineConfiguration;
 import org.flowable.engine.delegate.event.AbstractFlowableEngineEventListener;
-import org.flowable.engine.delegate.event.FlowableProcessStartedEvent;
 import org.flowable.engine.delegate.event.impl.FlowableEntityEventImpl;
 import org.flowable.engine.impl.cmd.SetProcessInstanceBusinessStatusCmd;
-import org.flowable.engine.impl.cmd.SetProcessInstanceNameCmd;
 import org.flowable.engine.impl.persistence.entity.ExecutionEntityImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,13 +16,14 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 /**
- * 全局的流程启动的监听器
+ * 流程结束全局监听器
  *
  * @author: gblfy
  * @date 2022-06-21
  */
 @Component
-public class GlobalProcessStartedListener extends AbstractFlowableEngineEventListener {
+public class GlobalProcessDelListener extends AbstractFlowableEngineEventListener {
+
     protected Logger logger = LoggerFactory.getLogger(this.getClass());
 
 
@@ -31,8 +31,10 @@ public class GlobalProcessStartedListener extends AbstractFlowableEngineEventLis
     private ProcessEngine processEngine;
 
     @Override
-    protected void processStarted(FlowableProcessStartedEvent event) {
-        logger.info("进入流程开始监听器------------------------Start---------------------->");
+    protected void processCompleted(FlowableEngineEntityEvent event) {
+        logger.info("进入流程删除监听器------------------------Start---------------------->");
+
+
 
         String eventName = event.getType().name();
 
@@ -45,6 +47,7 @@ public class GlobalProcessStartedListener extends AbstractFlowableEngineEventLis
         String processInstanceBusinessKey = processInstance.getProcessInstanceBusinessKey();
         int suspensionState = processInstance.getSuspensionState();
 
+
         logger.info("流程事件类型->{}", eventName);
         logger.info("流程开始时间->{}", startTime);
         logger.info("流程定义Key->{}", processDefinitionKey);
@@ -53,10 +56,7 @@ public class GlobalProcessStartedListener extends AbstractFlowableEngineEventLis
         logger.info("流程是否挂起标志->{}", suspensionState);
 
 
-
-        logger.info("流程开始监听器------------------------End---------------------->");
-
-
-
+        logger.info("进入流程删除监听器------------------------End---------------------->");
     }
+
 }

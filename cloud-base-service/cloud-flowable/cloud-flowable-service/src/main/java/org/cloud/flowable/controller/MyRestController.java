@@ -33,8 +33,8 @@ public class MyRestController {
      *
      * @param deployId
      */
-    @PostMapping(value = "/delete")
-    public void delete(String deployId) {
+    @PostMapping(value = "/deleteDeployment")
+    public void deleteDeployment(String deployId) {
         // true 允许级联删除 ,不设置会导致数据库外键关联异常
         myService.deleteDeployment(deployId);
     }
@@ -50,10 +50,6 @@ public class MyRestController {
         return myService.getDeployment();
     }
 
-    @PostMapping(value = "/testFlow")
-    public void testFlow() {
-        myService.testFlow();
-    }
 
     /**
      * 开始任务
@@ -66,6 +62,40 @@ public class MyRestController {
     public void startFlow(Integer day, String assignee, String assignees, String flowKey) {
         myService.startFlow(day, assignee, assignees, flowKey);
     }
+
+
+
+    /**
+     * 暂停流程
+     *
+     * @param processInstanceId
+     */
+    @GetMapping("suspend")
+    public void suspend(String processInstanceId) {
+        myService.suspend(processInstanceId);
+    }
+
+
+    /**
+     * 活动任务
+     *
+     * @param processInstanceId
+     */
+    @GetMapping("activate")
+    public void activate(String processInstanceId) {
+        myService.activate(processInstanceId);
+    }
+
+    /**
+     * 删除流程实例
+     *
+     * @param processInstanceId
+     */
+    @GetMapping("delete")
+    public void delete(String processInstanceId) {
+        myService.delete(processInstanceId);
+    }
+
 
     /**
      * @param userId
@@ -140,6 +170,18 @@ public class MyRestController {
     public List<Map<String, Object>> getHistoricActivityInstance(String processInstanceId) {
         return myService.getHistoricActivityInstance(processInstanceId);
     }
+
+    /**
+     * 获取下一个节点信息
+     *
+     * @param currentTaskId
+     * @return
+     */
+    @GetMapping(value = "/getNextFlowElement")
+    public List<Map<String, Object>> getNextFlowElement(String currentTaskId) {
+        return myService.getNextFlowElement(currentTaskId);
+    }
+
 
     /**
      * 获取当前办理人

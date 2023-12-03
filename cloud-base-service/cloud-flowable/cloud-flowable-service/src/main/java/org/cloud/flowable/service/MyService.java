@@ -1,12 +1,17 @@
 package org.cloud.flowable.service;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.apache.commons.lang3.time.DateFormatUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.cloud.flowable.utils.XmlUtil;
-import org.flowable.bpmn.model.BpmnModel;
+import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.impl.identity.Authentication;
+import org.flowable.common.engine.impl.interceptor.CommandExecutor;
 import org.flowable.engine.*;
 import org.flowable.engine.history.HistoricActivityInstance;
 import org.flowable.engine.history.HistoricProcessInstance;
+import org.flowable.engine.impl.cmd.SetProcessInstanceBusinessStatusCmd;
+import org.flowable.engine.impl.cmd.SetProcessInstanceNameCmd;
 import org.flowable.engine.repository.Deployment;
 import org.flowable.engine.repository.ProcessDefinition;
 import org.flowable.engine.runtime.Execution;
@@ -84,41 +89,6 @@ public class MyService {
         repositoryService.deleteDeployment(deployId, true);
     }
 
-    public void testFlow() {
-        // 发起请假
-        Map<String, Object> map = new HashMap<>();
-        map.put("day", 5);
-        map.put("studentUser", "小明");
-        ProcessInstance studentLeave = runtimeService.startProcessInstanceByKey("StudentLeave", map);
-        Task task = taskService.createTaskQuery().processInstanceId(studentLeave.getId()).singleResult();
-//        taskService.setAssignee(task.getId(), "111");
-        taskService.complete(task.getId());
-
-        // 老师审批
-        List<Task> teacherTaskList = taskService.createTaskQuery().or().taskAssignee("666").taskCandidateGroup("teacher").endOr().list();
-        Map<String, Object> teacherMap = new HashMap<>();
-        teacherMap.put("outcome", "通过");
-        for (Task teacherTask : teacherTaskList) {
-            taskService.setAssignee(teacherTask.getId(), "666");
-            taskService.complete(teacherTask.getId(), teacherMap);
-        }
-
-        // 校长审批
-        List<Task> principalTaskList = taskService.createTaskQuery().or().taskAssignee("999").taskCandidateGroup("principal").endOr().list();
-        Map<String, Object> principalMap = new HashMap<>();
-        principalMap.put("outcome", "通过");
-        for (Task principalTask : principalTaskList) {
-            taskService.setAssignee(principalTask.getId(), "999");
-            taskService.complete(principalTask.getId(), principalMap);
-        }
-
-        // 查看历史
-        List<HistoricActivityInstance> activities = historyService.createHistoricActivityInstanceQuery().processInstanceId(studentLeave.getId()).finished().orderByHistoricActivityInstanceEndTime().asc().list();
-        for (HistoricActivityInstance activity : activities) {
-            System.out.println("任务名称：" + activity.getActivityName() + "，处理人：" + activity.getAssignee());
-        }
-    }
-
     /**
      * 获取任务
      *
@@ -148,6 +118,7 @@ public class MyService {
                 map.put("id", task.getId());
                 map.put("taskName", task.getName());
                 map.put("assignee", task.getAssignee());
+                map.put("processInstanceId", task.getProcessInstanceId());
                 map.put("task", processInstanceMap.get(task.getProcessInstanceId()).getName());
                 listData.add(map);
             });
@@ -178,10 +149,6 @@ public class MyService {
     public void startFlow(Integer day, String assignee, String assignees, String processKey) {
         Map<String, Object> map = new HashMap<>();
         map.put("day", day);
-        map.put("studentUser", "小明");
-        map.put("name", "小明请假流程");
-        map.put("assignee", assignee);
-        map.put("assignees", assignees);
 
         ProcessDefinition processDefinition = getLatestProcessDefinition(processKey);
         Authentication.setAuthenticatedUserId("123");
@@ -192,16 +159,55 @@ public class MyService {
         if (assignee != null) {
             Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
             taskService.setAssignee(task.getId(), assignee);
-            taskService.complete(task.getId());
-        } else if (assignees != null) {
-            Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
-            taskService.addCandidateGroup(task.getId(), assignees);
-            taskService.complete(task.getId());
         }
+
+        // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
+        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+        CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
+        commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(processInstance.getId(), "开始"));
+        commandExecutor.execute(new SetProcessInstanceNameCmd(processInstance.getId(), "小明请假流程"));
 
 
         System.out.println(processInstance.getId());
     }
+
+
+    /**
+     * 暂停任务
+     *
+     * @param processInstanceId
+     */
+    public void suspend(String processInstanceId) {
+        runtimeService.suspendProcessInstanceById(processInstanceId);
+        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+        CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
+        commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(processInstanceId, "暂停"));
+    }
+
+    /**
+     * 挂载任务
+     *
+     * @param processInstanceId
+     */
+    public void activate(String processInstanceId) {
+        runtimeService.activateProcessInstanceById(processInstanceId);
+        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+        CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
+        commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(processInstanceId, "开始"));
+    }
+
+    /**
+     * 删除任务
+     *
+     * @param processInstanceId
+     */
+    public void delete(String processInstanceId) {
+        ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
+        CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
+        commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(processInstanceId, "删除"));
+        runtimeService.deleteProcessInstance(processInstanceId, "不可用");
+    }
+
 
     public List<Map<String, Object>> getUserStartFlow(String userId) {
         List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery()
@@ -272,11 +278,66 @@ public class MyService {
         return list;
     }
 
+
+    /**
+     * @param currentTaskId
+     * @return
+     */
+    public List<Map<String, Object>> getNextFlowElement(String currentTaskId) {
+        TaskService taskService = processEngine.getTaskService();
+        Task currentTask = taskService.createTaskQuery().taskId(currentTaskId).singleResult();
+
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
+
+        List<FlowElement> nextFlowElements = new ArrayList<>();
+        setNextFlowElements(nextFlowElements,bpmnModel,currentTask.getTaskDefinitionKey());
+
+        List<Map<String, Object>> list= new ArrayList<>();
+
+        for (FlowElement nextFlowElement : nextFlowElements) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("activityId",nextFlowElement.getId());
+            map.put("activityName",nextFlowElement.getName());
+            list.add(map);
+        }
+        return list;
+    }
+
+    /**
+     * 获取下一个任务节点
+     * @param nextFlowElements
+     * @param bpmnModel
+     * @param key
+     */
+    private void setNextFlowElements(List<FlowElement> nextFlowElements, BpmnModel bpmnModel, String key){
+        FlowElement currentFlowElement = bpmnModel.getFlowElement(key);
+        if (currentFlowElement instanceof FlowNode) {
+            List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
+
+            for (SequenceFlow sequenceFlow : outgoingFlows) {
+                FlowElement targetFlowElement = bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
+
+                // Exclude Gateway
+                if (targetFlowElement instanceof UserTask) {
+                    nextFlowElements.add(targetFlowElement);
+                } else {
+                    System.out.println("---->" + targetFlowElement.getClass());
+                    setNextFlowElements(nextFlowElements, bpmnModel, targetFlowElement.getId());
+                }
+            }
+        }
+    }
+
     public List<Map<String, Object>> getActivityInstance(String processInstanceId) {
         List<Map<String, Object>> list = new ArrayList<>();
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).active().list();
+        if (tasks.size() == 0) {
+            return null;
+        }
         String taskName = null;
         Date taskTime = null;
+
         for (Task task : tasks) {
             taskName = task.getName();
             taskTime = task.getCreateTime();
@@ -289,7 +350,7 @@ public class MyService {
         }
         List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(tasks.get(0).getId()).stream()
                 .filter(link -> "candidate".equals(link.getType()) && link.getGroupId() != null).toList();
-        if (identityLinks != null && identityLinks.size() >= 0) {
+        if (identityLinks != null && identityLinks.size() > 0) {
             //当有组有数据时 是显示组
             list.clear();
         }
@@ -362,4 +423,5 @@ public class MyService {
         user.setRevision(0);
         identityService.saveUser(user);
     }
+
 }

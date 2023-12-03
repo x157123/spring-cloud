@@ -26,6 +26,13 @@ public class FlowableGlobListenerConfig implements ApplicationListener<ContextRe
 
     @Autowired
     private GlobalProcessEndListener globalProcessEndListener;
+    @Autowired
+    private GlobalProcessDelListener globalProcessDelListener;
+    @Autowired
+    private GlobalProcessCancelledListener globalProcessCancelledListener;
+
+    @Autowired
+    private CustomFlowableEventListener customFlowableEventListener;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -37,6 +44,14 @@ public class FlowableGlobListenerConfig implements ApplicationListener<ContextRe
 
         //流程结束全局监听
         dispatcher.addEventListener(globalProcessEndListener, FlowableEngineEventType.PROCESS_COMPLETED);
+
+        //流程删除全局监听
+        dispatcher.addEventListener(globalProcessDelListener, FlowableEngineEventType.ENTITY_DELETED);
+
+        //流程实例被取消
+        dispatcher.addEventListener(globalProcessCancelledListener, FlowableEngineEventType.PROCESS_CANCELLED);
+
+//        dispatcher.addEventListener(customFlowableEventListener);
     }
 
 }
