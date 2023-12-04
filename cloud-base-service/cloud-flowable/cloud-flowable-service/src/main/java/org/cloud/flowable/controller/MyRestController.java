@@ -64,7 +64,6 @@ public class MyRestController {
     }
 
 
-
     /**
      * 暂停流程
      *
@@ -180,6 +179,16 @@ public class MyRestController {
     @GetMapping(value = "/getNextFlowElement")
     public List<Map<String, Object>> getNextFlowElement(String currentTaskId) {
         return myService.getNextFlowElement(currentTaskId);
+    }
+
+
+    /**
+     * @param taskId
+     * @return
+     */
+    @GetMapping(value = "/getAllFlowElement")
+    public List<Map<String, String>> getAllFlowElement(String taskId) {
+        return myService.getAllFlowElement(taskId);
     }
 
 

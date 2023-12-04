@@ -1,9 +1,8 @@
 package org.cloud.flowable.service;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.apache.commons.lang3.time.DateFormatUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.cloud.flowable.utils.XmlUtil;
+import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.interceptor.CommandExecutor;
@@ -291,14 +290,14 @@ public class MyService {
         BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
 
         List<FlowElement> nextFlowElements = new ArrayList<>();
-        setNextFlowElements(nextFlowElements,bpmnModel,currentTask.getTaskDefinitionKey());
+        setNextFlowElements(nextFlowElements, bpmnModel, currentTask.getTaskDefinitionKey());
 
-        List<Map<String, Object>> list= new ArrayList<>();
+        List<Map<String, Object>> list = new ArrayList<>();
 
         for (FlowElement nextFlowElement : nextFlowElements) {
             Map<String, Object> map = new HashMap<>();
-            map.put("activityId",nextFlowElement.getId());
-            map.put("activityName",nextFlowElement.getName());
+            map.put("activityId", nextFlowElement.getId());
+            map.put("activityName", nextFlowElement.getName());
             list.add(map);
         }
         return list;
@@ -306,11 +305,12 @@ public class MyService {
 
     /**
      * 获取下一个任务节点
+     *
      * @param nextFlowElements
      * @param bpmnModel
      * @param key
      */
-    private void setNextFlowElements(List<FlowElement> nextFlowElements, BpmnModel bpmnModel, String key){
+    private void setNextFlowElements(List<FlowElement> nextFlowElements, BpmnModel bpmnModel, String key) {
         FlowElement currentFlowElement = bpmnModel.getFlowElement(key);
         if (currentFlowElement instanceof FlowNode) {
             List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
@@ -325,6 +325,78 @@ public class MyService {
                     System.out.println("---->" + targetFlowElement.getClass());
                     setNextFlowElements(nextFlowElements, bpmnModel, targetFlowElement.getId());
                 }
+            }
+        }
+    }
+
+    public List<Map<String, String>> getAllFlowElement(String taskId) {
+        TaskService taskService = processEngine.getTaskService();
+        Task currentTask = taskService.createTaskQuery().taskId(taskId).singleResult();
+
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
+
+        Map<String, String> line = getLine(bpmnModel);
+
+        List<Map<String, String>> nextFlowElements = new ArrayList<>();
+
+        getAllFlowElements(line, nextFlowElements, bpmnModel, "start");
+        return nextFlowElements;
+    }
+
+    /**
+     * 获取所有线条
+     *
+     * @param bpmnModel
+     * @return
+     */
+    private Map<String, String> getLine(BpmnModel bpmnModel) {
+        Map<String, String> line = new HashMap<>();
+        // 获取所有的流程定义
+        Collection<Process> processes = bpmnModel.getProcesses();
+        for (Process process : processes) {
+            // 获取流程中的所有流程元素，包括任务、网关、事件等
+            Collection<FlowElement> flowElements = process.getFlowElements();
+
+            // 遍历流程元素，找到连线
+            for (FlowElement flowElement : flowElements) {
+                if (flowElement instanceof SequenceFlow) {
+                    SequenceFlow sequenceFlow = (SequenceFlow) flowElement;
+                    line.put(sequenceFlow.getSourceRef(), sequenceFlow.getConditionExpression());
+                    line.put(sequenceFlow.getTargetRef(), sequenceFlow.getConditionExpression());
+                    line.put(sequenceFlow.getSourceRef() + "<-->" + sequenceFlow.getTargetRef(), sequenceFlow.getConditionExpression());
+                }
+            }
+        }
+        return line;
+    }
+
+    private void getAllFlowElements(Map<String, String> line, List<Map<String, String>> flowElements, BpmnModel bpmnModel, String key) {
+        FlowElement currentFlowElement = bpmnModel.getFlowElement(key);
+        if (currentFlowElement instanceof FlowNode) {
+
+            Map<String, String> allKey = new HashMap<>();
+            allKey.put("name", currentFlowElement.getName());
+            allKey.put("key", currentFlowElement.getId());
+            System.out.println(allKey);
+            flowElements.add(allKey);
+
+            List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
+            for (SequenceFlow sequenceFlow : outgoingFlows) {
+                FlowElement targetFlowElement = bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
+
+                String name = line.get(key + "<-->" + targetFlowElement.getId());
+                if (name != null && (name.indexOf("驳回") > 0 || name.indexOf("<= 2") > 0)) {
+                    continue;
+                }
+                Map<String, String> lineMap = new HashMap<>();
+                lineMap.put("source", currentFlowElement.getId());
+                lineMap.put("line", name);
+                lineMap.put("target", targetFlowElement.getId());
+                System.out.println(lineMap);
+                flowElements.add(lineMap);
+
+                getAllFlowElements(line, flowElements, bpmnModel, targetFlowElement.getId());
             }
         }
     }
