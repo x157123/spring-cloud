@@ -329,7 +329,7 @@ public class MyService {
         }
     }
 
-    public List<Map<String, String>> getAllFlowElement(String taskId) {
+    public List<Map<String, String>> getAllFlowElement(String taskId, Map<String, Object> data) {
         TaskService taskService = processEngine.getTaskService();
         Task currentTask = taskService.createTaskQuery().taskId(taskId).singleResult();
 
@@ -340,7 +340,23 @@ public class MyService {
 
         List<Map<String, String>> nextFlowElements = new ArrayList<>();
 
-        getAllFlowElements(line, nextFlowElements, bpmnModel, "start");
+        getAllFlowElements(data, line, nextFlowElements, bpmnModel, "start");
+        return nextFlowElements;
+    }
+
+
+    public List<Map<String, String>> getAllFlowElementByKey(String processKey, Map<String, Object> data) {
+
+        ProcessDefinition processDefinition = getLatestProcessDefinition(processKey);
+
+        RepositoryService repositoryService = processEngine.getRepositoryService();
+        BpmnModel bpmnModel = repositoryService.getBpmnModel(processDefinition.getId());
+
+        Map<String, String> line = getLine(bpmnModel);
+
+        List<Map<String, String>> nextFlowElements = new ArrayList<>();
+
+        getAllFlowElements(data, line, nextFlowElements, bpmnModel, "start");
         return nextFlowElements;
     }
 
@@ -371,32 +387,39 @@ public class MyService {
         return line;
     }
 
-    private void getAllFlowElements(Map<String, String> line, List<Map<String, String>> flowElements, BpmnModel bpmnModel, String key) {
+    private void getAllFlowElements(Map<String, Object> data, Map<String, String> line, List<Map<String, String>> flowElements, BpmnModel bpmnModel, String key) {
         FlowElement currentFlowElement = bpmnModel.getFlowElement(key);
         if (currentFlowElement instanceof FlowNode) {
 
             Map<String, String> allKey = new HashMap<>();
             allKey.put("name", currentFlowElement.getName());
             allKey.put("key", currentFlowElement.getId());
-            System.out.println(allKey);
+            if (currentFlowElement instanceof UserTask) {
+                allKey.put("type", "userTask");
+            } else if (currentFlowElement instanceof ExclusiveGateway) {
+                allKey.put("type", "gateway");
+            } else if (currentFlowElement instanceof StartEvent) {
+                allKey.put("type", "start");
+            } else if (currentFlowElement instanceof EndEvent) {
+                allKey.put("type", "end");
+            } else {
+                allKey.put("type", "other");
+            }
+            System.out.println(currentFlowElement);
             flowElements.add(allKey);
-
             List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
             for (SequenceFlow sequenceFlow : outgoingFlows) {
                 FlowElement targetFlowElement = bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
-
                 String name = line.get(key + "<-->" + targetFlowElement.getId());
-                if (name != null && (name.indexOf("驳回") > 0 || name.indexOf("<= 2") > 0)) {
+                if (name != null && !XmlUtil.expression(name, data)) {
                     continue;
                 }
                 Map<String, String> lineMap = new HashMap<>();
                 lineMap.put("source", currentFlowElement.getId());
-                lineMap.put("line", name);
+                lineMap.put("type", "line");
                 lineMap.put("target", targetFlowElement.getId());
-                System.out.println(lineMap);
                 flowElements.add(lineMap);
-
-                getAllFlowElements(line, flowElements, bpmnModel, targetFlowElement.getId());
+                getAllFlowElements(data, line, flowElements, bpmnModel, targetFlowElement.getId());
             }
         }
     }

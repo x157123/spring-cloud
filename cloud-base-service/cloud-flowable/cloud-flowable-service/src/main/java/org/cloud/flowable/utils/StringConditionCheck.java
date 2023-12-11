@@ -12,12 +12,12 @@ public class StringConditionCheck {
             JexlEngine jexl = new JexlBuilder().create();
 
             // 创建 JexlExpression 实例，这里的表达式是 "${day > 1}"
-            JexlExpression expression = jexl.createExpression("outcome=='通过'");
+            JexlExpression expression = jexl.createExpression("outcome == '通过'");
 
             // 准备一个包含变量的上下文
             JexlContext context = new MapContext();
             context.set("day", 1);  // 设置变量 day 的值
-            context.set("outcome", "不通过");  // 设置变量 day 的值
+            context.set("outcome", "通过");  // 设置变量 day 的值
 
             // 执行表达式并获取结果
             Boolean result = (Boolean) expression.evaluate(context);

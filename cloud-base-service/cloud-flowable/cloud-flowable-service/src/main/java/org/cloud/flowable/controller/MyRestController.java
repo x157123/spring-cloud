@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -187,10 +188,21 @@ public class MyRestController {
      * @return
      */
     @GetMapping(value = "/getAllFlowElement")
-    public List<Map<String, String>> getAllFlowElement(String taskId) {
-        return myService.getAllFlowElement(taskId);
+    public List<Map<String, String>> getAllFlowElement(String taskId, Integer day) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("day", day);
+        data.put("outcome", "通过");
+        return myService.getAllFlowElement(taskId, data);
     }
 
+
+    @GetMapping(value = "/getAllFlowElementByKey")
+    public List<Map<String, String>> getAllFlowElementByKey(String processKey, Integer day) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("day", day);
+        data.put("outcome", "通过");
+        return myService.getAllFlowElementByKey(processKey, data);
+    }
 
     /**
      * 获取当前办理人
