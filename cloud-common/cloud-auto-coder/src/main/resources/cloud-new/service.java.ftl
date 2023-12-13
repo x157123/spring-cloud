@@ -6,6 +6,7 @@ import ${javaPath}.param.${nameClass}Param;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.vo.${nameClass}Vo;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -35,7 +36,7 @@ public interface ${nameClass}Service {
      * @param ids  多个id
      * @return  返回list结果
      */
-    List<${nameClass}Vo> findByIds(List<Long> ids);
+    List<${nameClass}Vo> findByIds(Collection<Long> ids);
 
 
     /**

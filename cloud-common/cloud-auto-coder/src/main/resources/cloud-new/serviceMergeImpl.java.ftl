@@ -2,19 +2,15 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import ${javaPath}.entity.${nameClass};
+import ${javaPath}.vo.${mergeTable.leftTableClass? cap_first}Vo;
 import ${javaPath}.mapper.${nameClass}Mapper;
 import ${javaPath}.service.${nameClass}Service;
+import ${javaPath}.service.${mergeTable.leftTableClass? cap_first}Service;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
-import java.util.ArrayList;
-</#if>
-import java.util.List;
-<#if foreignKeys?? && (foreignKeys?size > 0) >
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
-</#if>
 
 /**
  * @author liulei
@@ -24,75 +20,83 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
 
     private final ${nameClass}Mapper ${nameClass? uncap_first}Mapper;
 
-<#if foreignKeys?? && (foreignKeys?size > 0) >
-    <#list foreignKeys as foreignKey>
-<#if foreignKey.joinTableNameClass != nameClass>
-    private final ${foreignKey.joinTableNameClass}Service ${foreignKey.joinTableNameClass? uncap_first}Service;
+    private final ${mergeTable.leftTableClass? cap_first}Service ${mergeTable.leftTableClass? uncap_first}Service;
 
-</#if>
-    </#list>
-</#if>
+
     /**
      * 使用构造方法注入
      *
      * @param ${nameClass? uncap_first}Mapper ${comment}Mapper服务
-<#if foreignKeys?? && (foreignKeys?size > 0) >
-    <#list foreignKeys as foreignKey>
-        <#if foreignKey.tableNameClass != nameClass>
-     * @param ${foreignKey.tableNameClass? uncap_first}Service  ${foreignKey.comment}Mapper服务
-        </#if>
-    </#list>
-</#if>
+     * @param ${mergeTable.leftTableClass? uncap_first}Service ${mergeTable.leftTableClass? uncap_first}Service
      */
-    public ${nameClass}ServiceImpl(${nameClass}Mapper ${nameClass? uncap_first}Mapper<#if foreignKeys?? && (foreignKeys?size > 0) ><#list foreignKeys as foreignKey><#if foreignKey.joinTableNameClass != nameClass>, ${foreignKey.joinTableNameClass}Service ${foreignKey.joinTableNameClass? uncap_first}Service</#if></#list></#if>){
+    public ${nameClass}ServiceImpl(${nameClass}Mapper ${nameClass? uncap_first}Mapper, ${mergeTable.leftTableClass? cap_first}Service ${mergeTable.leftTableClass? uncap_first}Service){
         this.${nameClass? uncap_first}Mapper = ${nameClass? uncap_first}Mapper;
-<#if foreignKeys?? && (foreignKeys?size > 0) >
-    <#list foreignKeys as foreignKey>
-        <#if foreignKey.joinTableNameClass != nameClass>
-        this.${foreignKey.joinTableNameClass? uncap_first}Service = ${foreignKey.joinTableNameClass? uncap_first}Service;
-        </#if>
-    </#list>
-</#if>
+        this.${mergeTable.leftTableClass? uncap_first}Service = ${mergeTable.leftTableClass? uncap_first}Service;
     }
+
 
     /**
      * 保存对象
      *
-<#list column as col>
-    <#if col_index = 1>
-     * @param ${col.nameClass? uncap_first}    ${col.comment}
-    </#if>
-    <#if col_index = 2>
-     * @param ${col.nameClass? uncap_first}s    ${col.comment}
-    </#if>
-</#list>
+     * @param ${mergeTable.rightMergeTableColumnClass? uncap_first}
+     * @param ${mergeTable.leftMergeTableColumnClass? uncap_first}s
      * @return 返回保存成功状态
      */
     @Override
-    public Boolean save(<#list column as col><#if col_index = 1>Long ${col.nameClass? uncap_first}</#if><#if col_index = 2>, List<Long> ${col.nameClass? uncap_first}s</#if></#list>) {
-        if (<#list column as col><#if col_index = 1>${col.nameClass? uncap_first}</#if></#list> == null || CollectionUtils.isEmpty(<#list column as col><#if col_index = 2>${col.nameClass? uncap_first}s</#if></#list>)) {
+    public Boolean save(Long ${mergeTable.rightMergeTableColumnClass? uncap_first}, List<Long> ${mergeTable.leftMergeTableColumnClass? uncap_first}s) {
+        if (${mergeTable.rightMergeTableColumnClass? uncap_first} == null || CollectionUtils.isEmpty(${mergeTable.leftMergeTableColumnClass? uncap_first}s)) {
             return Boolean.FALSE;
         }
         //删除原有保存数据
-        this.removeById(<#list column as col><#if col_index = 1>${col.nameClass? uncap_first}</#if></#list>);
-        for (Long <#list column as col><#if col_index = 2>${col.nameClass? uncap_first}</#if></#list> : <#list column as col><#if col_index = 2>${col.nameClass? uncap_first}s</#if></#list>) {
-            ${nameClass? uncap_first}Mapper.insert(new ${nameClass}(<#list column as col><#if col_index = 1>${col.nameClass? uncap_first}</#if></#list>, <#list column as col><#if col_index = 2>${col.nameClass? uncap_first}</#if></#list>));
+        this.removeById(${mergeTable.rightMergeTableColumnClass? uncap_first});
+        for (Long ${mergeTable.leftMergeTableColumnClass? uncap_first} : ${mergeTable.leftMergeTableColumnClass? uncap_first}s) {
+            ${nameClass? uncap_first}Mapper.insert(new ${nameClass}(${mergeTable.rightMergeTableColumnClass? uncap_first}, ${mergeTable.leftMergeTableColumnClass? uncap_first}));
         }
         return Boolean.TRUE;
+    }
+
+
+    /**
+     * 通过Id获取数据
+     *
+     * @param ${mergeTable.rightMergeTableColumnClass? uncap_first}s
+     * @return 返回${mergeTable.leftTableClass? uncap_first}List列表
+     */
+    @Override
+    public Map<Long, List<${mergeTable.leftTableClass? cap_first}Vo>> findBy${mergeTable.rightMergeTableColumnClass? cap_first}s(Collection<Long> ${mergeTable.rightMergeTableColumnClass? uncap_first}s) {
+        LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(${nameClass}::get${mergeTable.rightMergeTableColumnClass? cap_first}, ${mergeTable.rightMergeTableColumnClass? uncap_first}s);
+        List<${nameClass}> list = ${nameClass? uncap_first}Mapper.selectList(queryWrapper);
+        Set<Long> ${mergeTable.leftMergeTableColumnClass? uncap_first}s = list.stream().map(${nameClass}::get${mergeTable.leftMergeTableColumnClass? cap_first}).collect(Collectors.toSet());
+        List<${mergeTable.leftTableClass? cap_first}Vo> ${mergeTable.leftTableClass? uncap_first}List = ${mergeTable.leftTableClass? uncap_first}Service.findByIds(${mergeTable.leftMergeTableColumnClass? uncap_first}s);
+        Map<Long, List<${mergeTable.leftTableClass? cap_first}Vo>> data = new HashMap<>();
+        Map<Long, ${mergeTable.leftTableClass? cap_first}Vo> ${nameClass? uncap_first}VoMap = ${mergeTable.leftTableClass? uncap_first}List.stream().collect(Collectors.toMap(${mergeTable.leftTableClass? cap_first}Vo::getId,${nameClass? uncap_first}->${nameClass? uncap_first},(${nameClass? uncap_first}1,${nameClass? uncap_first}2)->${nameClass? uncap_first}1));
+        Map<Long, List<${nameClass}>> ${nameClass? uncap_first}Map = list.stream().collect(Collectors.groupingBy(${nameClass? cap_first}::get${mergeTable.rightMergeTableColumnClass? cap_first}));
+        ${nameClass? uncap_first}Map.forEach((k,v)->{
+            List<${mergeTable.leftTableClass? cap_first}Vo> ${mergeTable.leftTableClass? uncap_first}Vos = new ArrayList<>();
+            for(${nameClass? cap_first} ${nameClass? uncap_first}: v) {
+                ${mergeTable.leftTableClass? cap_first}Vo ${nameClass? uncap_first}Vo = ${nameClass? uncap_first}VoMap.get(${nameClass? uncap_first}.get${mergeTable.leftMergeTableColumnClass? cap_first}());
+                if(${nameClass? uncap_first}Vo!=null) {
+                    ${mergeTable.leftTableClass? uncap_first}Vos.add(${nameClass? uncap_first}Vo);
+                }
+            }
+            data.put(k, ${mergeTable.leftTableClass? uncap_first}Vos);
+        });
+        return data;
     }
 
     /**
      * 传入Id 并删除
      *
-     * @param <#list column as col><#if col_index = 1>${col.nameClass? uncap_first}</#if></#list> id
+     * @param ${mergeTable.rightMergeTableColumnClass? uncap_first}
      * @return 删除情况状态
      */
-    private Boolean removeById(<#list column as col><#if col_index = 1>Long ${col.nameClass? uncap_first}</#if></#list>) {
-        if (<#list column as col><#if col_index = 1>${col.nameClass? uncap_first}</#if></#list> == null) {
+    private Boolean removeById(Long ${mergeTable.rightMergeTableColumnClass? uncap_first}) {
+        if (${mergeTable.rightMergeTableColumnClass? uncap_first} == null) {
             return Boolean.FALSE;
         }
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.in(${nameClass}::get<#list column as col><#if col_index = 1>${col.nameClass? cap_first}</#if></#list>, <#list column as col><#if col_index = 1>${col.nameClass? uncap_first}</#if></#list>);
+        queryWrapper.in(${nameClass}::get${mergeTable.rightMergeTableColumnClass? cap_first}, ${mergeTable.rightMergeTableColumnClass? uncap_first});
         ${nameClass? uncap_first}Mapper.delete(queryWrapper);
         return Boolean.TRUE;
     }

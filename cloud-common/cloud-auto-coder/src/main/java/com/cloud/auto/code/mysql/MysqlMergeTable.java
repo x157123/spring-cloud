@@ -19,6 +19,8 @@ public class MysqlMergeTable {
      */
     private String leftTable;
 
+    private String leftTableClass;
+
     /**
      * 关联列
      */
@@ -33,11 +35,13 @@ public class MysqlMergeTable {
      * 关联列
      */
     private String leftMergeTableColumn;
+    private String leftMergeTableColumnClass;
 
     /**
      * 关联列
      */
     private String rightMergeTableColumn;
+    private String rightMergeTableColumnClass;
 
     /**
      * 关联表

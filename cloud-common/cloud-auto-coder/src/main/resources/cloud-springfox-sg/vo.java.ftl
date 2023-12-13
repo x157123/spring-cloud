@@ -65,7 +65,7 @@ public class ${table.className}Vo {
     <#if foreignKey.uni>
     private ${foreignKey.tableNameClass}Vo ${foreignKey.tableNameClass? uncap_first}VO;
     <#else>
-    private List<${foreignKey.tableNameClass}Vo> ${foreignKey.tableNameClass? uncap_first}VOList;
+    private List<${foreignKey.tableNameClass}Vo> ${foreignKey.tableNameClass? uncap_first}VoList;
     </#if>
     </#list>
 </#if>
@@ -76,7 +76,7 @@ public class ${table.className}Vo {
     * ${mergeTable.comment}
     */
     @ApiModelProperty(value = "${table.comment}${mergeTable.comment}")
-    private List<${mergeTable.tableNameClass}Vo> ${mergeTable.tableNameClass? uncap_first}VOList;
+    private List<${mergeTable.tableNameClass}Vo> ${mergeTable.tableNameClass? uncap_first}VoList;
     </#list>
 </#if>
 }

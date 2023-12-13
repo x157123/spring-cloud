@@ -75,7 +75,7 @@ public class ${nameClass}Vo {
     * ${mergeTable.comment}
     */
     @Schema(description = "${comment}${mergeTable.comment}")
-    private List<${mergeTable.rightTableClass}Vo> ${mergeTable.rightTableClass? uncap_first}VOList;
+    private List<${mergeTable.rightTableClass}Vo> ${mergeTable.rightTableClass? uncap_first}VoList;
     </#list>
 </#if>
 }

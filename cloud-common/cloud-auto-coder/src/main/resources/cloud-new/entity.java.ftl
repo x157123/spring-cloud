@@ -14,9 +14,9 @@ import lombok.Data;
 </#list>
 
 /**
-* @author liulei
-* ${comment}
-*/
+ * @author liulei
+ * ${comment}
+ */
 @Data
 @TableName("${name}")
 public class ${nameClass} extends BaseEntity {
@@ -28,8 +28,8 @@ public class ${nameClass} extends BaseEntity {
         && col.nameClass != "id" && col.nameClass != "version">
 
     /**
-    * ${col.comment}
-    */
+     * ${col.comment}
+     */
     private ${col.type} ${col.nameClass? uncap_first};
         </#if>
     </#list>

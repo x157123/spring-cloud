@@ -24,6 +24,13 @@ import ${mergeTable.packagePath}.service.${mergeTable.tableNameClass? cap_first}
     </#list>
 </#if>
 import ${javaPath}.vo.${nameClass}Vo;
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+import ${javaPath}.vo.${mergeTable.leftTableClass? cap_first}Vo;
+    </#if>
+    </#list>
+    </#if>
 import ${javaPath}.mapper.${nameClass}Mapper;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.service.${nameClass}Service;
@@ -48,6 +55,8 @@ import java.util.ArrayList;
 </#if>
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
 import java.util.Map;
@@ -163,7 +172,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      * @return  返回list结果
      */
     @Override
-    public List<${nameClass}Vo> findByIds(List<Long> ids) {
+    public List<${nameClass}Vo> findByIds(Collection<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList();
         }
@@ -289,6 +298,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
 	<#list foreignKeys as foreignKey>
             Map<Long, List<${foreignKey.joinTableNameClass}Vo>> ${foreignKey.joinTableNameClass? uncap_first}Map = <#if foreignKey.joinTableNameClass != nameClass>${foreignKey.joinTableNameClass? uncap_first}Service.</#if>findBy${foreignKey.joinColumnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.joinTableNameClass}Vo::get${foreignKey.joinColumnNameClass}));
 	</#list>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+        <#list mergeTables as mergeTable>
+            <#if mergeTable.leftTable == mergeTable.maintain>
+            Map<Long, List<${mergeTable.leftTableClass? cap_first}Vo>> ${mergeTable.leftTableClass? uncap_first}Map = ${mergeTable.tableNameClass? uncap_first}Service.findBy${mergeTable.rightMergeTableColumnClass? cap_first}s(ids);
+            </#if>
+        </#list>
+    </#if>
             for (${nameClass}Vo ${nameClass? uncap_first} : list) {
 	<#list foreignKeys as foreignKey>
         <#if foreignKey.uni>
@@ -300,6 +316,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
                 ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VoList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
     </#list>
+        <#if mergeTables?? && (mergeTables?size > 0) >
+        <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+                ${nameClass? uncap_first}.set${mergeTable.leftTableClass? cap_first}VoList(${mergeTable.leftTableClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
+        </#if>
+            </#list>
+            </#if>
             }
         }
     }

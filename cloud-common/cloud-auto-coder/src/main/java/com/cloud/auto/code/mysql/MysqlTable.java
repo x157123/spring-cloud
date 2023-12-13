@@ -52,6 +52,11 @@ public class MysqlTable {
     private List<MysqlMergeTable> mergeTables;
 
     /**
+     * 关联表详细信息
+     */
+    private MysqlMergeTable mergeTable;
+
+    /**
      * 关联表
      */
     private List<MysqlJoinKey> mysqlJoinKeys;

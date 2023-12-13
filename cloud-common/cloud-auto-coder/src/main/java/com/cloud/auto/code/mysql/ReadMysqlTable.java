@@ -14,16 +14,17 @@ public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
         boolean star = true;
-        boolean sg = true;
-        String url = "jdbc:mysql://localhost:3306/cloud_sync";
+        boolean gs = false;
+        String url = "jdbc:mysql://localhost:3306/cloud_test";
         String username = "root";
         String password = "123456";
-        String packagePath = "com.cloud.sync";
+        String packagePath = "com.cloud.test";
+        // 表前缀
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
         //模版路径
         String ftlPath = "cloud-new";
         //服务名
-        String projectName = "cloud-sync";
+        String projectName = "test";
 
         List<String> ftlList = new ArrayList<>();
         List<String> ftlMergeList = new ArrayList<>();
@@ -32,18 +33,18 @@ public class ReadMysqlTable {
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
 
-//        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
+        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
 
-//        pom.addAll(Arrays.asList("pom.xml.ftl"));
+        pom.addAll(Arrays.asList("pom.xml.ftl"));
 
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
-        String filePath = "D:\\me\\project\\springCloud\\service\\spring-cloud\\cloud-base-service\\" + projectName + "\\";
+        String filePath = "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\" + projectName + "\\";
 
         if (!star) {
             return;
         }
-        if (sg) {
+        if (gs) {
             url = "jdbc:mysql://localhost:3306/test_sg";
             ftlPath = "cloud-sg";
             projectName = "tq-scgrid-office-service";
@@ -67,11 +68,11 @@ public class ReadMysqlTable {
 
             List<MysqlTable> mergeTables = tables.stream().filter(table -> table.getName().matches("(.*)_merge$")).toList();
 
-//            writer(writerTables, ftlList, ftlPath, filePath + "src\\main\\");
-//
-//            writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
-//
-//            writer(writerTables, pom, ftlPath, filePath);
+            writer(writerTables, ftlList, ftlPath, filePath + "src\\main\\");
+
+            writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
+
+            writer(writerTables, pom, ftlPath, filePath);
 
             createPgSql(tables);
         }
@@ -439,6 +440,15 @@ public class ReadMysqlTable {
                     mysqlTable = tableMap.get(newMysqlMergeTable.getRightTable());
                     newMysqlMergeTable.setPackagePath(mysqlTable.getJavaPath());
                     newMysqlMergeTable.setComment(mysqlTable.getComment());
+
+                    newMysqlMergeTable.setLeftMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftMergeTableColumn())));
+                    newMysqlMergeTable.setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightMergeTableColumn())));
+                    newMysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable())));
+
+                    mysqlMergeTable.setLeftMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftMergeTableColumn())));
+                    mysqlMergeTable.setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightMergeTableColumn())));
+                    mysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable())));
+
                     mergeTables.add(newMysqlMergeTable);
                 }
                 foreignKeys.close();
@@ -446,8 +456,11 @@ public class ReadMysqlTable {
 
             if (mergeTables != null && mergeTables.size() > 0) {
                 Map<String, List<MysqlMergeTable>> mergeTableMap = mergeTables.stream().collect(Collectors.groupingBy(MysqlMergeTable::getLeftTable));
+                Map<String, MysqlMergeTable> mergeTableMaps = mergeTables.stream().collect(Collectors.toMap(MysqlMergeTable::getMergeTable,table->table,(k1,k2)->k1));
                 for (MysqlTable mysqlTable : tables) {
                     List<MysqlMergeTable> tmpList = mergeTableMap.get(mysqlTable.getName());
+                    MysqlMergeTable mysqlMergeTable = mergeTableMaps.get(mysqlTable.getName());
+                    mysqlTable.setMergeTable(mysqlMergeTable);
                     mysqlTable.setMergeTables(tmpList);
                 }
             }

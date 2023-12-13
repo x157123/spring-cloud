@@ -246,7 +246,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
                     ${table.className? uncap_first}.set${foreignKey.tableNameClass}VO(${foreignKey.tableNameClass? uncap_first}Vos.get(0));
                 }
         <#else>
-                ${table.className? uncap_first}.set${foreignKey.tableNameClass}VOList(${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId()));
+                ${table.className? uncap_first}.set${foreignKey.tableNameClass}VoList(${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId()));
         </#if>
     </#list>
             }

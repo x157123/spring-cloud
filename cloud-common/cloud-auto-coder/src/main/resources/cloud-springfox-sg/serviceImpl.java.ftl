@@ -243,7 +243,7 @@ public class ${table.className}ServiceImpl implements ${table.className}Service 
                 }
 <#else>
                 //设置 ${foreignKey.comment} 数据
-                ${table.className? uncap_first}.set${foreignKey.tableNameClass}VOList(${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId()));
+                ${table.className? uncap_first}.set${foreignKey.tableNameClass}VoList(${foreignKey.tableNameClass? uncap_first}Map.get(${table.className? uncap_first}.getId()));
 </#if>
 </#list>
             }

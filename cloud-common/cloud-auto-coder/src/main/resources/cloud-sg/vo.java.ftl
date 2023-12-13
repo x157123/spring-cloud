@@ -75,7 +75,7 @@ public class ${nameClass}Vo {
     * ${mergeTable.comment}
     */
     @ApiModelProperty(value = "${comment}${mergeTable.comment}")
-    private List<${mergeTable.rightTableClass}Vo> ${mergeTable.rightTableClass? uncap_first}VOList;
+    private List<${mergeTable.rightTableClass}Vo> ${mergeTable.rightTableClass? uncap_first}VoList;
     </#list>
 </#if>
 }
