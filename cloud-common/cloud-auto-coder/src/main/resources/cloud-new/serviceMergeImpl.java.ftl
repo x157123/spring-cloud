@@ -70,13 +70,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         Set<Long> ${mergeTable.leftMergeTableColumnClass? uncap_first}s = list.stream().map(${nameClass}::get${mergeTable.leftMergeTableColumnClass? cap_first}).collect(Collectors.toSet());
         List<${mergeTable.leftTableClass? cap_first}Vo> ${mergeTable.leftTableClass? uncap_first}List = ${mergeTable.leftTableClass? uncap_first}Service.findByIds(${mergeTable.leftMergeTableColumnClass? uncap_first}s);
         Map<Long, List<${mergeTable.leftTableClass? cap_first}Vo>> data = new HashMap<>();
-        Map<Long, ${mergeTable.leftTableClass? cap_first}Vo> ${nameClass? uncap_first}VoMap = ${mergeTable.leftTableClass? uncap_first}List.stream().collect(Collectors.toMap(${mergeTable.leftTableClass? cap_first}Vo::getId,${nameClass? uncap_first}->${nameClass? uncap_first},(${nameClass? uncap_first}1,${nameClass? uncap_first}2)->${nameClass? uncap_first}1));
+        Map<Long, ${mergeTable.leftTableClass? cap_first}Vo> ${nameClass? uncap_first}VoMap = ${mergeTable.leftTableClass? uncap_first}List.stream().collect(Collectors.toMap(${mergeTable.leftTableClass? cap_first}Vo::getId, ${nameClass? uncap_first} -> ${nameClass? uncap_first}, (${nameClass? uncap_first}1, ${nameClass? uncap_first}2) -> ${nameClass? uncap_first}1));
         Map<Long, List<${nameClass}>> ${nameClass? uncap_first}Map = list.stream().collect(Collectors.groupingBy(${nameClass? cap_first}::get${mergeTable.rightMergeTableColumnClass? cap_first}));
-        ${nameClass? uncap_first}Map.forEach((k,v)->{
+        ${nameClass? uncap_first}Map.forEach((k, v) -> {
             List<${mergeTable.leftTableClass? cap_first}Vo> ${mergeTable.leftTableClass? uncap_first}Vos = new ArrayList<>();
-            for(${nameClass? cap_first} ${nameClass? uncap_first}: v) {
+            for (${nameClass? cap_first} ${nameClass? uncap_first} : v) {
                 ${mergeTable.leftTableClass? cap_first}Vo ${nameClass? uncap_first}Vo = ${nameClass? uncap_first}VoMap.get(${nameClass? uncap_first}.get${mergeTable.leftMergeTableColumnClass? cap_first}());
-                if(${nameClass? uncap_first}Vo!=null) {
+                if (${nameClass? uncap_first}Vo != null) {
                     ${mergeTable.leftTableClass? uncap_first}Vos.add(${nameClass? uncap_first}Vo);
                 }
             }

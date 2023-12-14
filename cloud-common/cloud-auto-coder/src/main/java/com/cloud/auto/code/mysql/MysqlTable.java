@@ -67,6 +67,8 @@ public class MysqlTable {
      */
     private String comment;
 
+    private Config config;
+
     public void setForeignKeys(List<MysqlForeignKey> foreignKeys) {
         if (foreignKeys != null && foreignKeys.size() > 0) {
             List<MysqlForeignKey> uniqueList = foreignKeys.stream().collect(
@@ -95,5 +97,9 @@ public class MysqlTable {
         this.mergeTables = new ArrayList<>();
         this.mysqlJoinKeys = new ArrayList<>();
         this.column = new ArrayList<>();
+    }
+
+    public MysqlTable(Config config){
+        this.config = config;
     }
 }

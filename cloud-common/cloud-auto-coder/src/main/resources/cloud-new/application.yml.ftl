@@ -2,9 +2,9 @@ server:
   port: 8002
 spring:
   datasource:
-    url: jdbc:mysql://localhost/test?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
-    username: root
-    password: 123456
+    url: ${config.url}?characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=GMT%2B8&nullCatalogMeansCurrent=true
+    username: ${config.username}
+    password: ${config.password}
     hikari:
       maximumPoolSize: 10
       minimumIdle: 2

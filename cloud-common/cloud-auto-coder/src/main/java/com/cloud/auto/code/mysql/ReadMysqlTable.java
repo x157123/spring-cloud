@@ -4,6 +4,7 @@ import com.cloud.auto.code.util.PackageUtil;
 import com.cloud.auto.code.util.StringUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.utility.DateUtil;
 
 import java.io.*;
 import java.sql.*;
@@ -13,49 +14,48 @@ import java.util.stream.Collectors;
 public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
+
+        Config config = new Config("test", "jdbc:mysql://localhost:3306/cloud_test", "root", "123456", "com.cloud.test", "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\", "liulei", "2023-12-14");
+
         boolean star = true;
         boolean gs = false;
-        String url = "jdbc:mysql://localhost:3306/cloud_test";
-        String username = "root";
-        String password = "123456";
-        String packagePath = "com.cloud.test";
+
         // 表前缀
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
         //模版路径
         String ftlPath = "cloud-new";
-        //服务名
-        String projectName = "test";
 
         List<String> ftlList = new ArrayList<>();
         List<String> ftlMergeList = new ArrayList<>();
         List<String> pom = new ArrayList<>();
+        List<String> configs = new ArrayList<>();
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
 
-        ftlList.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
+        configs.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
 
         pom.addAll(Arrays.asList("pom.xml.ftl"));
 
         ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
-        String filePath = "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\" + projectName + "\\";
+//        String filePath = "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\" + projectName + "\\";
 
         if (!star) {
             return;
         }
         if (gs) {
-            url = "jdbc:mysql://localhost:3306/test_sg";
+            config.setUrl("jdbc:mysql://localhost:3306/test_sg");
+            config.setPackagePath("com.tianque.scgrid.office.service.document");
+            config.setProjectName("tq-scgrid-office-service");
+            config.setFilePath("D:\\tianque\\project\\service\\tq-scgrid-office\\");
             ftlPath = "cloud-sg";
-            projectName = "tq-scgrid-office-service";
-            filePath = "D:\\tianque\\project\\service\\tq-scgrid-office\\" + projectName + "\\";
-            packagePath = "com.tianque.scgrid.office.service.document";
         }
 
-        try (Connection conn = DriverManager.getConnection(url, username, password)) {
+        try (Connection conn = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword())) {
 
             //  获取表结果集
-            List<MysqlTable> tables = getTables(conn, packagePath, prefix);
+            List<MysqlTable> tables = getTables(conn, config.getPackagePath(), prefix);
 
             //  设置表属性
             setColumn(conn, tables);
@@ -68,11 +68,13 @@ public class ReadMysqlTable {
 
             List<MysqlTable> mergeTables = tables.stream().filter(table -> table.getName().matches("(.*)_merge$")).toList();
 
-            writer(writerTables, ftlList, ftlPath, filePath + "src\\main\\");
+            writer(writerTables, ftlList, ftlPath, config.getFilePath() + config.getProjectName() + "\\src\\main\\");
 
-            writer(mergeTables, ftlMergeList, ftlPath, filePath + "src\\main\\");
+            writer(mergeTables, ftlMergeList, ftlPath, config.getFilePath() + config.getProjectName() + "\\src\\main\\");
 
-            writer(writerTables, pom, ftlPath, filePath);
+            writerConfig(configs, config, ftlPath, config.getFilePath() + config.getProjectName() + "\\src\\main\\");
+
+            writer(writerTables, pom, ftlPath, config.getFilePath() + config.getProjectName());
 
             createPgSql(tables);
         }
@@ -155,6 +157,18 @@ public class ReadMysqlTable {
         }
     }
 
+    private static void writerConfig(List<String> ftlList,Config config, String ftlPath, String filePath) {
+        MysqlTable mysqlTable = new MysqlTable(config);
+        for (String ftlName : ftlList) {
+            Template template = getTemplate(ftlPath, ftlName);
+            if (template == null) {
+                continue;
+            }
+            String savePath = getSavePath(mysqlTable, filePath, ftlName);
+            writerData(template, mysqlTable, savePath);
+        }
+    }
+
     private static void writerData(Template template, MysqlTable mysqlTable, String savePath) {
         try {
             //输出文件
@@ -220,7 +234,7 @@ public class ReadMysqlTable {
                 break;
             case "application.java.ftl":
                 //保存到 xml+扩展包
-                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getJavaPath())) + "Application.java";
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getConfig().getPackagePath())) + "Application.java";
                 break;
             case "application.yml.ftl":
                 //保存到 xml+扩展包
@@ -232,7 +246,7 @@ public class ReadMysqlTable {
                 break;
             case "mybatisPlusConfig.java.ftl":
                 //保存到 xml+扩展包
-                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getJavaPath(), "config")) + "MybatisPlusConfig.java";
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getConfig().getPackagePath(), "config")) + "MybatisPlusConfig.java";
                 break;
 
         }
@@ -456,7 +470,7 @@ public class ReadMysqlTable {
 
             if (mergeTables != null && mergeTables.size() > 0) {
                 Map<String, List<MysqlMergeTable>> mergeTableMap = mergeTables.stream().collect(Collectors.groupingBy(MysqlMergeTable::getLeftTable));
-                Map<String, MysqlMergeTable> mergeTableMaps = mergeTables.stream().collect(Collectors.toMap(MysqlMergeTable::getMergeTable,table->table,(k1,k2)->k1));
+                Map<String, MysqlMergeTable> mergeTableMaps = mergeTables.stream().collect(Collectors.toMap(MysqlMergeTable::getMergeTable, table -> table, (k1, k2) -> k1));
                 for (MysqlTable mysqlTable : tables) {
                     List<MysqlMergeTable> tmpList = mergeTableMap.get(mysqlTable.getName());
                     MysqlMergeTable mysqlMergeTable = mergeTableMaps.get(mysqlTable.getName());
