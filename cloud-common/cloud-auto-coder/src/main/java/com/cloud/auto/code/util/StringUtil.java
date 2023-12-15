@@ -1,6 +1,7 @@
 package com.cloud.auto.code.util;
 
 import com.cloud.common.core.utils.BeanUtil;
+import io.micrometer.common.lang.Nullable;
 import org.springframework.util.StringUtils;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class StringUtil {
 
     public static String getClassName(String name, List<String> prefix) {
         String className = name;
-        if (prefix != null && prefix.size() > 0) {
+        if (prefix != null && !prefix.isEmpty()) {
             for (String pre : prefix) {
                 int i = className.indexOf(pre);
                 if (i == 0) {
@@ -61,7 +62,7 @@ public class StringUtil {
      */
     public static String getPackagePath(String path, String comment) {
         String expandPackage = getPackagePath(comment);
-        if (expandPackage != null && expandPackage.length() > 0) {
+        if (!expandPackage.isEmpty()) {
             return path + "." + expandPackage;
         }
         return path;
@@ -101,7 +102,7 @@ public class StringUtil {
         if (Character.isLowerCase(str.charAt(0))) {
             return str;
         } else {
-            return (new StringBuilder()).append(Character.toLowerCase(str.charAt(0))).append(str.substring(1)).toString();
+            return Character.toLowerCase(str.charAt(0)) + str.substring(1);
         }
     }
 
@@ -112,10 +113,10 @@ public class StringUtil {
      * @return
      */
     public static String toUpperCaseFirstOne(String str) {
-        if (str.length() == 0 || Character.isUpperCase(str.charAt(0))) {
+        if (str.isEmpty() || Character.isUpperCase(str.charAt(0))) {
             return str;
         } else {
-            return (new StringBuilder()).append(Character.toUpperCase(str.charAt(0))).append(str.substring(1)).toString();
+            return Character.toUpperCase(str.charAt(0)) + str.substring(1);
         }
     }
 
@@ -145,5 +146,47 @@ public class StringUtil {
             dest = m.replaceAll("");
         }
         return dest;
+    }
+
+
+    public static boolean isBlank(@Nullable String string) {
+        if (isEmpty(string)) {
+            return true;
+        } else {
+            for(int i = 0; i < string.length(); ++i) {
+                if (!Character.isWhitespace(string.charAt(i))) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    public static boolean isNotBlank(@Nullable String string) {
+        return !isBlank(string);
+    }
+
+    public static boolean isEmpty(@Nullable String string) {
+        return string == null || string.isEmpty();
+    }
+
+    public static boolean isNotEmpty(@Nullable String string) {
+        return !isEmpty(string);
+    }
+
+    public static String truncate(String string, int maxLength) {
+        return string.length() > maxLength ? string.substring(0, maxLength) : string;
+    }
+
+    public static String truncate(String string, int maxLength, String truncationIndicator) {
+        if (truncationIndicator.length() >= maxLength) {
+            throw new IllegalArgumentException("maxLength must be greater than length of truncationIndicator");
+        } else if (string.length() > maxLength) {
+            int remainingLength = maxLength - truncationIndicator.length();
+            return string.substring(0, remainingLength) + truncationIndicator;
+        } else {
+            return string;
+        }
     }
 }

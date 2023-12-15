@@ -18,6 +18,7 @@ import java.nio.charset.CharsetDecoder;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.*;
 
 /**
@@ -100,6 +101,11 @@ public class JdbcOffsetBackingStore implements OffsetBackingStore {
             }
             return null;
         });
+    }
+
+    @Override
+    public Set<Map<String, Object>> connectorPartitions(String s) {
+        return null;
     }
 
     @Override

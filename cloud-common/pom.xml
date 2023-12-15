@@ -22,7 +22,6 @@
         <module>cloud-common-easyexcel</module>
         <module>cloud-common-test</module>
         <module>cloud-work</module>
-        <module>cloud-common-vpn</module>
         <module>cloud-common-redis</module>
     </modules>
 </project>

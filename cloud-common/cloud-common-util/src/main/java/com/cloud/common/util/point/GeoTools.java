@@ -7,37 +7,37 @@ import java.io.InputStreamReader;
 import java.util.*;
 
 public class GeoTools {
-
-    public static void main(String[] args) {
-        LocationReduce pA = new LocationReduce("104.072348", "30.664513");
-        LocationReduce pB = new LocationReduce("104.078771", "30.669079");
-        LocationReduce pC = new LocationReduce("104.076866", "30.653826");
-        LocationReduce pD = new LocationReduce("104.052648", "30.658238");
-        LocationReduce pE = new LocationReduce("104.044096", "30.678677");
-
-        System.out.println(System.currentTimeMillis());
-
-        System.out.println(geoDist(pA, pB));  //获取
-        System.out.println(getDirection(pA, pB));
-        System.out.println(getDirection(pA, pC));
-        System.out.println(getDirection(pA, pD));
-        System.out.println(getDirection(pA, pE));
-        List<LocationReduce> list = getENPointFromFile("C:\\Users\\liulei\\Desktop\\poit.txt");
-        ArrayList<LocationReduce> newList = new ArrayList<>();
-        Double length = getList(list, newList);
-
-
-        StringJoiner joiner = new StringJoiner(",");
-        list.forEach(item -> joiner.add(item.toString()));
-        System.out.println(joiner.toString());
-        System.out.println("");
-        System.out.println("------------------------------------------------------------------------------------------------");
-        StringJoiner joiners = new StringJoiner(",");
-        newList.forEach(item -> joiners.add(item.toString()));
-        System.out.println(joiners.toString());
-        System.out.println("");
-        //------------------------------------------------------------------------------------------------------------//
-    }
+//
+//    public static void main(String[] args) {
+//        LocationReduce pA = new LocationReduce("104.072348", "30.664513");
+//        LocationReduce pB = new LocationReduce("104.078771", "30.669079");
+//        LocationReduce pC = new LocationReduce("104.076866", "30.653826");
+//        LocationReduce pD = new LocationReduce("104.052648", "30.658238");
+//        LocationReduce pE = new LocationReduce("104.044096", "30.678677");
+//
+//        System.out.println(System.currentTimeMillis());
+//
+//        System.out.println(geoDist(pA, pB));  //获取
+//        System.out.println(getDirection(pA, pB));
+//        System.out.println(getDirection(pA, pC));
+//        System.out.println(getDirection(pA, pD));
+//        System.out.println(getDirection(pA, pE));
+//        List<LocationReduce> list = getENPointFromFile("C:\\Users\\liulei\\Desktop\\poit.txt");
+//        ArrayList<LocationReduce> newList = new ArrayList<>();
+//        Double length = getList(list, newList);
+//
+//
+//        StringJoiner joiner = new StringJoiner(",");
+//        list.forEach(item -> joiner.add(item.toString()));
+//        System.out.println(joiner.toString());
+//        System.out.println("");
+//        System.out.println("------------------------------------------------------------------------------------------------");
+//        StringJoiner joiners = new StringJoiner(",");
+//        newList.forEach(item -> joiners.add(item.toString()));
+//        System.out.println(joiners.toString());
+//        System.out.println("");
+//        //------------------------------------------------------------------------------------------------------------//
+//    }
 
     /**
      * @param pA 点位1

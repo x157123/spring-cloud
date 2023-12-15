@@ -10,61 +10,61 @@ import java.util.StringJoiner;
  * Created by hadoop on 2015/12/19.
  */
 public class TrajectoryCompressionMain {
-    public static void main(String[] args) throws Exception {
-        //-----------------------1、相关ArrayList数组和File对象的声明和定义-------------------------------------------------//
-        ArrayList<ENPoint> pGPSArrayInit = new ArrayList<ENPoint>();//原纪录经纬度坐标数组
-        ArrayList<ENPoint> pGPSArrayFilter = new ArrayList<ENPoint>();//过滤后的经纬度坐标数组
-        ArrayList<ENPoint> pGPSArrayFilterSort = new ArrayList<ENPoint>();//过滤并排序后的经纬度坐标数组
-        File fGPS = new File("C:\\Users\\liulei\\Desktop\\poit.txt");//原始数据文件对象
-        //-------------------------2、获取原始点坐标并将其写入到文件中-------------------------------------------------------//
-        pGPSArrayInit = getENPointFromFile(fGPS);//从原始数据文件中获取转换后的经纬度坐标点数据，存放到ArrayList数组中
-        System.out.println(pGPSArrayInit.size());//输出原始经纬度点坐标的个数
-        //-------------------------3、进行轨迹压缩-----------------------------------------------------------------------//
-        double DMax = 30.0;//设定最大距离误差阈值
-        pGPSArrayFilter.add(pGPSArrayInit.get(0));//获取第一个原始经纬度点坐标并添加到过滤后的数组中
-        pGPSArrayFilter.add(pGPSArrayInit.get(pGPSArrayInit.size() - 1));//获取最后一个原始经纬度点坐标并添加到过滤后的数组中
-        ENPoint[] enpInit = new ENPoint[pGPSArrayInit.size()];//使用一个点数组接收所有的点坐标，用于后面的压缩
-        Iterator<ENPoint> iInit = pGPSArrayInit.iterator();
-        int jj = 0;
-        while (iInit.hasNext()) {
-            enpInit[jj] = iInit.next();
-            jj++;
-        }//将ArrayList中的点坐标拷贝到点数组中
-        int start = 0;//起始下标
-        int end = pGPSArrayInit.size() - 1;//结束下标
-        TrajCompressC(enpInit, pGPSArrayFilter, start, end, DMax);//DP压缩算法
-        System.out.println(pGPSArrayFilter.size());//输出压缩后的点数
-        //-------------------------4、对压缩后的经纬度点坐标数据按照ID从小到大排序---------------------------------------------//
-        ENPoint[] enpFilter = new ENPoint[pGPSArrayFilter.size()];//使用一个点数组接收过滤后的点坐标，用于后面的排序
-        Iterator<ENPoint> iF = pGPSArrayFilter.iterator();
-        int i = 0;
-        while (iF.hasNext()) {
-            enpFilter[i] = iF.next();
-            i++;
-        }//将ArrayList中的点坐标拷贝到点数组中
-        Arrays.sort(enpFilter);//进行排序
-        for (int j = 0; j < enpFilter.length; j++) {
-            pGPSArrayFilterSort.add(enpFilter[j]);//将排序后的点坐标写到一个新的ArrayList数组中
-        }
-        //-------------------------6、求平均误差-------------------------------------------------------------------------//
-        double mDError = getMeanDistError(pGPSArrayInit, pGPSArrayFilterSort);//求平均误差
-        System.out.println(mDError);
-        //-------------------------7、求压缩率--------------------------------------------------------------------------//
-        double cRate = (double) pGPSArrayFilter.size() / pGPSArrayInit.size() * 100;//求压缩率
-        System.out.println(cRate);
-        //-------------------------8、生成最终结果文件--------------------------------------------------------------------//
-        //将最终结果写入结果文件中，包括过滤后的点的ID，点的个数、平均误差和压缩率
-        StringJoiner joiner = new StringJoiner(",");
-        pGPSArrayInit.forEach(item -> joiner.add(item.toString()));
-        System.out.println(joiner.toString());
-        System.out.println("");
-        System.out.println("------------------------------------------------------------------------------------------------");
-        StringJoiner joiners = new StringJoiner(",");
-        pGPSArrayFilterSort.forEach(item -> joiners.add(item.toString()));
-        System.out.println(joiners.toString());
-        System.out.println("");
-        //------------------------------------------------------------------------------------------------------------//
-    }
+//    public static void main(String[] args) throws Exception {
+//        //-----------------------1、相关ArrayList数组和File对象的声明和定义-------------------------------------------------//
+//        ArrayList<ENPoint> pGPSArrayInit = new ArrayList<ENPoint>();//原纪录经纬度坐标数组
+//        ArrayList<ENPoint> pGPSArrayFilter = new ArrayList<ENPoint>();//过滤后的经纬度坐标数组
+//        ArrayList<ENPoint> pGPSArrayFilterSort = new ArrayList<ENPoint>();//过滤并排序后的经纬度坐标数组
+//        File fGPS = new File("C:\\Users\\liulei\\Desktop\\poit.txt");//原始数据文件对象
+//        //-------------------------2、获取原始点坐标并将其写入到文件中-------------------------------------------------------//
+//        pGPSArrayInit = getENPointFromFile(fGPS);//从原始数据文件中获取转换后的经纬度坐标点数据，存放到ArrayList数组中
+//        System.out.println(pGPSArrayInit.size());//输出原始经纬度点坐标的个数
+//        //-------------------------3、进行轨迹压缩-----------------------------------------------------------------------//
+//        double DMax = 30.0;//设定最大距离误差阈值
+//        pGPSArrayFilter.add(pGPSArrayInit.get(0));//获取第一个原始经纬度点坐标并添加到过滤后的数组中
+//        pGPSArrayFilter.add(pGPSArrayInit.get(pGPSArrayInit.size() - 1));//获取最后一个原始经纬度点坐标并添加到过滤后的数组中
+//        ENPoint[] enpInit = new ENPoint[pGPSArrayInit.size()];//使用一个点数组接收所有的点坐标，用于后面的压缩
+//        Iterator<ENPoint> iInit = pGPSArrayInit.iterator();
+//        int jj = 0;
+//        while (iInit.hasNext()) {
+//            enpInit[jj] = iInit.next();
+//            jj++;
+//        }//将ArrayList中的点坐标拷贝到点数组中
+//        int start = 0;//起始下标
+//        int end = pGPSArrayInit.size() - 1;//结束下标
+//        TrajCompressC(enpInit, pGPSArrayFilter, start, end, DMax);//DP压缩算法
+//        System.out.println(pGPSArrayFilter.size());//输出压缩后的点数
+//        //-------------------------4、对压缩后的经纬度点坐标数据按照ID从小到大排序---------------------------------------------//
+//        ENPoint[] enpFilter = new ENPoint[pGPSArrayFilter.size()];//使用一个点数组接收过滤后的点坐标，用于后面的排序
+//        Iterator<ENPoint> iF = pGPSArrayFilter.iterator();
+//        int i = 0;
+//        while (iF.hasNext()) {
+//            enpFilter[i] = iF.next();
+//            i++;
+//        }//将ArrayList中的点坐标拷贝到点数组中
+//        Arrays.sort(enpFilter);//进行排序
+//        for (int j = 0; j < enpFilter.length; j++) {
+//            pGPSArrayFilterSort.add(enpFilter[j]);//将排序后的点坐标写到一个新的ArrayList数组中
+//        }
+//        //-------------------------6、求平均误差-------------------------------------------------------------------------//
+//        double mDError = getMeanDistError(pGPSArrayInit, pGPSArrayFilterSort);//求平均误差
+//        System.out.println(mDError);
+//        //-------------------------7、求压缩率--------------------------------------------------------------------------//
+//        double cRate = (double) pGPSArrayFilter.size() / pGPSArrayInit.size() * 100;//求压缩率
+//        System.out.println(cRate);
+//        //-------------------------8、生成最终结果文件--------------------------------------------------------------------//
+//        //将最终结果写入结果文件中，包括过滤后的点的ID，点的个数、平均误差和压缩率
+//        StringJoiner joiner = new StringJoiner(",");
+//        pGPSArrayInit.forEach(item -> joiner.add(item.toString()));
+//        System.out.println(joiner.toString());
+//        System.out.println("");
+//        System.out.println("------------------------------------------------------------------------------------------------");
+//        StringJoiner joiners = new StringJoiner(",");
+//        pGPSArrayFilterSort.forEach(item -> joiners.add(item.toString()));
+//        System.out.println(joiners.toString());
+//        System.out.println("");
+//        //------------------------------------------------------------------------------------------------------------//
+//    }
 
     /**
      * 函数功能：从源文件中读出所以记录中的经纬度坐标，并存入到ArrayList数组中，并将其返回

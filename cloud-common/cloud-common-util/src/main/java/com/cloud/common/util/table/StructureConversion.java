@@ -13,9 +13,9 @@ import java.util.List;
 public class StructureConversion {
 
 
-    public static void main(String[] args) {
-        readPostgreSQLConversion();
-    }
+//    public static void main(String[] args) {
+//        readPostgreSQLConversion();
+//    }
 
 
     private static void pgsql2Clickhouse() {

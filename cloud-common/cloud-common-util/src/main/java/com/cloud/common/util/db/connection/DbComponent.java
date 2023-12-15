@@ -1,7 +1,7 @@
 package com.cloud.common.util.db.connection;
 
 
-import com.cloud.common.core.utils.BeanUtil;
+import com.cloud.common.util.bean.BeanUtil;
 import com.cloud.common.util.db.bo.ColumnEntity;
 import com.cloud.common.util.db.bo.TableEntity;
 import com.cloud.common.util.db.functional.DbReadDataCallBack;

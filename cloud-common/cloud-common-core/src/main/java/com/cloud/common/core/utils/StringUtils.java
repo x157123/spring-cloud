@@ -7,7 +7,7 @@ public class StringUtils {
 
 
     public static boolean isBlank(String source) {
-        if (source == null || source.trim().length() <= 0) {
+        if (source == null || source.trim().isEmpty()) {
             return true;
         }
         return false;

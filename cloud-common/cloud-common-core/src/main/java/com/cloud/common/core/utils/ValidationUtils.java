@@ -34,7 +34,7 @@ public class ValidationUtils {
             e.printStackTrace();
         }
         // 抛出检验异常
-        if (constraintViolations.size() > 0) {
+        if (!constraintViolations.isEmpty()) {
             throw new DataValidationException(String.format("参数校验失败:%s", constraintViolations.iterator().next().getMessage()));
         }
     }

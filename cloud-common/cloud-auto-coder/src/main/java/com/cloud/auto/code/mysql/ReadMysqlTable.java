@@ -4,7 +4,6 @@ import com.cloud.auto.code.util.PackageUtil;
 import com.cloud.auto.code.util.StringUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
-import freemarker.template.utility.DateUtil;
 
 import java.io.*;
 import java.sql.*;
@@ -15,10 +14,10 @@ public class ReadMysqlTable {
 
     public static void main(String[] args) throws SQLException {
 
-        Config config = new Config("test", "jdbc:mysql://localhost:3306/cloud_test", "root", "123456", "com.cloud.test", "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\", "liulei", "2023-12-14");
+        Config config = new Config("tests", "jdbc:mysql://localhost:3306/cloud_test", "root", "123456", "com.cloud.test", "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\","E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-12-14");
 
         boolean star = true;
-        boolean gs = false;
+        boolean pc = true;
 
         // 表前缀
         List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
@@ -29,11 +28,14 @@ public class ReadMysqlTable {
         List<String> ftlMergeList = new ArrayList<>();
         List<String> pom = new ArrayList<>();
         List<String> configs = new ArrayList<>();
+        List<String> webList = new ArrayList<>();
 
         ftlList.addAll(Arrays.asList("entity.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
         ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
 
         configs.addAll(Arrays.asList("application.java.ftl", "application.yml.ftl", "mybatisPlusConfig.java.ftl"));
+
+        webList.addAll(Arrays.asList("component.css.ftl","component.html.ftl","component.ts.ftl","edit.component.css.ftl","edit.component.html.ftl","edit.component.ts.ftl","module.ts.ftl","routing.ts.ftl"));
 
         pom.addAll(Arrays.asList("pom.xml.ftl"));
 
@@ -44,12 +46,13 @@ public class ReadMysqlTable {
         if (!star) {
             return;
         }
-        if (gs) {
-            config.setUrl("jdbc:mysql://localhost:3306/test_sg");
-            config.setPackagePath("com.tianque.scgrid.office.service.document");
-            config.setProjectName("tq-scgrid-office-service");
-            config.setFilePath("D:\\tianque\\project\\service\\tq-scgrid-office\\");
-            ftlPath = "cloud-sg";
+        if (pc) {
+            config.setUrl("jdbc:mysql://localhost:3306/cloud_demo");
+            config.setPackagePath("com.cloud.test");
+            config.setProjectName("tests");
+            config.setJavaFilePath("E:\\code\\java\\service\\spring-cloud\\cloud-apps\\");
+            config.setWebFilePath("E:\\web\\");
+            ftlPath = "cloud-new";
         }
 
         try (Connection conn = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword())) {
@@ -63,21 +66,48 @@ public class ReadMysqlTable {
             //  设置关联表
             setMergeTable(conn, tables, prefix);
 
+
             //过滤掉中间表
             List<MysqlTable> writerTables = tables.stream().filter(table -> !table.getName().matches("(.*)_merge$")).toList();
 
             List<MysqlTable> mergeTables = tables.stream().filter(table -> table.getName().matches("(.*)_merge$")).toList();
 
-            writer(writerTables, ftlList, ftlPath, config.getFilePath() + config.getProjectName() + "\\src\\main\\");
 
-            writer(mergeTables, ftlMergeList, ftlPath, config.getFilePath() + config.getProjectName() + "\\src\\main\\");
+            for(MysqlTable mysqlTable : writerTables ){
+                mysqlTable.setConfig(config);
+            }
 
-            writerConfig(configs, config, ftlPath, config.getFilePath() + config.getProjectName() + "\\src\\main\\");
+            writer(writerTables, ftlList, ftlPath, config.getJavaFilePath() + config.getProjectName() + "\\src\\main\\");
 
-            writer(writerTables, pom, ftlPath, config.getFilePath() + config.getProjectName());
+            writer(mergeTables, ftlMergeList, ftlPath, config.getJavaFilePath() + config.getProjectName() + "\\src\\main\\");
+
+            writerConfig(configs, config, ftlPath, config.getJavaFilePath() + config.getProjectName() + "\\src\\main\\");
+
+            writer(writerTables, pom, ftlPath, config.getJavaFilePath() + config.getProjectName());
+
+            // 生成前端页面
+            writer(writerTables, webList, ftlPath, config.getWebFilePath());
 
             createPgSql(tables);
+
+            createRouting(tables);
         }
+    }
+
+    private static void createRouting(List<MysqlTable> tables){
+        tables.forEach(table->{
+            String filePath = PackageUtil.packToFilePath(PackageUtil.mergePack(table.getExpandPackage(),StringUtil.toLowerCaseFirstOne(table.getNameClass())));
+
+            System.out.println(
+                    "      {\n" +
+                    "        path: '"+StringUtil.toLowerCaseFirstOne(table.getNameClass())+"',\n" +
+                    "        loadChildren: () => import('./module/"+ filePath + StringUtil.toLowerCaseFirstOne(table.getNameClass()) + ".module').then(m => m."+table.getNameClass()+"Module)\n" +
+                    "      },");
+        });
+    }
+
+    private static void createMenus(List<MysqlTable> tables){
+
     }
 
     private static void createPgSql(List<MysqlTable> tables) {
@@ -242,13 +272,26 @@ public class ReadMysqlTable {
                 break;
             case "pom.xml.ftl":
                 //保存到 xml+扩展包
-                saveFilePath = savePath + "pom.xml";
+                saveFilePath = savePath + PackageUtil.filePathSeparator + "pom.xml";
                 break;
             case "mybatisPlusConfig.java.ftl":
                 //保存到 xml+扩展包
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getConfig().getPackagePath(), "config")) + "MybatisPlusConfig.java";
                 break;
-
+            case "component.css.ftl":
+            case "component.html.ftl":
+            case "component.ts.ftl":
+            case "module.ts.ftl":
+            case "routing.ts.ftl":
+                //保存到 web
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getExpandPackage(),StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + PackageUtil.packSeparator + ftlPath.replace(".ftl","");
+                break;
+            case "edit.component.css.ftl":
+            case "edit.component.html.ftl":
+            case "edit.component.ts.ftl":
+                //保存到 web
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getExpandPackage(),StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl",""));
+                break;
         }
         return saveFilePath;
     }

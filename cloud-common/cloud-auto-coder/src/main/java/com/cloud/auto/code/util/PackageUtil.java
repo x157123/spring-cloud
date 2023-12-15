@@ -6,9 +6,9 @@ package com.cloud.auto.code.util;
  */
 public class PackageUtil {
 
-    private static String filePathSeparator = "/";
+    public static final String filePathSeparator = "/";
 
-    private static String packSeparator = ".";
+    public static final String packSeparator = ".";
 
     /**
      * 包路径校验
@@ -53,7 +53,7 @@ public class PackageUtil {
     public static String packToFilePath(String pack) {
         pack = checkPack(pack);
         String[] packs = pack.split("\\.");
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         for (String p : packs) {
             if (p.length() > 1) {
                 stringBuffer.append(p).append(filePathSeparator);
@@ -106,7 +106,7 @@ public class PackageUtil {
      * @return
      */
     private static String check(String[] packs, String symbol) {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         for (String p : packs) {
             if (p.length() > 1) {
                 stringBuffer.append(p).append(symbol);
@@ -123,9 +123,9 @@ public class PackageUtil {
      * @return
      */
     private static String merge(String symbol, String... packs) {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuilder stringBuffer = new StringBuilder();
         for (String pack : packs) {
-            if (pack != null && pack.trim().length() > 0) {
+            if (pack != null && !pack.trim().isEmpty()) {
                 stringBuffer.append(pack).append(symbol);
             }
         }

@@ -15,5 +15,6 @@
     <description>应用服务</description>
     <modules>
         <module>test</module>
+        <module>tests</module>
     </modules>
 </project>

@@ -1,9 +1,15 @@
 package org.cloud.flowable.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.PageDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import org.cloud.flowable.utils.XmlUtil;
+import org.cloud.flowable.vo.FlowableInitiateTaskVo;
+import org.cloud.flowable.vo.FlowableManageVo;
+import org.cloud.flowable.vo.FlowableTaskVo;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
+import org.flowable.common.engine.impl.Page;
 import org.flowable.common.engine.impl.identity.Authentication;
 import org.flowable.common.engine.impl.interceptor.CommandExecutor;
 import org.flowable.engine.*;
@@ -51,7 +57,7 @@ public class MyService {
     IdentityService identityService;
 
     @Transactional
-    public void createDeployment(String bpmnXmlStr) {
+    public Boolean createDeployment(String bpmnXmlStr) {
         Map<String, String> map = XmlUtil.getXmlMsg(bpmnXmlStr);
         String resourceName = map.get("name");
         String key = map.get("id");
@@ -60,32 +66,33 @@ public class MyService {
                 .addString(key + ".bpmn20.xml", bpmnXmlStr)
                 .key(key).name(resourceName).deploy();
         System.out.println("部署成功:->" + deployment.getId());
+        return Boolean.TRUE;
     }
 
 
-    public List<Map<String, Object>> getDeployment() {
-        List<Map<String, Object>> data = new ArrayList<>();
-        List<Deployment> list = repositoryService.createDeploymentQuery().orderByDeploymentTime().desc().list();
-        list.stream().forEach(deployment -> {
+    public IPage<FlowableManageVo> getDeployment() {
+        long count = repositoryService.createDeploymentQuery().count();
+        List<Deployment> list = repositoryService.createDeploymentQuery().orderByDeploymentTime().desc().listPage(0,100);
+        List<FlowableManageVo> records = new ArrayList<>();
+        list.forEach(deployment -> {
             System.out.println("id:" + deployment.getId() + "   key:" + deployment.getKey());
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", deployment.getId());
-            map.put("key", deployment.getKey());
-            map.put("name", deployment.getName());
-            map.put("time", deployment.getDeploymentTime());
-            data.add(map);
+            FlowableManageVo flowableManageVo = new FlowableManageVo();
+            flowableManageVo.setId(deployment.getId());
+            flowableManageVo.setKey(deployment.getKey());
+            flowableManageVo.setProcessName(deployment.getName());
+            flowableManageVo.setCreateTime(deployment.getDeploymentTime());
+            records.add(flowableManageVo);
         });
-        return data;
+        IPage<FlowableManageVo> iPage = new PageDTO<>(1,100);
+        iPage.setTotal(count);
+        iPage.setRecords(records);
+        return iPage;
     }
 
-    public void single(String deployId) {
-        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(deployId).singleResult();
-        System.out.println("Found process definition : " + processDefinition.getName());
-    }
-
-    public void deleteDeployment(String deployId) {
+    public Boolean deleteDeployment(String deployId) {
         // true 允许级联删除 ,不设置会导致数据库外键关联异常
         repositoryService.deleteDeployment(deployId, true);
+        return Boolean.TRUE;
     }
 
     /**
@@ -95,8 +102,8 @@ public class MyService {
      * @param group
      * @return
      */
-    public List<Map<String, Object>> getTasks(String assignee, String group) {
-        List<Map<String, Object>> listData = new ArrayList<>();
+    public IPage<FlowableTaskVo> getTasks(String assignee, String group) {
+        List<FlowableTaskVo> listData = new ArrayList<>();
         TaskQuery taskQuery = taskService.createTaskQuery().or();
         if (assignee != null) {
             taskQuery = taskQuery.taskAssignee(assignee);
@@ -104,8 +111,10 @@ public class MyService {
         if (group != null) {
             taskQuery = taskQuery.taskCandidateGroup(group);
         }
-        List<Task> list = taskQuery.endOr().list();
-        if (list.size() > 0) {
+        taskQuery = taskQuery.endOr();
+        long total = taskQuery.count();
+        List<Task> list = taskQuery.list();
+        if (!list.isEmpty()) {
             //根据节点ID 获取流程
             Set<String> processInstanceIds = list.stream().map(Task::getProcessInstanceId).collect(Collectors.toSet());
             List<HistoricProcessInstance> historicProcessInstances = historyService.createHistoricProcessInstanceQuery().processInstanceIds(processInstanceIds).list();
@@ -113,16 +122,19 @@ public class MyService {
                     .collect(Collectors.toMap(HistoricProcessInstance::getId, // Key 是 HistoricProcessInstance 的 ID
                             historicProcessInstance -> historicProcessInstance));
             list.forEach(task -> {
-                Map<String, Object> map = new HashMap<>();
-                map.put("id", task.getId());
-                map.put("taskName", task.getName());
-                map.put("assignee", task.getAssignee());
-                map.put("processInstanceId", task.getProcessInstanceId());
-                map.put("task", processInstanceMap.get(task.getProcessInstanceId()).getName());
-                listData.add(map);
+                FlowableTaskVo flowableTaskVo = new FlowableTaskVo();
+                flowableTaskVo.setId(task.getId());
+                flowableTaskVo.setTaskName(task.getName());
+                flowableTaskVo.setStartTime(task.getCreateTime());
+                flowableTaskVo.setProcessName(processInstanceMap.get(task.getProcessInstanceId()).getName());
+                flowableTaskVo.setProcessInstanceId(task.getProcessInstanceId());
+                listData.add(flowableTaskVo);
             });
         }
-        return listData;
+        IPage<FlowableTaskVo> iPage = new PageDTO<>(1,100);
+        iPage.setRecords(listData);
+        iPage.setTotal(total);
+        return iPage;
     }
 
     /**
@@ -132,11 +144,13 @@ public class MyService {
      * @param taskId
      * @param outcome
      */
-    public void complete(String assignee, String taskId, String outcome) {
+    public Boolean complete(String assignee, String taskId, String outcome) {
         taskService.setAssignee(taskId, assignee);
         Map<String, Object> principalMap = new HashMap<>();
         principalMap.put("outcome", outcome);
+        principalMap.put("assignee", assignee);
         taskService.complete(taskId, principalMap);
+        return Boolean.TRUE;
     }
 
     /**
@@ -145,13 +159,14 @@ public class MyService {
      * @param day
      * @param assignee
      */
-    public void startFlow(Integer day, String assignee, String assignees, String processKey) {
+    public void startFlow(Integer day, String assignee, String processKey,String userId) {
         Map<String, Object> map = new HashMap<>();
         map.put("day", day);
 
         ProcessDefinition processDefinition = getLatestProcessDefinition(processKey);
-        Authentication.setAuthenticatedUserId("123");
+        Authentication.setAuthenticatedUserId(userId);
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinition.getId(), map);
+        Map<String, Object> variables = processInstance.getProcessVariables();
         Authentication.setAuthenticatedUserId(null);
 
 
@@ -208,20 +223,26 @@ public class MyService {
     }
 
 
-    public List<Map<String, Object>> getUserStartFlow(String userId) {
+    public IPage<FlowableInitiateTaskVo> getUserStartFlow(String userId) {
+        long count = historyService.createHistoricProcessInstanceQuery()
+                .startedBy(userId).count();
         List<HistoricProcessInstance> list = historyService.createHistoricProcessInstanceQuery()
-                .startedBy(userId).orderByProcessInstanceStartTime().desc().list();
-        List<Map<String, Object>> listData = new ArrayList<>();
+                .startedBy(userId).orderByProcessInstanceStartTime().desc().listPage(0,100);
+        List<FlowableInitiateTaskVo> listData = new ArrayList<>();
         list.forEach(t -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", t.getId());
-            map.put("name", t.getName());
-            map.put("processName", t.getProcessDefinitionName());
-            map.put("startTime", t.getStartTime());
-            map.put("status", t.getBusinessStatus());
-            listData.add(map);
+            FlowableInitiateTaskVo flowableInitiateTaskVo = new FlowableInitiateTaskVo();
+            flowableInitiateTaskVo.setId(t.getId());
+            flowableInitiateTaskVo.setTaskName(t.getName());
+            flowableInitiateTaskVo.setProcessName(t.getProcessDefinitionName());
+            flowableInitiateTaskVo.setStartTime(t.getStartTime());
+            flowableInitiateTaskVo.setStatus(t.getBusinessStatus());
+            flowableInitiateTaskVo.setProcessInstanceId(t.getDeploymentId());
+            listData.add(flowableInitiateTaskVo);
         });
-        return listData;
+        IPage<FlowableInitiateTaskVo> iPage = new PageDTO<>(1,100);
+        iPage.setRecords(listData);
+        iPage.setTotal(count);
+        return iPage;
     }
 
     // 获取最新版本的流程定义
@@ -284,10 +305,11 @@ public class MyService {
      */
     public List<Map<String, Object>> getNextFlowElement(String currentTaskId) {
         TaskService taskService = processEngine.getTaskService();
-        Task currentTask = taskService.createTaskQuery().taskId(currentTaskId).singleResult();
 
+        Task currentTask = taskService.createTaskQuery().taskId(currentTaskId).singleResult();
         RepositoryService repositoryService = processEngine.getRepositoryService();
         BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
+
 
         List<FlowElement> nextFlowElements = new ArrayList<>();
         setNextFlowElements(nextFlowElements, bpmnModel, currentTask.getTaskDefinitionKey());
@@ -295,14 +317,29 @@ public class MyService {
         List<Map<String, Object>> list = new ArrayList<>();
 
         for (FlowElement nextFlowElement : nextFlowElements) {
-            Map<String, Object> map = new HashMap<>();
-            map.put("activityId", nextFlowElement.getId());
-            map.put("activityName", nextFlowElement.getName());
-            list.add(map);
+            if (nextFlowElement instanceof UserTask userTask) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("activityId", userTask.getId());
+                map.put("activityName", userTask.getName());
+                map.put("assignee", userTask.getAssignee());
+                List<String> candidateUsers = new ArrayList<>();
+                if(!userTask.getCandidateUsers().isEmpty()){
+                    for(String str:userTask.getCandidateUsers()) {
+                        candidateUsers.add(XmlUtil.extractExpression(str));
+                    }
+                }
+                map.put("candidateUsers", candidateUsers);
+                list.add(map);
+            }
         }
         return list;
     }
 
+
+    public List<Map<String, Object>> getNextUser(String currentTaskId){
+        List<Map<String, Object>> list = new ArrayList<>();
+        return list;
+    }
     /**
      * 获取下一个任务节点
      *
@@ -316,8 +353,8 @@ public class MyService {
             List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
 
             for (SequenceFlow sequenceFlow : outgoingFlows) {
+                System.out.println("---->" + sequenceFlow.getConditionExpression());
                 FlowElement targetFlowElement = bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
-
                 // Exclude Gateway
                 if (targetFlowElement instanceof UserTask) {
                     nextFlowElements.add(targetFlowElement);
@@ -376,8 +413,7 @@ public class MyService {
 
             // 遍历流程元素，找到连线
             for (FlowElement flowElement : flowElements) {
-                if (flowElement instanceof SequenceFlow) {
-                    SequenceFlow sequenceFlow = (SequenceFlow) flowElement;
+                if (flowElement instanceof SequenceFlow sequenceFlow) {
                     line.put(sequenceFlow.getSourceRef(), sequenceFlow.getConditionExpression());
                     line.put(sequenceFlow.getTargetRef(), sequenceFlow.getConditionExpression());
                     line.put(sequenceFlow.getSourceRef() + "<-->" + sequenceFlow.getTargetRef(), sequenceFlow.getConditionExpression());
@@ -385,6 +421,22 @@ public class MyService {
             }
         }
         return line;
+    }
+
+    public Map<String, Object> getLineExpressionName(Map<String, String> map){
+        Map<String, Object> dataMap = new HashMap<>();
+        map.forEach((k,v)->{
+            if(v!=null && !v.isEmpty()){
+                dataMap.put(XmlUtil.extractExpression(v),null);
+            }
+        });
+        return dataMap;
+    }
+
+    public Map<String,Object> setValue(Map<String, Object> map, String executionId){
+        Map<String,Object> tmp = runtimeService.getVariables(executionId);
+        map.replaceAll((k, v) -> tmp.get(k));
+        return map;
     }
 
     private void getAllFlowElements(Map<String, Object> data, Map<String, String> line, List<Map<String, String>> flowElements, BpmnModel bpmnModel, String key) {
@@ -427,7 +479,7 @@ public class MyService {
     public List<Map<String, Object>> getActivityInstance(String processInstanceId) {
         List<Map<String, Object>> list = new ArrayList<>();
         List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).active().list();
-        if (tasks.size() == 0) {
+        if (tasks.isEmpty()) {
             return null;
         }
         String taskName = null;
@@ -445,7 +497,7 @@ public class MyService {
         }
         List<IdentityLink> identityLinks = taskService.getIdentityLinksForTask(tasks.get(0).getId()).stream()
                 .filter(link -> "candidate".equals(link.getType()) && link.getGroupId() != null).toList();
-        if (identityLinks != null && identityLinks.size() > 0) {
+        if (!identityLinks.isEmpty()) {
             //当有组有数据时 是显示组
             list.clear();
         }
@@ -506,17 +558,4 @@ public class MyService {
 
         }
     }
-
-    public void contextLoads() {
-        UserEntityImpl user = new UserEntityImpl();
-        user.setId("admin");
-        user.setDisplayName("江南一点雨");
-        user.setPassword("admin");
-        user.setFirstName("java");
-        user.setLastName("boy");
-        user.setEmail("javaboy@qq.com");
-        user.setRevision(0);
-        identityService.saveUser(user);
-    }
-
 }

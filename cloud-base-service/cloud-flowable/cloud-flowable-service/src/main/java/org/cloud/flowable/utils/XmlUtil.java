@@ -35,7 +35,7 @@ public class XmlUtil {
             // 获取process元素
             NodeList processList = rootElement.getElementsByTagName("process");
 
-            if (processList != null && processList.getLength() > 0) {
+            if (processList.getLength() > 0) {
                 Element processElement = (Element) processList.item(0);
 
                 // 读取id属性
@@ -75,15 +75,14 @@ public class XmlUtil {
 //            context.set("outcome", "通过");  // 设置变量 day 的值
 
             // 执行表达式并获取结果
-            Boolean result = (Boolean) expression.evaluate(context);
-            return result;
+            return (Boolean) expression.evaluate(context);
         } catch (Exception e) {
             e.printStackTrace();
         }
         return Boolean.FALSE;
     }
 
-    private static String extractExpression(String input) {
+    public static String extractExpression(String input) {
         // 定义正则表达式
         String regex = "\\$\\{([^}]*)\\}";
 
@@ -98,7 +97,6 @@ public class XmlUtil {
             // 提取第一个捕获组的内容
             return matcher.group(1);
         }
-
         return null; // 如果没有匹配到，则返回null或抛出异常，取决于你的需求
     }
 }
