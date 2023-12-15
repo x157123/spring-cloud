@@ -38,6 +38,5 @@ api:
     exclude: [ eureka,gateway,cloud-config ]
 knife4j:
   enable: true
-  setting:
-    # 是否启用Host
-    enableHost: true
+  # 指定服务发现的模式聚合微服务文档
+  strategy: discover

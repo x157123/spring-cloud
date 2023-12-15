@@ -1,5 +1,6 @@
 package com.cloud.gateway.filter;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.reactivestreams.Publisher;
@@ -61,6 +62,12 @@ public class SwaggerGlobalFilter implements GlobalFilter, Ordered {
 
                         JSONObject jsonObject = JSONObject.parseObject(s);
                         jsonObject.put("basePath", basePath);
+                        JSONObject old = jsonObject.getJSONObject("paths");
+                        JSONObject newJson = new JSONObject();
+                        for (String key : old.keySet()) {
+                            newJson.put("/" + basePath + key, old.get(key));
+                        }
+                        jsonObject.put("paths", newJson);
                         s = jsonObject.toString();
                         return bufferFactory().wrap(s.getBytes());
                     }));

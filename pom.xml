@@ -45,7 +45,7 @@
         <okhttp.version>4.10.0</okhttp.version>
 
         <knife4j-springdoc-ui.version>3.0.3</knife4j-springdoc-ui.version>
-        <knife4j-openapi3-ui.version>4.0.0</knife4j-openapi3-ui.version>
+        <knife4j-openapi3-ui.version>4.4.0</knife4j-openapi3-ui.version>
         <springdoc-openapi.version>2.0.2</springdoc-openapi.version>
 
         <fastjson.versiion>2.0.21</fastjson.versiion>
