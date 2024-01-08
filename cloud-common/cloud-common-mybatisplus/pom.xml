@@ -11,6 +11,7 @@
 
     <artifactId>cloud-common-mybatisplus</artifactId>
 
+    <packaging>jar</packaging>
     <dependencies>
 
         <dependency>

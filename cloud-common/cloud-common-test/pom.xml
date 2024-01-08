@@ -12,6 +12,8 @@
     <artifactId>cloud-common-test</artifactId>
 
 
+    <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.apache.poi</groupId>

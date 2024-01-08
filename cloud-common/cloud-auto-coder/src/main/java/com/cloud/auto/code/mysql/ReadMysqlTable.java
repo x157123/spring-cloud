@@ -303,7 +303,7 @@ public class ReadMysqlTable {
      * @param conn
      * @param tables
      */
-    private static void setColumn(Connection conn, List<MysqlTable> tables) {
+    public static void setColumn(Connection conn, List<MysqlTable> tables) {
         try {
             DatabaseMetaData metaData = conn.getMetaData();
             // 当前数据库名
@@ -373,7 +373,7 @@ public class ReadMysqlTable {
      * @param conn
      * @return
      */
-    private static List<MysqlTable> getTables(Connection conn, String packagePath, List<String> prefix) {
+    public static List<MysqlTable> getTables(Connection conn, String packagePath, List<String> prefix) {
         List<MysqlTable> tables = new ArrayList<>();
         try {
             DatabaseMetaData metaData = conn.getMetaData();

@@ -26,7 +26,6 @@
         <module>cloud-user</module>
         <!--同步-->
         <module>cloud-sync</module>
-        <module>cloud-flink</module>
         <module>cloud-doc</module>
     </modules>
 

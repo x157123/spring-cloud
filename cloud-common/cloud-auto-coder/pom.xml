@@ -12,9 +12,7 @@
     <artifactId>cloud-auto-coder</artifactId>
 
     <description>代码生成组件</description>
-
-    <properties>
-    </properties>
+    <packaging>jar</packaging>
 
     <dependencies>
 

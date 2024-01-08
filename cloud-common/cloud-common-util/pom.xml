@@ -11,6 +11,8 @@
 
     <artifactId>cloud-common-util</artifactId>
 
+    <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.postgresql</groupId>

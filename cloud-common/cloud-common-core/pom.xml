@@ -11,6 +11,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cloud-common-core</artifactId>
+    <packaging>jar</packaging>
 
     <dependencies>
         <dependency>

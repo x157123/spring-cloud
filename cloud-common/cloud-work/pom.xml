@@ -10,6 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cloud-work</artifactId>
+
+    <packaging>jar</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.cloud</groupId>
