@@ -37,12 +37,16 @@ import ${mergeTable.packagePath}.vo.${mergeTable.rightTableClass}Vo;
  * ${comment}
  */
 @Data
-@ApiModel(value = "${comment}响应对象", description = "${comment}响应对象")
-public class ${nameClass}Vo {
+@ApiModel(description = "${comment}响应对象")
+public class ${nameClass}Vo{
 <#if column?? && (column?size > 0) >
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted" && col.nameClass != "version">
+        && col.nameClass != "createDate" && col.nameClass != "updateDate"
+        && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+        && col.nameClass != "createBy" && col.nameClass != "updateBy"
+        && col.nameClass != "version"
+        && col.nameClass != "createTime" && col.nameClass != "updateTime">
 	/**
      * ${col.comment}
      */

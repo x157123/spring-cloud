@@ -1,5 +1,6 @@
 package ${javaPath}.entity;
 
+import com.zc.core.database.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
@@ -21,12 +22,15 @@ import java.io.Serializable;
  */
 @Data
 @TableName("${name}")
-public class ${nameClass} implements Serializable {
+public class ${nameClass} extends BaseEntity {
 <#if column?? && (column?size > 0) >
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
+        && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+        && col.nameClass != "version"
+        && col.nameClass != "createBy" && col.nameClass != "updateBy"
+        && col.nameClass != "createTime" && col.nameClass != "updateTime">
 
     /**
      * ${col.comment}
@@ -38,12 +42,16 @@ public class ${nameClass} implements Serializable {
     public ${nameClass}(<#if column?? && (column?size > 0) ><#list column as col><#if col.nameClass != "createUser" && col.nameClass != "updateUser"
 && col.nameClass != "createDate" && col.nameClass != "updateDate"
 && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
-&& col.nameClass != "id"><#if indexNum = 1>, </#if>${col.type} ${col.nameClass? uncap_first}<#assign indexNum = 1></#if></#list></#if>) {
+&& col.nameClass != "id" && col.nameClass != "version"
+&& col.nameClass != "createBy" && col.nameClass != "updateBy"
+&& col.nameClass != "createTime" && col.nameClass != "updateTime"><#if indexNum = 1>, </#if>${col.type} ${col.nameClass? uncap_first}<#assign indexNum = 1></#if></#list></#if>) {
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
         && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
-        && col.nameClass != "id">
+        && col.nameClass != "id" && col.nameClass != "version"
+        && col.nameClass != "createBy" && col.nameClass != "updateBy"
+        && col.nameClass != "createTime" && col.nameClass != "updateTime">
         this.${col.nameClass? uncap_first} = ${col.nameClass? uncap_first};
         </#if>
     </#list>

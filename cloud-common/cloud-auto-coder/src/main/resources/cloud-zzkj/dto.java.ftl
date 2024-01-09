@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
     && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
         <#if col.required>
             <#if col.type == 'String'>
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
                 <#break>
             </#if>
         </#if>
@@ -20,7 +20,7 @@ import javax.validation.constraints.NotBlank;
     && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
         <#if col.required>
             <#if col.type != 'String'>
-import javax.validation.constraints.NotNull;
+
                 <#break>
             </#if>
         </#if>
@@ -57,8 +57,8 @@ import java.util.List;
  * ${comment}
  */
 @Data
-@ApiModel(value = "${comment}响应对象", description = "${comment}响应对象")
-public class ${nameClass}Param {
+@ApiModel(description = "${comment}响应对象")
+public class ${nameClass}DTO {
 <#if column?? && (column?size > 0) >
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
@@ -70,18 +70,18 @@ public class ${nameClass}Param {
      */
 <#if col.nameClass != "id">
     <#if col.required>
-        <#if col.type == 'String'>
-    @NotBlank(message = "${comment}${col.comment}[${nameClass}Vo.${col.nameClass? uncap_first}]不能为null")
-        </#if>
-        <#if col.type != 'String'>
-    @NotNull(message = "${comment}${col.comment}[${nameClass}Vo.${col.nameClass? uncap_first}]不能为null")
-        </#if>
+<#--        <#if col.type == 'String'>-->
+<#--    @NotBlank(message = "${comment}${col.comment}[${nameClass}Vo.${col.nameClass? uncap_first}]不能为null")-->
+<#--        </#if>-->
+<#--        <#if col.type != 'String'>-->
+<#--    @NotNull(message = "${comment}${col.comment}[${nameClass}Vo.${col.nameClass? uncap_first}]不能为null")-->
+<#--        </#if>-->
     </#if>
     <#if col.type == 'String'>
     @Length(max = ${col.length?c}, message = "${comment}${col.comment}[${nameClass}Vo.${col.nameClass? uncap_first}]长度不能超过${col.length?c}个字符")
     </#if>
 </#if>
-    @ApiModelProperty(value = "${col.comment}"<#if col.required && col.nameClass != "id"></#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'></#if>)
+    @ApiModelProperty(value = "${col.comment}"<#if col.required && col.nameClass != "id">, requiredMode = Schema.RequiredMode.REQUIRED</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'></#if>)
     private ${col.type} ${col.nameClass? uncap_first};
     </#if>
     </#list>

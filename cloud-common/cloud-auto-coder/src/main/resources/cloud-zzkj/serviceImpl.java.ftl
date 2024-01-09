@@ -2,20 +2,35 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.google.common.collect.Lists;
+import com.cloud.common.core.exceptions.DataException;
+import com.cloud.common.core.utils.BeanUtil;
 <#assign showVersion = 0>
 <#list column as col>
     <#if col.nameClass != "version">
         <#assign showVersion = 1>
+import com.cloud.common.core.utils.DataVersionUtils;
         <#break>
     </#if>
 </#list>
-import com.tianque.doraemon.core.exception.base.BusinessValidationException;
-import com.tianque.scgrid.service.utils.BeanUtil;
-import com.tianque.doraemon.mybatis.support.PageParam;
-import com.tianque.doraemon.mybatis.support.Condition;
+import com.cloud.common.core.utils.ValidationUtils;
+import com.cloud.common.mybatis.page.PageParam;
+import com.cloud.common.mybatis.util.OrderUtil;
 import ${javaPath}.entity.${nameClass};
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+import ${mergeTable.packagePath}.service.${mergeTable.tableNameClass? cap_first}Service;
+        </#if>
+    </#list>
+</#if>
 import ${javaPath}.vo.${nameClass}Vo;
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+import ${javaPath}.vo.${mergeTable.leftTableClass? cap_first}Vo;
+    </#if>
+    </#list>
+    </#if>
 import ${javaPath}.mapper.${nameClass}Mapper;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.service.${nameClass}Service;
@@ -28,7 +43,11 @@ import ${foreignKey.packagePath}.service.${foreignKey.joinTableNameClass}Service
         </#if>
     </#list>
 </#if>
+<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
+import org.apache.commons.collections4.ListUtils;
+</#if>
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
@@ -36,6 +55,8 @@ import java.util.ArrayList;
 </#if>
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.Collection;
 import java.util.List;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
 import java.util.Map;
@@ -50,6 +71,14 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
 
     private final ${nameClass}Mapper ${nameClass? uncap_first}Mapper;
 
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+    private final ${mergeTable.tableNameClass? cap_first}Service ${mergeTable.tableNameClass? uncap_first}Service;
+
+        </#if>
+    </#list>
+</#if>
 <#if foreignKeys?? && (foreignKeys?size > 0) >
     <#list foreignKeys as foreignKey>
 <#if foreignKey.joinTableNameClass != nameClass>
@@ -70,12 +99,19 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
     </#list>
 </#if>
      */
-    public ${nameClass}ServiceImpl(${nameClass}Mapper ${nameClass? uncap_first}Mapper<#if foreignKeys?? && (foreignKeys?size > 0) ><#list foreignKeys as foreignKey><#if foreignKey.joinTableNameClass != nameClass>, ${foreignKey.joinTableNameClass}Service ${foreignKey.joinTableNameClass? uncap_first}Service</#if></#list></#if>){
+    public ${nameClass}ServiceImpl(${nameClass}Mapper ${nameClass? uncap_first}Mapper<#if foreignKeys?? && (foreignKeys?size > 0) ><#list foreignKeys as foreignKey><#if foreignKey.joinTableNameClass != nameClass>, ${foreignKey.joinTableNameClass}Service ${foreignKey.joinTableNameClass? uncap_first}Service</#if></#list></#if><#if mergeTables?? && (mergeTables?size > 0) ><#list mergeTables as mergeTable><#if mergeTable.leftTable == mergeTable.maintain>, ${mergeTable.tableNameClass? cap_first}Service ${mergeTable.tableNameClass? uncap_first}Service</#if></#list></#if>){
         this.${nameClass? uncap_first}Mapper = ${nameClass? uncap_first}Mapper;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
     <#list foreignKeys as foreignKey>
         <#if foreignKey.joinTableNameClass != nameClass>
         this.${foreignKey.joinTableNameClass? uncap_first}Service = ${foreignKey.joinTableNameClass? uncap_first}Service;
+        </#if>
+    </#list>
+</#if>
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+        this.${mergeTable.tableNameClass? uncap_first}Service = ${mergeTable.tableNameClass? uncap_first}Service;
         </#if>
     </#list>
 </#if>
@@ -88,13 +124,29 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      * @return 返回保存成功状态
      */
     @Override
+    @Transactional
     public Boolean save(${nameClass}Param ${nameClass? uncap_first}Param) {
+        ValidationUtils.validate(${nameClass? uncap_first}Param);
         ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
         if (${nameClass? uncap_first} != null && ${nameClass? uncap_first}.getId() != null) {
+            ${nameClass? uncap_first}.setUpdateDate(new Date());
             this.update(${nameClass? uncap_first});
         }else{
+<#if showVersion==1 >
+            ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
+</#if>
+            ${nameClass? uncap_first}.setCreateDate(new Date());
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids() != null && ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids().size() > 0) {
+            ${mergeTable.tableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids());
+        }
+    </#if>
+</#list>
+</#if>
         return Boolean.TRUE;
     }
 
@@ -120,7 +172,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      * @return  返回list结果
      */
     @Override
-    public List<${nameClass}Vo> findByIds(List<Long> ids) {
+    public List<${nameClass}Vo> findByIds(Collection<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList();
         }
@@ -176,7 +228,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     public IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query, PageParam pageParam) {
-        IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(Condition.getPage(pageParam), ${nameClass? uncap_first}Query);
+        IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(OrderUtil.getPage(pageParam), ${nameClass? uncap_first}Query);
 <#if foreignKeys?? && (foreignKeys?size > 0) >
         IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> BeanUtil.copyProperties(${nameClass? uncap_first}, ${nameClass}Vo::new));
 		this.setParam(page.getRecords());
@@ -200,8 +252,8 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
             return new ArrayList<>();
         }
         List<${nameClass}Vo> dataList = new ArrayList<>();
-		LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
-        List<List<Long>> subLists = Lists.partition(${key.columnNameClass? uncap_first}s, 5000);
+        LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
+        List<List<Long>> subLists = ListUtils.partition(${key.columnNameClass? uncap_first}s, 5000);
         for(List<Long> list : subLists) {
             queryWrapper.in(${nameClass}::get${key.columnNameClass? cap_first}, list);
             dataList.addAll(queryWrapper(queryWrapper));
@@ -223,11 +275,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId());
         </#if>
         <#if showVersion==1 >
-        queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId());
+        queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId())
+                .eq(${nameClass}::getVersion, ${nameClass? uncap_first}.getVersion());
+        ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
         </#if>
         int count = ${nameClass? uncap_first}Mapper.update(${nameClass? uncap_first}, queryWrapper);
         if (count <= 0) {
-            throw new BusinessValidationException("数据保存异常,未更新到任何数据");
+            throw new DataException("数据保存异常,未更新到任何数据");
         }
         return Boolean.TRUE;
     }
@@ -242,8 +296,15 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
         if (list != null) {
             List<Long> ids = list.stream().map(${nameClass}Vo::getId).collect(Collectors.toList());
 	<#list foreignKeys as foreignKey>
-            Map<Long, List<${foreignKey.joinTableNameClass}Vo>> ${foreignKey.joinTableNameClass? uncap_first}Map = <#if foreignKey.joinTableNameClass != nameClass>${foreignKey.joinTableNameClass? uncap_first}Service.</#if>findBy${foreignKey.joinColumnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.joinTableNameClass}Vo::get${foreignKey.columnNameClass}));
+            Map<Long, List<${foreignKey.joinTableNameClass}Vo>> ${foreignKey.joinTableNameClass? uncap_first}Map = <#if foreignKey.joinTableNameClass != nameClass>${foreignKey.joinTableNameClass? uncap_first}Service.</#if>findBy${foreignKey.joinColumnNameClass}(ids).stream().collect(Collectors.groupingBy(${foreignKey.joinTableNameClass}Vo::get${foreignKey.joinColumnNameClass}));
 	</#list>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+        <#list mergeTables as mergeTable>
+            <#if mergeTable.leftTable == mergeTable.maintain>
+            Map<Long, List<${mergeTable.leftTableClass? cap_first}Vo>> ${mergeTable.leftTableClass? uncap_first}Map = ${mergeTable.tableNameClass? uncap_first}Service.findBy${mergeTable.rightMergeTableColumnClass? cap_first}s(ids);
+            </#if>
+        </#list>
+    </#if>
             for (${nameClass}Vo ${nameClass? uncap_first} : list) {
 	<#list foreignKeys as foreignKey>
         <#if foreignKey.uni>
@@ -255,6 +316,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
                 ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VoList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
     </#list>
+        <#if mergeTables?? && (mergeTables?size > 0) >
+        <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+                ${nameClass? uncap_first}.set${mergeTable.leftTableClass? cap_first}VoList(${mergeTable.leftTableClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
+        </#if>
+            </#list>
+            </#if>
             }
         }
     }
