@@ -42,24 +42,21 @@ public class MysqlTable {
     private List<MysqlColumn> column;
 
     /**
-     * 关联表
+     * 关联表 a->b 当前表为b  显示被关联表 a信息
      */
     private List<MysqlForeignKey> foreignKeys;
-
     /**
-     * 经过关联中间表关联的表
-     */
-    private List<MysqlMergeTable> mergeTables;
-
-    /**
-     * 关联表详细信息
-     */
-    private MysqlMergeTable mergeTable;
-
-    /**
-     * 关联表
+     * 关联表 a->b  当前表为 a  列表记录为 b 关联信息
      */
     private List<MysqlJoinKey> mysqlJoinKeys;
+    /**
+     * 经过关联中间表关联的表  a <- b ->c 当前表为 a  列表记录b表   指向a 与 c表信息
+     */
+    private List<MysqlMergeTable> mergeTables;
+    /**
+     * 关联表详细信息 中间表使用   a <- b ->c 当前表为 b  信息为 b 指向a 与 c表信息
+     */
+    private MysqlMergeTable mergeTable;
 
     /**
      * 功能说明

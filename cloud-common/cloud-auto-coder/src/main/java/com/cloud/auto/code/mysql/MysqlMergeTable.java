@@ -15,53 +15,9 @@ public class MysqlMergeTable {
     private String maintain;
 
     /**
-     * 关联表
-     */
-    private String leftTable;
-
-    private String leftTableClass;
-
-    /**
-     * 关联列
-     */
-    private String leftTableColumn;
-
-    /**
      * 关联中间表
      */
     private String mergeTable;
-
-    /**
-     * 关联列
-     */
-    private String leftMergeTableColumn;
-    private String leftMergeTableColumnClass;
-
-    /**
-     * 关联列
-     */
-    private String rightMergeTableColumn;
-    private String rightMergeTableColumnClass;
-
-    /**
-     * 关联表
-     */
-    private String rightTable;
-
-    /**
-     * 关联列
-     */
-    private String rightTableColumn;
-
-    /**
-     * 关联表
-     */
-    private String rightTableClass;
-
-    /**
-     * 关联列
-     */
-    private String rightTableColumnClass;
 
     /**
      * 说明
@@ -77,4 +33,41 @@ public class MysqlMergeTable {
      * 表java类名称
      */
     private String tableNameClass;
+
+    /**
+     * 关联表
+     */
+    private String leftTable;
+    private String leftTableClass;
+
+    /**
+     * 关联列
+     */
+    private String leftTableColumn;
+    private String leftTableColumnClass;
+
+    /**
+     * 关联列
+     */
+    private String leftMergeTableColumn;
+    private String leftMergeTableColumnClass;
+
+
+    /**
+     * 关联列
+     */
+    private String rightMergeTableColumn;
+    private String rightMergeTableColumnClass;
+
+    /**
+     * 关联表
+     */
+    private String rightTable;
+    private String rightTableColumn;
+
+    /**
+     * 关联表
+     */
+    private String rightTableClass;
+    private String rightTableColumnClass;
 }

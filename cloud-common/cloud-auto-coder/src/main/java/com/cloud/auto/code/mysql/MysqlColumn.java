@@ -34,8 +34,10 @@ public class MysqlColumn {
             String[] str = this.comment.split("->");
             if (str.length == 2) {
                 this.webComment = str[0];
-                String[] enums = str[1].split("，");
-                if (enums.length > 0) {
+                if("主表".equals(str[1])){
+                    this.primaryTable = Boolean.TRUE;
+                }else {
+                    String[] enums = str[1].split("，");
                     for (String e : enums) {
                         String[] es = e.split("：");
                         if (es.length == 2) {
@@ -71,6 +73,11 @@ public class MysqlColumn {
      * 长度
      */
     private Integer length;
+
+    /**
+     * 是否主表
+     */
+    private Boolean primaryTable;
 
     /**
      * 功能说明

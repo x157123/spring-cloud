@@ -316,13 +316,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
                 ${nameClass? uncap_first}.set${foreignKey.joinTableNameClass}VoList(${foreignKey.joinTableNameClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
     </#list>
-        <#if mergeTables?? && (mergeTables?size > 0) >
-        <#list mergeTables as mergeTable>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
         <#if mergeTable.leftTable == mergeTable.maintain>
                 ${nameClass? uncap_first}.set${mergeTable.leftTableClass? cap_first}VoList(${mergeTable.leftTableClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
-            </#list>
-            </#if>
+    </#list>
+    </#if>
             }
         }
     }
