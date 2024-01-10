@@ -4,6 +4,9 @@ import com.cloud.auto.code.util.StringUtil;
 import com.cloud.common.core.utils.BeanUtil;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author liulei
  * select COLUMN_NAME as name,IS_NULLABLE as requireds,DATA_TYPE as type,ifnull( CHARACTER_MAXIMUM_LENGTH ,NUMERIC_PRECISION) as length,NUMERIC_SCALE as accuracy,COLUMN_COMMENT as comment
@@ -21,6 +24,27 @@ public class MysqlColumn {
         this.uni = uni;
         this.length = length;
         this.comment = comment;
+        this.webComment = comment;
+        setEnums();
+    }
+
+    private void setEnums() {
+        enums = new ArrayList<>();
+        if (this.comment.indexOf("->") > 1) {
+            String[] str = this.comment.split("->");
+            if (str.length == 2) {
+                this.webComment = str[0];
+                String[] enums = str[1].split("，");
+                if (enums.length > 0) {
+                    for (String e : enums) {
+                        String[] es = e.split("：");
+                        if (es.length == 2) {
+                            this.enums.add(new Enums(es[0].trim(), es[1].trim(), es[1].trim()));
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -52,6 +76,16 @@ public class MysqlColumn {
      * 功能说明
      */
     private String comment;
+
+    /**
+     * web页面字段显示
+     */
+    private String webComment;
+
+    /**
+     * 拆分备注 生成数据
+     */
+    private List<Enums> enums;
 
     /**
      * 将tableName转化为className格式  驼峰命名

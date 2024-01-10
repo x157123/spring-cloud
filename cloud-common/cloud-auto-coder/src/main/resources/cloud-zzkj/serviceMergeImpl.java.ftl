@@ -35,22 +35,23 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
     }
 
 
+
     /**
      * 保存对象
      *
-     * @param ${mergeTable.rightMergeTableColumnClass? uncap_first}
-     * @param ${mergeTable.leftMergeTableColumnClass? uncap_first}s
+     * @param ${mergeTable.leftMergeTableColumnClass? uncap_first}
+     * @param ${mergeTable.rightMergeTableColumnClass? uncap_first}s
      * @return 返回保存成功状态
      */
     @Override
-    public Boolean save(Long ${mergeTable.rightMergeTableColumnClass? uncap_first}, List<Long> ${mergeTable.leftMergeTableColumnClass? uncap_first}s) {
-        if (${mergeTable.rightMergeTableColumnClass? uncap_first} == null || CollectionUtils.isEmpty(${mergeTable.leftMergeTableColumnClass? uncap_first}s)) {
+    public Boolean save(Long ${mergeTable.leftMergeTableColumnClass? uncap_first}, List<Long> ${mergeTable.rightMergeTableColumnClass? uncap_first}s) {
+        if (${mergeTable.leftMergeTableColumnClass? uncap_first} == null || CollectionUtils.isEmpty(${mergeTable.rightMergeTableColumnClass? uncap_first}s)) {
             return Boolean.FALSE;
         }
         //删除原有保存数据
-        this.removeById(${mergeTable.rightMergeTableColumnClass? uncap_first});
-        for (Long ${mergeTable.leftMergeTableColumnClass? uncap_first} : ${mergeTable.leftMergeTableColumnClass? uncap_first}s) {
-            ${nameClass? uncap_first}Mapper.insert(new ${nameClass}(${mergeTable.rightMergeTableColumnClass? uncap_first}, ${mergeTable.leftMergeTableColumnClass? uncap_first}));
+        this.removeById(${mergeTable.leftMergeTableColumnClass? uncap_first});
+        for (Long ${mergeTable.rightMergeTableColumnClass? uncap_first} : ${mergeTable.rightMergeTableColumnClass? uncap_first}s) {
+            ${nameClass? uncap_first}Mapper.insert(new ${nameClass}(${mergeTable.leftMergeTableColumnClass? uncap_first}, ${mergeTable.rightMergeTableColumnClass? uncap_first}));
         }
         return Boolean.TRUE;
     }

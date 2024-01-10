@@ -6,7 +6,7 @@ import lombok.Data;
 
 <#list column as col>
     <#if col.type=='Date'>
-import java.util.Date;
+import java.time.LocalDateTime;
         <#break>
     </#if>
 </#list>
@@ -22,7 +22,6 @@ public class ${nameClass} extends BaseEntity {
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
         && col.nameClass != "id" && col.nameClass != "version"
         && col.nameClass != "createBy" && col.nameClass != "updateBy"
         && col.nameClass != "createTime" && col.nameClass != "updateTime">
@@ -30,7 +29,7 @@ public class ${nameClass} extends BaseEntity {
     /**
      * ${col.comment}
      */
-    private ${col.type} ${col.nameClass? uncap_first};
+    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
         </#if>
     </#list>
 </#if>

@@ -2,6 +2,14 @@ package ${javaPath}.param;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+<#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+import ${javaPath}.param.${mergeTable.rightTableClass}Param;
+        </#if>
+    </#list>
+</#if>
+
 <#list column as col>
     <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
     && col.nameClass != "createDate" && col.nameClass != "updateDate"
@@ -43,7 +51,7 @@ import org.hibernate.validator.constraints.Length;
     && col.nameClass != "createDate" && col.nameClass != "updateDate"
     && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
     <#if col.type=='Date'>
-import java.util.Date;
+import java.time.LocalDateTime;
         <#break>
     </#if>
     </#if>
@@ -63,7 +71,9 @@ public class ${nameClass}Param {
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
+        && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+        && col.nameClass != "createBy" && col.nameClass != "updateBy"
+        && col.nameClass != "createTime" && col.nameClass != "updateTime">
 
 	/**
      * ${col.comment}
@@ -82,7 +92,7 @@ public class ${nameClass}Param {
     </#if>
 </#if>
     @ApiModelProperty(value = "${col.comment}"<#if col.required && col.nameClass != "id">, requiredMode = Schema.RequiredMode.REQUIRED</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'></#if>)
-    private ${col.type} ${col.nameClass? uncap_first};
+    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
     </#if>
     </#list>
 </#if>
@@ -94,7 +104,7 @@ public class ${nameClass}Param {
     * ${mergeTable.comment}
     */
     @ApiModelProperty(value = "${comment}${mergeTable.comment}")
-    private List<Long> ${mergeTable.rightTableClass? uncap_first}Ids;
+    private List<${mergeTable.rightTableClass}Param> ${mergeTable.rightTableClass? uncap_first}Params;
     </#if>
     </#list>
 </#if>

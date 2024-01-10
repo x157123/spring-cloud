@@ -10,7 +10,7 @@ import java.util.List;
 <#list column as col>
     <#if col.type=='Date'>
 
-import java.util.Date;
+import java.time.LocalDateTime;
         <#break>
     </#if>
 </#list>
@@ -35,7 +35,7 @@ public class ${nameClass}Query extends Search {
      * ${col.comment}
      */
     @ApiModelProperty(value = "${comment}${col.comment}")
-    private ${col.type} ${col.nameClass? uncap_first};
+    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
     </#if>
     </#list>
 </#if>

@@ -1,7 +1,8 @@
 package ${javaPath}.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.cloud.common.mybatis.page.PageParam;
+import com.baomidou.mybatisplus.extension.service.IService;
+import ${javaPath}.entity.${nameClass};
 import ${javaPath}.param.${nameClass}Param;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.vo.${nameClass}Vo;
@@ -12,7 +13,7 @@ import java.util.List;
 /**
  * @author liulei
  */
-public interface ${nameClass}Service {
+public interface ${nameClass}Service extends IService<${nameClass}> {
 
     /**
      * 保存对象
@@ -20,7 +21,7 @@ public interface ${nameClass}Service {
      * @param ${nameClass? uncap_first}Param  前端传入对象
      * @return  返回保存成功状态
      */
-    Boolean save(${nameClass}Param ${nameClass? uncap_first}Param);
+    Long save(${nameClass}Param ${nameClass? uncap_first}Param);
 
     /**
      * 通过Id查询数据
@@ -59,10 +60,9 @@ public interface ${nameClass}Service {
      * 数据分页查询
      *
      * @param ${nameClass? uncap_first}Query 查询条件
-     * @param pageParam    分页条件
      * @return 分页数据
      */
-    IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query, PageParam pageParam);
+    IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query);
     <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
 	<#list mysqlJoinKeys as key>
 	

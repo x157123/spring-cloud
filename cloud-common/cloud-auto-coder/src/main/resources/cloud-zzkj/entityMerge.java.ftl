@@ -39,6 +39,8 @@ public class ${nameClass} extends BaseEntity {
         </#if>
     </#list>
 
+    public ${nameClass}(){}
+
     public ${nameClass}(<#if column?? && (column?size > 0) ><#list column as col><#if col.nameClass != "createUser" && col.nameClass != "updateUser"
 && col.nameClass != "createDate" && col.nameClass != "updateDate"
 && col.nameClass != "isDelete" && col.nameClass != "isDeleted"

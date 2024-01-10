@@ -2,19 +2,10 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.cloud.common.core.exceptions.DataException;
-import com.cloud.common.core.utils.BeanUtil;
-<#assign showVersion = 0>
-<#list column as col>
-    <#if col.nameClass != "version">
-        <#assign showVersion = 1>
-import com.cloud.common.core.utils.DataVersionUtils;
-        <#break>
-    </#if>
-</#list>
-import com.cloud.common.core.utils.ValidationUtils;
-import com.cloud.common.mybatis.page.PageParam;
-import com.cloud.common.mybatis.util.OrderUtil;
+import com.zc.core.database.util.PageUtil;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.zc.conflict.appeal.entity.AppealFile;
+import com.zc.conflict.util.BeanUtil;
 import ${javaPath}.entity.${nameClass};
 <#if mergeTables?? && (mergeTables?size > 0) >
     <#list mergeTables as mergeTable>
@@ -23,6 +14,7 @@ import ${mergeTable.packagePath}.service.${mergeTable.tableNameClass? cap_first}
         </#if>
     </#list>
 </#if>
+import com.zc.core.common.exception.ServiceException;
 import ${javaPath}.vo.${nameClass}Vo;
 <#if mergeTables?? && (mergeTables?size > 0) >
 <#list mergeTables as mergeTable>
@@ -50,12 +42,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
-import java.util.ArrayList;
-</#if>
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.Collection;
 import java.util.List;
 <#if foreignKeys?? && (foreignKeys?size > 0) >
@@ -67,7 +56,7 @@ import java.util.stream.Collectors;
  * @author liulei
  */
 @Service
-public class ${nameClass}ServiceImpl implements ${nameClass}Service {
+public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${nameClass}> implements ${nameClass}Service{
 
     private final ${nameClass}Mapper ${nameClass? uncap_first}Mapper;
 
@@ -125,17 +114,13 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     @Transactional
-    public Boolean save(${nameClass}Param ${nameClass? uncap_first}Param) {
-        ValidationUtils.validate(${nameClass? uncap_first}Param);
+    public Long save(${nameClass}Param ${nameClass? uncap_first}Param) {
         ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
         if (${nameClass? uncap_first} != null && ${nameClass? uncap_first}.getId() != null) {
-            ${nameClass? uncap_first}.setUpdateDate(new Date());
+            ${nameClass? uncap_first}.setUpdateTime(LocalDateTime.now());
             this.update(${nameClass? uncap_first});
         }else{
-<#if showVersion==1 >
-            ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
-</#if>
-            ${nameClass? uncap_first}.setCreateDate(new Date());
+            ${nameClass? uncap_first}.setCreateTime(LocalDateTime.now());
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
 <#if mergeTables?? && (mergeTables?size > 0) >
@@ -147,7 +132,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
     </#if>
 </#list>
 </#if>
-        return Boolean.TRUE;
+        return ${nameClass? uncap_first}.getId();
     }
 
     /**
@@ -194,7 +179,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     @Override
     public List<${nameClass}Vo> findByList(${nameClass}Query ${nameClass? uncap_first}Query) {
-        IPage<${nameClass}Vo> iPage = this.queryPage(${nameClass? uncap_first}Query, new PageParam());
+        IPage<${nameClass}Vo> iPage = this.queryPage(${nameClass? uncap_first}Query);
 		<#if foreignKeys?? && (foreignKeys?size > 0) >
         //封装关联数据
 		this.setParam(iPage.getRecords());
@@ -223,12 +208,11 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      * 数据分页查询
      *
      * @param ${nameClass? uncap_first}Query 查询条件
-     * @param pageParam 分页条件
      * @return 分页数据
      */
     @Override
-    public IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query, PageParam pageParam) {
-        IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(OrderUtil.getPage(pageParam), ${nameClass? uncap_first}Query);
+    public IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {
+        IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(PageUtil.getPage(${nameClass? uncap_first}Query), ${nameClass? uncap_first}Query);
 <#if foreignKeys?? && (foreignKeys?size > 0) >
         IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> BeanUtil.copyProperties(${nameClass? uncap_first}, ${nameClass}Vo::new));
 		this.setParam(page.getRecords());
@@ -271,17 +255,10 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
      */
     private Boolean update(${nameClass} ${nameClass? uncap_first}) {
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
-        <#if showVersion==0 >
         queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId());
-        </#if>
-        <#if showVersion==1 >
-        queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId())
-                .eq(${nameClass}::getVersion, ${nameClass? uncap_first}.getVersion());
-        ${nameClass? uncap_first}.setVersion(DataVersionUtils.next());
-        </#if>
         int count = ${nameClass? uncap_first}Mapper.update(${nameClass? uncap_first}, queryWrapper);
         if (count <= 0) {
-            throw new DataException("数据保存异常,未更新到任何数据");
+            throw new ServiceException("数据保存异常,未更新到任何数据");
         }
         return Boolean.TRUE;
     }

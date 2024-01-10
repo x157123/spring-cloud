@@ -12,12 +12,13 @@ import java.util.stream.Collectors;
 
 public class ReadMysqlTable {
 
+    static boolean pc = true;
+    static boolean zzkj = true;
+
     public static void main(String[] args) throws SQLException {
 
         Config config;
         boolean star = true;
-        boolean pc = true;
-        boolean zzkj = true;
 
         // 表前缀
         List<String> prefix = Arrays.asList("md_", "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
@@ -37,8 +38,14 @@ public class ReadMysqlTable {
         if (zzkj) {
             config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.appeal", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
-            ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
-            ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl"));
+            config.setJavaFilePath("D:\\");
+            config.setWebFilePath("D:\\work\\web\\zc-universe-web\\src\\components\\");
+            webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl"));
+//            ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
+//
+//            ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
+//
+//            ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
         } else {
             config = new Config("tests", "jdbc:mysql://localhost:3306/cloud_test", "root", "123456", "com.cloud.test", "E:\\IdeaProjects\\spring-cloud\\cloud-apps\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-12-14");
 
@@ -92,10 +99,15 @@ public class ReadMysqlTable {
 
             writer(writerTables, pom, ftlPath, config.getJavaFilePath() + config.getProjectName());
 
+            if (zzkj) {
+                //地方限制web页面
+                List<String> webTable = Arrays.asList("md_appeal");
+                writerTables = tables.stream().filter(table -> webTable.contains(table.getName())).toList();
+            }
             // 生成前端页面
             writer(writerTables, webList, ftlPath, config.getWebFilePath());
 
-            createPgSql(tables);
+//            createPgSql(tables);
 
 //            createRouting(tables);
         }
@@ -232,6 +244,9 @@ public class ReadMysqlTable {
             case "mapper.xml.ftl":
                 //保存到 xml+扩展包
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("resources.mapper", mysqlTable.getExpandPackage())) + mysqlTable.getNameClass() + "Mapper.xml";
+                if (zzkj) {
+                    saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getJavaPath(), "mapper")) + mysqlTable.getNameClass() + "Mapper.xml";
+                }
                 break;
             case "mapper.java.ftl":
             case "mapperMerge.java.ftl":
@@ -303,7 +318,15 @@ public class ReadMysqlTable {
                 //保存到 web
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getExpandPackage(), StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
                 break;
+            case "edit.vue.ftl":
+            case "index.vue.ftl":
+            case "detail.vue.ftl":
+            case "list.vue.ftl":
+                //保存到 web
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getExpandPackage(), StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
+                break;
         }
+        System.out.println(saveFilePath);
         return saveFilePath;
     }
 
@@ -511,11 +534,11 @@ public class ReadMysqlTable {
 
                     newMysqlMergeTable.setLeftMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftMergeTableColumn())));
                     newMysqlMergeTable.setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightMergeTableColumn())));
-                    newMysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable())));
+                    newMysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable(), prefix)));
 
                     mysqlMergeTable.setLeftMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftMergeTableColumn())));
                     mysqlMergeTable.setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightMergeTableColumn())));
-                    mysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable())));
+                    mysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable(), prefix)));
 
                     mergeTables.add(newMysqlMergeTable);
                 }
