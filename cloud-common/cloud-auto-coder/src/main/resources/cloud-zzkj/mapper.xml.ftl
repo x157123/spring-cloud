@@ -55,6 +55,7 @@
                     from ${mergeTable.mergeTable} where ${mergeTable.rightMergeTableColumn} = ${r"#"}{param.${mergeTable.rightTableClass ? uncap_first}Id}
                 )
             </if>
+                 and is_deleted = 0
                 </#list>
             </#if>
         </where>

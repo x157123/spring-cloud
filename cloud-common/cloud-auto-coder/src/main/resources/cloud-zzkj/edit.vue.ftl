@@ -55,11 +55,11 @@ import { ACCESS_TOKEN } from '@/store/mutation-types';
 import Vue from 'vue';
 import { baseURL } from '@/config/net.config';
 // 添加当事人弹框
-import addProtyPop from '@/components/mediatiionCenter/addProtyPop';
+import addProtyPop from './addProtyPop';
 // 接口
 import {
   appealInfoFull, appealInfoAdd, appealInfoUpdate,
-} from '@/api/modular/appeal/dispute';
+} from '@/api/modular/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
 import moment from 'moment';
 let that = null;
 export default {

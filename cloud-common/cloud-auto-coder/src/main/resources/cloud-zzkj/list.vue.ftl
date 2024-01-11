@@ -69,7 +69,7 @@ import {
   ${nameClass? uncap_first}InfoDelete,
   ${nameClass? uncap_first}InfoAdd,
   ${nameClass? uncap_first}InfoUpdate,
-} from '@/api/modular/${nameClass? uncap_first}/dispute';
+} from '@/api/modular/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
 // 表单信息
 const columns = [
   <#if column?? && (column?size > 0) >

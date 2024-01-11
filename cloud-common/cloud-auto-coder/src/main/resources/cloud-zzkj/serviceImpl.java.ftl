@@ -117,10 +117,8 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     public Long save(${nameClass}Param ${nameClass? uncap_first}Param) {
         ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
         if (${nameClass? uncap_first} != null && ${nameClass? uncap_first}.getId() != null) {
-            ${nameClass? uncap_first}.setUpdateTime(LocalDateTime.now());
             this.update(${nameClass? uncap_first});
         }else{
-            ${nameClass? uncap_first}.setCreateTime(LocalDateTime.now());
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
 <#if mergeTables?? && (mergeTables?size > 0) >

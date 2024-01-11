@@ -1,5 +1,11 @@
 package ${javaPath}.entity;
 
+<#list column as col>
+    <#if col.nameClass=='isDeleted'>
+import com.baomidou.mybatisplus.annotation.TableLogic;
+        <#break>
+    </#if>
+</#list>
 import com.zc.core.database.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
@@ -29,6 +35,9 @@ public class ${nameClass} extends BaseEntity {
     /**
      * ${col.comment}
      */
+<#if col.nameClass=='isDeleted'>
+    @TableLogic
+</#if>
     private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
         </#if>
     </#list>

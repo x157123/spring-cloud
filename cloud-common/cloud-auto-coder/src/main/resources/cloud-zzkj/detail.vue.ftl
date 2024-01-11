@@ -67,7 +67,7 @@
 // 接口
 import {
   appealInfoFull,
-} from '@/api/modular/appeal/dispute';
+} from '@/api/modular/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
 import imgPreview from '@/views/dazhou/issue/all/imgPreview.vue';
 
 const columns = [
