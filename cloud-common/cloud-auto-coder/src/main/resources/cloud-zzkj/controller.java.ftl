@@ -1,16 +1,21 @@
 package ${javaPath}.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import ${javaPath}.param.${nameClass}Param;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.service.${nameClass}Service;
+import ${javaPath}.vo.${nameClass}Vo;
 import com.zc.core.auth.annotation.PreAuth;
 import com.zc.core.common.api.Result;
 import com.zc.core.log.annotation.Log;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,7 +47,7 @@ public class ${nameClass}Controller {
     @Log(value = "${comment}保存数据", exception = "${comment}保存数据异常")
     @PostMapping(value = "/save")
     @ApiOperation(value = "保存", notes = "${comment}")
-    public Result save(@RequestBody @Valid ${nameClass}Param ${nameClass? uncap_first}Param) {
+    public Result<Long> save(@RequestBody @Valid ${nameClass}Param ${nameClass? uncap_first}Param) {
         return Result.data(${nameClass? uncap_first}Service.save(${nameClass? uncap_first}Param));
     }
 
@@ -56,7 +61,7 @@ public class ${nameClass}Controller {
     @Log(value = "${comment}Id查询数据", exception = "${comment}Id查询数据异常")
     @GetMapping(value = "/findById")
     @ApiOperation(value = "通过Id查询数据", notes = "${comment}")
-    public Result findById(Long id) {
+    public Result<${nameClass}Vo> findById(Long id) {
         return Result.data(${nameClass? uncap_first}Service.findById(id));
     }
 
@@ -70,7 +75,7 @@ public class ${nameClass}Controller {
     @Log(value = "${comment}多Id查询数据", exception = "${comment}多Id查询数据异常")
     @PostMapping(value = "/findByIds")
     @ApiOperation(value = "传入多个Id查询数据", notes = "${comment}")
-    public Result findByIds(@RequestParam(value = "ids") List<Long> ids) {
+    public Result<List<${nameClass}Vo>> findByIds(@RequestParam(value = "ids") List<Long> ids) {
         return Result.data(${nameClass? uncap_first}Service.findByIds(ids));
     }
 
@@ -84,9 +89,29 @@ public class ${nameClass}Controller {
     @Log(value = "${comment}查询数据", exception = "${comment}查询数据异常")
     @PostMapping(value = "/findByList")
     @ApiOperation(value = "根据查询条件查询列表", notes = "${comment}")
-    public Result findByList(${nameClass}Query ${nameClass? uncap_first}Query) {
+    public Result<List<${nameClass}Vo>> findByList(${nameClass}Query ${nameClass? uncap_first}Query) {
         return Result.data(${nameClass? uncap_first}Service.findByList(${nameClass? uncap_first}Query));
     }
+
+    /**
+     * 传入Id 并删除
+     *
+     * @param id 删除Id
+     * @return 返回是否成功
+     */
+    @PreAuth
+    @Log(value = "${comment}删除数据", exception = "${comment}删除数据异常")
+    @ApiOperation(value = "传入Id并删除", notes = "${comment}")
+    @ApiImplicitParams({
+    @ApiImplicitParam(name = "id", required = true, value = "数据id"),
+    })
+    @DeleteMapping("/delete/{id}")
+    public Result<Boolean> removeById(@PathVariable Long id) {
+        List<Long> ids = new ArrayList<>();
+        ids.add(id);
+        return Result.data(${nameClass? uncap_first}Service.removeByIds(ids));
+    }
+
 
     /**
      * 传入多个Id 并删除
@@ -98,7 +123,7 @@ public class ${nameClass}Controller {
     @Log(value = "${comment}删除数据", exception = "${comment}删除数据异常")
     @PostMapping(value = "/removeByIds")
     @ApiOperation(value = "传入多个Id并删除", notes = "${comment}")
-    public Result removeByIds(@RequestParam(value = "ids") List<Long> ids) {
+    public Result<Boolean> removeByIds(@RequestParam(value = "ids") List<Long> ids) {
         return Result.data(${nameClass? uncap_first}Service.removeByIds(ids));
     }
 
@@ -112,7 +137,7 @@ public class ${nameClass}Controller {
      @Log(value = "${comment}分页查询数据", exception = "${comment}分页查询数据异常")
     @PostMapping(value = "/queryPage")
     @ApiOperation(value = "数据分页查询", notes = "${comment}")
-    public Result queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {
+    public Result<IPage<${nameClass}Vo>> queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {
         return Result.data(${nameClass? uncap_first}Service.queryPage(${nameClass? uncap_first}Query));
     }
 

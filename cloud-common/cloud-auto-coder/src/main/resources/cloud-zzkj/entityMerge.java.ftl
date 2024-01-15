@@ -41,22 +41,13 @@ public class ${nameClass} extends BaseEntity {
 
     public ${nameClass}(){}
 
-    public ${nameClass}(<#if column?? && (column?size > 0) ><#list column as col><#if col.nameClass != "createUser" && col.nameClass != "updateUser"
-&& col.nameClass != "createDate" && col.nameClass != "updateDate"
-&& col.nameClass != "isDelete" && col.nameClass != "isDeleted"
-&& col.nameClass != "id" && col.nameClass != "version"
-&& col.nameClass != "createBy" && col.nameClass != "updateBy"
-&& col.nameClass != "createTime" && col.nameClass != "updateTime"><#if indexNum = 1>, </#if>${col.type} ${col.nameClass? uncap_first}<#assign indexNum = 1></#if></#list></#if>) {
-    <#list column as col>
-        <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
-        && col.nameClass != "createDate" && col.nameClass != "updateDate"
-        && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
-        && col.nameClass != "id" && col.nameClass != "version"
-        && col.nameClass != "createBy" && col.nameClass != "updateBy"
-        && col.nameClass != "createTime" && col.nameClass != "updateTime">
-        this.${col.nameClass? uncap_first} = ${col.nameClass? uncap_first};
-        </#if>
-    </#list>
+    /**
+    * @param ${mergeTable.leftMergeTableColumnClass? uncap_first}  ${mergeTable.leftMergeTableColumnClass? uncap_first}
+    * @param ${mergeTable.rightMergeTableColumnClass? uncap_first} ${mergeTable.rightMergeTableColumnClass? uncap_first}
+    */
+    public ${nameClass}(Long ${mergeTable.leftMergeTableColumnClass? uncap_first}, Long ${mergeTable.rightMergeTableColumnClass? uncap_first}) {
+        this.${mergeTable.leftMergeTableColumnClass? uncap_first} = ${mergeTable.leftMergeTableColumnClass? uncap_first};
+        this.${mergeTable.rightMergeTableColumnClass? uncap_first} = ${mergeTable.rightMergeTableColumnClass? uncap_first};
     }
 </#if>
 }

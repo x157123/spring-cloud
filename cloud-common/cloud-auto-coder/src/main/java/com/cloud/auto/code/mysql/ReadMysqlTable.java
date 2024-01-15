@@ -21,7 +21,7 @@ public class ReadMysqlTable {
         boolean star = true;
 
         // 表前缀
-        List<String> prefix = Arrays.asList("md_", "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
+        List<String> prefix = Arrays.asList( "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
         //模版路径
         String ftlPath;
 
@@ -36,10 +36,10 @@ public class ReadMysqlTable {
             return;
         }
         if (zzkj) {
-            config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.dispute", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
+            config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.test", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
-            config.setJavaFilePath("D:\\test\\java\\");
-            config.setWebFilePath("D:\\test\\web\\");
+            config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
+            config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\views\\test\\");
             webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl"));
             ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
 
@@ -118,7 +118,12 @@ public class ReadMysqlTable {
         }
     }
 
-
+    /**
+     *
+     * @param tables    表信息
+     * @param keys      外键
+     * @param prefix    表前缀
+     */
     private static void setMerge(List<MysqlTable> tables, List<Keys> keys, List<String> prefix) {
         Map<String, MysqlTable> tableMap = tables.stream().collect(Collectors.toMap(MysqlTable::getName, table -> table));
         Map<String, Boolean> tableUniMap = getTableColumnUni(tables);
@@ -155,9 +160,10 @@ public class ReadMysqlTable {
                     a.getMergeTable().setRightTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(jo.getPkColumnName())));
                     a.getMergeTable().setRightMergeTableColumn(jo.getFkColumnName());
                     a.getMergeTable().setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(jo.getFkColumnName())));
+                    b.setMergeTable(a.getMergeTable());
                 }
             } else {
-                a.getMysqlJoinKeys().add(new MysqlJoinKey(jo.getPkTableName(), jo.getPkColumnName(), b.getComment(), prefix));
+                a.getMysqlJoinKeys().add(new MysqlJoinKey(jo.getFkTableName(), jo.getFkColumnName(), b.getComment(), prefix));
                 b.getForeignKeys().add(new MysqlForeignKey(jo.getPkTableName(), jo.getPkColumnName(), jo.getFkTableName(), jo.getFkColumnName(), prefix, a.getJavaPath(), a.getComment(), getUni(tableUniMap, jo.getFkTableName(), jo.getFkColumnName())));
             }
         }

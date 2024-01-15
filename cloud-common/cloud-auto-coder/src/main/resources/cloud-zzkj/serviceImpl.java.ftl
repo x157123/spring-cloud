@@ -2,10 +2,9 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.zc.core.common.util.$;
 import com.zc.core.database.util.PageUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.zc.conflict.appeal.entity.AppealFile;
-import com.zc.conflict.util.BeanUtil;
 import ${javaPath}.entity.${nameClass};
 <#if mergeTables?? && (mergeTables?size > 0) >
     <#list mergeTables as mergeTable>
@@ -19,7 +18,7 @@ import ${javaPath}.vo.${nameClass}Vo;
 <#if mergeTables?? && (mergeTables?size > 0) >
 <#list mergeTables as mergeTable>
 <#if mergeTable.leftTable == mergeTable.maintain>
-import ${javaPath}.vo.${mergeTable.leftTableClass? cap_first}Vo;
+import ${javaPath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
     </#if>
     </#list>
     </#if>
@@ -42,7 +41,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Collection;
@@ -115,7 +113,7 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     @Override
     @Transactional
     public Long save(${nameClass}Param ${nameClass? uncap_first}Param) {
-        ${nameClass} ${nameClass? uncap_first} = BeanUtil.copyProperties(${nameClass? uncap_first}Param, ${nameClass}::new);
+        ${nameClass} ${nameClass? uncap_first} = $.copy(${nameClass? uncap_first}Param, ${nameClass}.class);
         if (${nameClass? uncap_first} != null && ${nameClass? uncap_first}.getId() != null) {
             this.update(${nameClass? uncap_first});
         }else{
@@ -124,14 +122,36 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
 <#if mergeTables?? && (mergeTables?size > 0) >
 <#list mergeTables as mergeTable>
 <#if mergeTable.leftTable == mergeTable.maintain>
-        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids() != null && ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids().size() > 0) {
-            ${mergeTable.tableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Ids());
+        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params() != null && !${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params().isEmpty()) {
+            assert ${nameClass? uncap_first} != null;
+            ${mergeTable.tableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params());
         }
     </#if>
 </#list>
 </#if>
+        assert ${nameClass? uncap_first} != null;
         return ${nameClass? uncap_first}.getId();
     }
+
+<#if mergeTable?? >
+    /**
+     * 保存对象
+     *
+     * @param ${mergeTable.rightTableClass? uncap_first}Params ${mergeTable.rightTableClass? uncap_first}Params
+     * @return  返回保存成功id
+     */
+    @Override
+    @Transactional
+    public List<Long> save(List<${mergeTable.rightTableClass}Param> ${mergeTable.rightTableClass? uncap_first}Params){
+        List<${mergeTable.rightTableClass}> ${mergeTable.rightTableClass? uncap_first}s = $.copy(${mergeTable.rightTableClass? uncap_first}Params,${mergeTable.rightTableClass}.class);
+        List<Long> ids = new ArrayList<>();
+        for(${mergeTable.rightTableClass} ${mergeTable.rightTableClass? uncap_first} : ${mergeTable.rightTableClass? uncap_first}s) {
+            this.save(${mergeTable.rightTableClass? uncap_first});
+            ids.add(${mergeTable.rightTableClass? uncap_first}.getId());
+        }
+        return ids;
+    }
+    </#if>
 
     /**
      * 通过Id查询数据
@@ -212,11 +232,11 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     public IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {
         IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(PageUtil.getPage(${nameClass? uncap_first}Query), ${nameClass? uncap_first}Query);
 <#if foreignKeys?? && (foreignKeys?size > 0) >
-        IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> BeanUtil.copyProperties(${nameClass? uncap_first}, ${nameClass}Vo::new));
+        IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> $.copy(${nameClass? uncap_first}, ${nameClass}Vo.class));
 		this.setParam(page.getRecords());
         return page;
 <#else >
-        return iPage.convert(${nameClass? uncap_first} -> BeanUtil.copyProperties(${nameClass? uncap_first}, ${nameClass}Vo::new));
+        return iPage.convert(${nameClass? uncap_first} -> $.copy(${nameClass? uncap_first}, ${nameClass}Vo.class));
 </#if>
     }
 <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
@@ -230,7 +250,7 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
      */
     @Override
     public List<${nameClass}Vo> findBy${key.columnNameClass? cap_first}(List<Long> ${key.columnNameClass? uncap_first}s){
-        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.size() == 0) {
+        if (${key.columnNameClass? uncap_first}s == null || ${key.columnNameClass? uncap_first}s.isEmpty()) {
             return new ArrayList<>();
         }
         List<${nameClass}Vo> dataList = new ArrayList<>();
@@ -276,7 +296,7 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     <#if mergeTables?? && (mergeTables?size > 0) >
         <#list mergeTables as mergeTable>
             <#if mergeTable.leftTable == mergeTable.maintain>
-            Map<Long, List<${mergeTable.leftTableClass? cap_first}Vo>> ${mergeTable.leftTableClass? uncap_first}Map = ${mergeTable.tableNameClass? uncap_first}Service.findBy${mergeTable.rightMergeTableColumnClass? cap_first}s(ids);
+            Map<Long, List<${mergeTable.rightTableClass? cap_first}Vo>> ${mergeTable.rightTableClass? uncap_first}Map = ${mergeTable.tableNameClass? uncap_first}Service.findBy${mergeTable.leftMergeTableColumnClass? cap_first}s(ids);
             </#if>
         </#list>
     </#if>
@@ -294,7 +314,7 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
         <#if mergeTables?? && (mergeTables?size > 0) >
         <#list mergeTables as mergeTable>
         <#if mergeTable.leftTable == mergeTable.maintain>
-                ${nameClass? uncap_first}.set${mergeTable.leftTableClass? cap_first}VoList(${mergeTable.leftTableClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
+                ${nameClass? uncap_first}.set${mergeTable.rightTableClass? cap_first}VoList(${mergeTable.rightTableClass? uncap_first}Map.get(${nameClass? uncap_first}.getId()));
         </#if>
             </#list>
             </#if>
@@ -313,6 +333,6 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
         // 数据查询
         List<${nameClass}> ${nameClass? uncap_first}Entities = ${nameClass? uncap_first}Mapper.selectList(queryWrapper);
         // 数据转换
-        return BeanUtil.copyListProperties(${nameClass? uncap_first}Entities, ${nameClass}Vo::new);
+        return $.copy(${nameClass? uncap_first}Entities, ${nameClass}Vo.class);
     }
 }

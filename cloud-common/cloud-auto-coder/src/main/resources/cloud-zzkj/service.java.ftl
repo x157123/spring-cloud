@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import ${javaPath}.entity.${nameClass};
 import ${javaPath}.param.${nameClass}Param;
+<#if mergeTable?? >
+import ${javaPath}.param.${mergeTable.rightTableClass? cap_first}Param;
+</#if>
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.vo.${nameClass}Vo;
 
@@ -19,9 +22,19 @@ public interface ${nameClass}Service extends IService<${nameClass}> {
      * 保存对象
      *
      * @param ${nameClass? uncap_first}Param  前端传入对象
-     * @return  返回保存成功状态
+     * @return  返回保存成功id
      */
     Long save(${nameClass}Param ${nameClass? uncap_first}Param);
+
+<#if mergeTable?? >
+    /**
+     * 保存对象
+     *
+     * @param ${mergeTable.rightTableClass? uncap_first}Params ${mergeTable.rightTableClass? uncap_first}Params
+     * @return  返回保存成功id
+     */
+    List<Long> save(List<${mergeTable.rightTableClass}Param> ${mergeTable.rightTableClass? uncap_first}Params);
+</#if>
 
     /**
      * 通过Id查询数据
