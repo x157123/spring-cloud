@@ -38,7 +38,7 @@ import ${mergeTable.packagePath}.vo.${mergeTable.rightTableClass}Vo;
  */
 @Data
 @ApiModel(description = "${comment}响应对象")
-public class ${nameClass}Vo{
+public class ${nameClass}Vo {
 <#if column?? && (column?size > 0) >
     <#list column as col>
         <#if col.nameClass != "createUser" && col.nameClass != "updateUser"

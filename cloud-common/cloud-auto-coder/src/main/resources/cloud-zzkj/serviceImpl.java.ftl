@@ -157,7 +157,7 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     @Override
     public List<${nameClass}Vo> findByIds(Collection<Long> ids) {
         if (CollectionUtils.isEmpty(ids)) {
-            return new ArrayList();
+            return new ArrayList<>();
         }
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.in(${nameClass}::getId, ids);

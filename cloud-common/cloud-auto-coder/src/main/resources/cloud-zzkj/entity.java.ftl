@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.zc.core.database.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 <#list column as col>
     <#if col.type=='Date'>
@@ -22,6 +23,7 @@ import java.time.LocalDateTime;
  * ${comment}
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("${name}")
 public class ${nameClass} extends BaseEntity {
 <#if column?? && (column?size > 0) >

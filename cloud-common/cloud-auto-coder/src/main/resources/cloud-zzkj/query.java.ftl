@@ -4,6 +4,7 @@ import com.zc.core.database.entity.Search;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 <#if mergeTables?? && (mergeTables?size > 0) >
 import java.util.List;
 </#if>
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
  * ${comment}
  */
 @Data
+@EqualsAndHashCode(callSuper = true)
 @ApiModel(description = "${comment}")
 public class ${nameClass}Query extends Search {
 <#if column?? && (column?size > 0) >
