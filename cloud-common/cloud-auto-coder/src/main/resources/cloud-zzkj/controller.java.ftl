@@ -127,7 +127,6 @@ public class ${nameClass}Controller {
         return Result.data(${nameClass? uncap_first}Service.removeByIds(ids));
     }
 
-
     /**
      * 传入多个Id 并删除
      *
@@ -141,10 +140,10 @@ public class ${nameClass}Controller {
     public Result<Boolean> removeByIds(@RequestParam(value = "ids") List<Long> ids) {
         return Result.data(${nameClass? uncap_first}Service.removeByIds(ids));
     }
-
 <#if column?? && (column?size > 0) >
 <#list column as col>
 <#if col.nameClass != "isDeleted" && col.enums?? && (col.enums?size > 0)>
+
     /**
     * 数据来源类型
     * @return
@@ -156,11 +155,9 @@ public class ${nameClass}Controller {
         List<Map<String, Object>> ${col.nameClass}Enums = ${col.nameClass? cap_first}Enum.getList();
         return Result.data(${col.nameClass}Enums);
     }
-
 </#if>
 </#list>
 </#if>
-
 
     /**
      * 数据分页查询
@@ -175,5 +172,4 @@ public class ${nameClass}Controller {
     public Result<IPage<${nameClass}Vo>> queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {
         return Result.data(${nameClass? uncap_first}Service.queryPage(${nameClass? uncap_first}Query));
     }
-
 }

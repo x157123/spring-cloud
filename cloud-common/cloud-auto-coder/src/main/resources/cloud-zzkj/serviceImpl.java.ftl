@@ -137,8 +137,8 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
 </#if>
         return ${nameClass? uncap_first}.getId();
     }
-
 <#if mergeTable?? >
+
     /**
      * 保存对象
      *
@@ -160,7 +160,6 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
         return ids;
     }
     </#if>
-
     <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
     <#list mysqlJoinKeys as key>
 
@@ -269,7 +268,6 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
         IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(PageUtil.getPage(${nameClass? uncap_first}Query), ${nameClass? uncap_first}Query);
 <#if foreignKeys?? && (foreignKeys?size > 0) >
         IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> $.copy(${nameClass? uncap_first}, ${nameClass}Vo.class));
-		this.setParam(page.getRecords());
         return page;
 <#else >
         return iPage.convert(${nameClass? uncap_first} -> $.copy(${nameClass? uncap_first}, ${nameClass}Vo.class));
@@ -316,8 +314,8 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
         }
         return Boolean.TRUE;
     }
-
 <#if foreignKeys?? && (foreignKeys?size > 0) >
+
 	/**
      * 补充关联表数据查询
      *

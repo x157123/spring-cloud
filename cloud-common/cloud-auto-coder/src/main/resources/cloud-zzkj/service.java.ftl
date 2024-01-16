@@ -25,8 +25,8 @@ public interface ${nameClass}Service extends IService<${nameClass}> {
      * @return  返回保存成功id
      */
     Long save(${nameClass}Param ${nameClass? uncap_first}Param);
-
 <#if mergeTable?? >
+
     /**
      * 保存对象
      *
