@@ -56,12 +56,12 @@
       <#list mergeTables as mergeTable>
         <#if mergeTable.leftTable == mergeTable.maintain>
     <!-- ${mergeTable.comment} -->
-    <!-- <add${mergeTable.tableNameClass? uncap_first} ref="add${mergeTable.tableNameClass? uncap_first}Ref" v-if="add${mergeTable.tableNameClass? uncap_first}Visible" @confirm="handleAdd${mergeTable.tableNameClass? uncap_first}" @handleCancel="handleAdd${mergeTable.tableNameClass? uncap_first}Cancel" /> -->
+    <add${mergeTable.tableNameClass? uncap_first} ref="add${mergeTable.tableNameClass? uncap_first}Ref" v-if="add${mergeTable.tableNameClass? uncap_first}Visible" @confirm="handleAdd${mergeTable.tableNameClass? uncap_first}" @handleCancel="handleAdd${mergeTable.tableNameClass? uncap_first}Cancel" />
         </#if>
       </#list>
     </#if>
     <!-- 添加当事人弹框 -->
-    <addProtyPop ref="addPartyPopupRef" v-if="addPartyVisible" @confirm="handleAddParty" @handleCancel="handleAddPartyCancel" />
+    <!-- <addProtyPop ref="addPartyPopupRef" v-if="addPartyVisible" @confirm="handleAddParty" @handleCancel="handleAddPartyCancel" />  -->
   </div>
 </template>
 
