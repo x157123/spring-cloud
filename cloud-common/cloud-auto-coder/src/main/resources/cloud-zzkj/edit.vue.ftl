@@ -74,7 +74,7 @@ import { baseURL } from '@/config/net.config';
 <#list foreignKeys as foreignKey>
 <#if foreignKey.joinTableNameClass != nameClass>
 // ${foreignKey.comment}
-import add${foreignKey.joinTableNameClass} from '@/${web}/${foreignKey.joinTableNameClass}/${foreignKey.joinTableNameClass}Attributes.vue';
+import add${foreignKey.joinTableNameClass? uncap_first} from '@/${web}/${foreignKey.joinTableNameClass}/${foreignKey.joinTableNameClass}Attributes.vue';
 </#if>
 </#list>
 </#if>
@@ -99,7 +99,7 @@ export default {
     <#if foreignKeys?? && (foreignKeys?size > 0) >
     <#list foreignKeys as foreignKey>
     <#if foreignKey.joinTableNameClass != nameClass>
-    add${foreignKey.joinTableNameClass},
+    add${foreignKey.joinTableNameClass? uncap_first},
     </#if>
     </#list>
     </#if>
