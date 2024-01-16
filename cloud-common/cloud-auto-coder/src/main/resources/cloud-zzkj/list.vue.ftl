@@ -60,7 +60,7 @@
 <script>
 // 组件
 import { Pagination } from 'ant-design-vue';
-import dynamicForm from '@/components/common/dynamicForm';
+import dynamicForm from '@/${web}/form/dynamicForm';
 import ${nameClass? uncap_first}Edit from './${nameClass? uncap_first}Edit.vue';
 import ${nameClass? uncap_first}Detail from './${nameClass? uncap_first}Detail.vue';
 // 接口

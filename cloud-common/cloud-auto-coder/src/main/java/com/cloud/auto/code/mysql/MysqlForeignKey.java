@@ -48,7 +48,11 @@ public class MysqlForeignKey {
      */
     private boolean uni;
 
-    public MysqlForeignKey(String tableName, String columnName, String joinTableName, String joinColumnName, List<String> prefix, String packagePath, String comment, boolean uni) {
+
+    private MysqlTable mysqlTable;
+
+
+    public MysqlForeignKey(String tableName, String columnName, String joinTableName, String joinColumnName, List<String> prefix, String packagePath, String comment, boolean uni, MysqlTable mysqlTable) {
         this.tableName = tableName;
         this.columnName = columnName;
         this.joinTableName = joinTableName;
@@ -60,6 +64,7 @@ public class MysqlForeignKey {
         this.packagePath = packagePath;
         this.comment = comment;
         this.uni = uni;
+        this.mysqlTable = mysqlTable;
     }
 
 }

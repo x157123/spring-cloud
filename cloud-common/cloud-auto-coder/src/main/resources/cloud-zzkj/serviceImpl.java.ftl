@@ -41,11 +41,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Collection;
-import java.util.List;
-<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
+import java.util.*;
+<#if (mysqlJoinKeys?? && (mysqlJoinKeys?size > 0)) || ( foreignKeys?? && (foreignKeys?size > 0) )>
 import java.util.stream.Collectors;
 </#if>
 
@@ -266,12 +263,7 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     @Override
     public IPage<${nameClass}Vo> queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {
         IPage<${nameClass}> iPage = ${nameClass? uncap_first}Mapper.queryPage(PageUtil.getPage(${nameClass? uncap_first}Query), ${nameClass? uncap_first}Query);
-<#if foreignKeys?? && (foreignKeys?size > 0) >
-        IPage<${nameClass}Vo> page = iPage.convert(${nameClass? uncap_first} -> $.copy(${nameClass? uncap_first}, ${nameClass}Vo.class));
-        return page;
-<#else >
         return iPage.convert(${nameClass? uncap_first} -> $.copy(${nameClass? uncap_first}, ${nameClass}Vo.class));
-</#if>
     }
 <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
 	<#list mysqlJoinKeys as key>
@@ -303,16 +295,14 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
      * 通过Id 更新数据
      *
      * @param ${nameClass? uncap_first} 前端更新集合
-     * @return  更新成功状态
      */
-    private Boolean update(${nameClass} ${nameClass? uncap_first}) {
+    private void update(${nameClass} ${nameClass? uncap_first}) {
         LambdaQueryWrapper<${nameClass}> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(${nameClass}::getId, ${nameClass? uncap_first}.getId());
         int count = ${nameClass? uncap_first}Mapper.update(${nameClass? uncap_first}, queryWrapper);
         if (count <= 0) {
             throw new ServiceException("数据保存异常,未更新到任何数据");
         }
-        return Boolean.TRUE;
     }
 <#if foreignKeys?? && (foreignKeys?size > 0) >
 

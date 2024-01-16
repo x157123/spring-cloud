@@ -72,4 +72,6 @@ public class MysqlMergeTable {
      */
     private String rightTableClass;
     private String rightTableColumnClass;
+
+    private MysqlTable mysqlTable;
 }

@@ -39,9 +39,10 @@ public class ReadMysqlTable {
         if (zzkj) {
             config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.test", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
-            config.setJavaFilePath("D:\\work\\zzkj\\service\\mediation\\universe-platform\\");
-            config.setWebFilePath("D:\\work\\zzkj\\web\\mediation-web\\src\\views\\test\\");
-            webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl"));
+            config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
+            config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\");
+            config.setWebPackagePath("views.test");
+            webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl", "attributes.vue.ftl", "dynamicForm.vue.ftl"));
             ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
 
             ftlList.addAll(Arrays.asList("mapper.xml.ftl", "mapper.java.ftl", "service.java.ftl", "serviceImpl.java.ftl", "controller.java.ftl"));
@@ -58,7 +59,7 @@ public class ReadMysqlTable {
 
             webList.addAll(Arrays.asList("component.css.ftl", "component.html.ftl", "component.ts.ftl", "edit.component.css.ftl", "edit.component.html.ftl", "edit.component.ts.ftl", "module.ts.ftl", "routing.ts.ftl"));
 
-            pom.addAll(Arrays.asList("pom.xml.ftl"));
+            pom.add("pom.xml.ftl");
 
             ftlMergeList.addAll(Arrays.asList("entityMerge.java.ftl", "mapperMerge.java.ftl", "serviceMerge.java.ftl", "serviceMergeImpl.java.ftl"));
 
@@ -75,13 +76,11 @@ public class ReadMysqlTable {
         try (Connection conn = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword())) {
 
             //  获取表结果集
-            List<MysqlTable> tables = getTables(conn, config.getPackagePath(), prefix);
+            List<MysqlTable> tables = getTables(conn, config.getPackagePath(), config.getWebPackagePath(), prefix);
 
             //  设置表属性
             setColumn(conn, tables);
 
-            //  设置关联表
-//            setMergeTable(conn, tables, prefix);
             List<Keys> keys = getMergeMsg(conn, tables);
 
             setMerge(tables, keys, prefix);
@@ -106,17 +105,14 @@ public class ReadMysqlTable {
             writer(writerTables, pom, ftlPath, config.getJavaFilePath() + config.getProjectName());
 
             createMenus(writerTables, ftlPath, config);
-            if (zzkj) {
-                //地方限制web页面
-                List<String> webTable = Arrays.asList("md_appeal");
-                writerTables = tables.stream().filter(table -> webTable.contains(table.getName())).toList();
+            if (!zzkj) {
+                createPgSql(tables);
+                createRouting(tables);
             }
             // 生成前端页面
-//            writer(writerTables, webList, ftlPath, config.getWebFilePath());
+            writerWeb(writerTables, webList, ftlPath, config.getWebFilePath());
 
-//            createPgSql(tables);
 
-//            createRouting(tables);
         }
     }
 
@@ -163,11 +159,12 @@ public class ReadMysqlTable {
                     a.getMergeTable().setRightTablePath(b.getJavaPath());
                     a.getMergeTable().setRightMergeTableColumn(jo.getFkColumnName());
                     a.getMergeTable().setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(jo.getFkColumnName())));
+                    a.getMergeTable().setMysqlTable(b);
                     b.setMergeTable(a.getMergeTable());
                 }
             } else {
                 a.getMysqlJoinKeys().add(new MysqlJoinKey(jo.getFkTableName(), jo.getFkColumnName(), b.getComment(), prefix));
-                b.getForeignKeys().add(new MysqlForeignKey(jo.getPkTableName(), jo.getPkColumnName(), jo.getFkTableName(), jo.getFkColumnName(), prefix, a.getJavaPath(), a.getComment(), getUni(tableUniMap, jo.getFkTableName(), jo.getFkColumnName())));
+                b.getForeignKeys().add(new MysqlForeignKey(jo.getPkTableName(), jo.getPkColumnName(), jo.getFkTableName(), jo.getFkColumnName(), prefix, a.getJavaPath(), a.getComment(), getUni(tableUniMap, jo.getFkTableName(), jo.getFkColumnName()), a));
             }
         }
     }
@@ -307,6 +304,27 @@ public class ReadMysqlTable {
         return null;
     }
 
+    private static void writerWeb(List<MysqlTable> tables, List<String> ftlList, String ftlPath, String filePath) {
+        for (MysqlTable mysqlTable : tables) {
+            List<String> ftlLists = new ArrayList<>(ftlList);
+            if (zzkj) {
+                if (!CollectionUtils.isEmpty(mysqlTable.getMysqlJoinKeys()) || mysqlTable.getMergeTable() != null) {
+                    ftlLists = List.of("attributes.vue.ftl");
+                } else {
+                    ftlLists = List.of("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl", "dynamicForm.vue.ftl");
+                }
+            }
+            for (String ftlName : ftlLists) {
+                Template template = getTemplate(ftlPath, ftlName);
+                if (template == null) {
+                    continue;
+                }
+                String savePath = getSavePath(mysqlTable, filePath, ftlName);
+                writerData(template, mysqlTable, savePath);
+            }
+        }
+    }
+
     private static void writer(List<MysqlTable> tables, List<String> ftlList, String ftlPath, String filePath) {
         for (MysqlTable mysqlTable : tables) {
             for (String ftlName : ftlList) {
@@ -440,13 +458,20 @@ public class ReadMysqlTable {
             case "index.vue.ftl":
             case "detail.vue.ftl":
             case "list.vue.ftl":
+            case "attributes.vue.ftl":
                 //保存到 web
-                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("components", mysqlTable.getExpandPackage(), StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getConfig().getWebPackagePath(), mysqlTable.getExpandPackage(), StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
                 break;
             case "api.js.ftl":
                 //保存到 web
-                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("api", "modular", mysqlTable.getExpandPackage(), StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getConfig().getWebPackagePath(), "api", mysqlTable.getExpandPackage(), StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()))) + StringUtil.toLowerCaseFirstOne(mysqlTable.getNameClass()) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
                 break;
+            case "dynamicForm.vue.ftl":
+                //保存到 web
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getConfig().getWebPackagePath(), "form")) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
+                break;
+
+
         }
         System.out.println(saveFilePath);
         return saveFilePath;
@@ -526,7 +551,7 @@ public class ReadMysqlTable {
      * @param conn
      * @return
      */
-    public static List<MysqlTable> getTables(Connection conn, String packagePath, List<String> prefix) {
+    public static List<MysqlTable> getTables(Connection conn, String packagePath, String webPackagePath, List<String> prefix) {
         List<MysqlTable> tables = new ArrayList<>();
         try {
             DatabaseMetaData metaData = conn.getMetaData();
@@ -537,7 +562,7 @@ public class ReadMysqlTable {
                 while (rs.next()) {
                     String tableName = rs.getString("TABLE_NAME");
                     String tableComment = rs.getString("REMARKS");
-                    tables.add(new MysqlTable(tableName, tableComment, packagePath, prefix));
+                    tables.add(new MysqlTable(tableName, tableComment, packagePath, webPackagePath, prefix));
                 }
             }
         } catch (Exception e) {
@@ -546,128 +571,4 @@ public class ReadMysqlTable {
         return tables;
     }
 
-    /**
-     * 设置中间表
-     *
-     * @param conn
-     * @param tables
-     */
-    private static void setMergeTable(Connection conn, List<MysqlTable> tables, List<String> prefix) {
-        // tables list 转 Map<String,MysqlTable>
-        Map<String, MysqlTable> tableMap = tables.stream().collect(Collectors.toMap(MysqlTable::getName, table -> table));
-        //字段关联
-        Map<String, Boolean> tableUniMap = getTableColumnUni(tables);
-        try {
-            DatabaseMetaData metaData = conn.getMetaData();
-            // 当前数据库名
-            String catalog = conn.getCatalog();
-
-            List<MysqlMergeTable> mergeTables = new ArrayList<>();
-
-            // 遍历所有表
-            for (MysqlTable table : tables) {
-                ResultSet foreignKeys = metaData.getImportedKeys(catalog, null, table.getName()); // 获取外键
-                MysqlMergeTable mysqlMergeTable = null;
-                //遍历外键
-                while (foreignKeys.next()) {
-                    String fkTableName = foreignKeys.getString("FKTABLE_NAME"); // 外键所在表
-                    String fkColumnName = foreignKeys.getString("FKCOLUMN_NAME"); // 外键列名
-                    String pkTableName = foreignKeys.getString("PKTABLE_NAME"); // 关联表
-                    String pkColumnName = foreignKeys.getString("PKCOLUMN_NAME"); // 关联表列名
-                    //判断是否是中间表
-                    if (table.getName().matches("(.*)_merge$")) {
-                        if (mysqlMergeTable == null) {
-                            mysqlMergeTable = new MysqlMergeTable();
-                        }
-                        if (mysqlMergeTable.getMergeTable() == null) {
-                            mysqlMergeTable.setMergeTable(table.getName());
-                            mysqlMergeTable.setTableNameClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(table.getName(), prefix)));
-                            mysqlMergeTable.setLeftTable(pkTableName);
-                            mysqlMergeTable.setLeftTableColumn(pkColumnName);
-                            mysqlMergeTable.setLeftMergeTableColumn(fkColumnName);
-                        } else if (mysqlMergeTable.getRightTable() == null) {
-                            mysqlMergeTable.setRightTable(pkTableName);
-                            mysqlMergeTable.setRightTableColumn(pkColumnName);
-                            mysqlMergeTable.setRightMergeTableColumn(fkColumnName);
-                        }
-                    } else {
-                        MysqlTable fkTable = tableMap.get(fkTableName);
-                        MysqlTable pkTable = tableMap.get(pkTableName);
-                        MysqlForeignKey mysqlForeignKey = new MysqlForeignKey(pkTableName, pkColumnName, fkTableName, fkColumnName, prefix, fkTable.getJavaPath(), fkTable.getComment(), getUni(tableUniMap, fkTableName, fkColumnName));
-                        pkTable.getForeignKeys().add(mysqlForeignKey);
-
-                        MysqlJoinKey mysqlJoinKey = new MysqlJoinKey(mysqlForeignKey.getJoinTableName(), mysqlForeignKey.getJoinColumnName(), mysqlForeignKey.getComment(), prefix);
-                        fkTable.getMysqlJoinKeys().add(mysqlJoinKey);
-                        List<MysqlJoinKey> collect = fkTable.getMysqlJoinKeys().stream().collect(
-                                Collectors.collectingAndThen(
-                                        Collectors.toCollection(() -> new TreeSet<>(Comparator.comparing(o -> o.getTableName() + ";" + o.getColumnName()))), ArrayList::new)
-                        );
-                        fkTable.setMysqlJoinKeys(collect);
-                    }
-                }
-                if (mysqlMergeTable != null) {
-                    String oneKey = "";
-                    for (MysqlColumn mysqlColumn : table.getColumn()) {
-                        if (mysqlColumn != null && !mysqlColumn.getName().equals("id")) {
-                            oneKey = mysqlColumn.getName();
-                            break;
-                        }
-                    }
-                    if (mysqlMergeTable.getLeftMergeTableColumn().equals(oneKey)) {
-                        mysqlMergeTable.setMaintain(mysqlMergeTable.getLeftTable());
-                    } else if (oneKey.equals(mysqlMergeTable.getRightMergeTableColumn())) {
-                        mysqlMergeTable.setMaintain(mysqlMergeTable.getRightTable());
-                    }
-                    if (mysqlMergeTable.getRightMergeTableColumn() == null) {
-                        System.out.println("我是null");
-                    }
-                    MysqlTable mysqlTable = tableMap.get(mysqlMergeTable.getRightTable());
-                    mysqlMergeTable.setPackagePath(mysqlTable.getJavaPath());
-                    mysqlMergeTable.setComment(mysqlTable.getComment());
-                    mergeTables.add(mysqlMergeTable);
-                    mysqlMergeTable.setRightTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightTableColumn())));
-                    mysqlMergeTable.setRightTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightTable(), prefix)));
-                    MysqlMergeTable newMysqlMergeTable = new MysqlMergeTable();
-                    newMysqlMergeTable.setMaintain(mysqlMergeTable.getMaintain());
-                    newMysqlMergeTable.setLeftMergeTableColumn(mysqlMergeTable.getRightMergeTableColumn());
-                    newMysqlMergeTable.setLeftTableColumn(mysqlMergeTable.getRightTableColumn());
-                    newMysqlMergeTable.setLeftTable(mysqlMergeTable.getRightTable());
-                    newMysqlMergeTable.setMergeTable(mysqlMergeTable.getMergeTable());
-                    newMysqlMergeTable.setRightMergeTableColumn(mysqlMergeTable.getLeftMergeTableColumn());
-                    newMysqlMergeTable.setRightTable(mysqlMergeTable.getLeftTable());
-                    newMysqlMergeTable.setRightTableColumn(mysqlMergeTable.getLeftTableColumn());
-                    newMysqlMergeTable.setTableNameClass(mysqlMergeTable.getTableNameClass());
-                    newMysqlMergeTable.setRightTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(newMysqlMergeTable.getRightTableColumn())));
-                    newMysqlMergeTable.setRightTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(newMysqlMergeTable.getRightTable(), prefix)));
-                    mysqlTable = tableMap.get(newMysqlMergeTable.getRightTable());
-                    newMysqlMergeTable.setPackagePath(mysqlTable.getJavaPath());
-                    newMysqlMergeTable.setComment(mysqlTable.getComment());
-
-                    newMysqlMergeTable.setLeftMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftMergeTableColumn())));
-                    newMysqlMergeTable.setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightMergeTableColumn())));
-                    newMysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable(), prefix)));
-
-                    mysqlMergeTable.setLeftMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftMergeTableColumn())));
-                    mysqlMergeTable.setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getRightMergeTableColumn())));
-                    mysqlMergeTable.setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(mysqlMergeTable.getLeftTable(), prefix)));
-
-                    mergeTables.add(newMysqlMergeTable);
-                }
-                foreignKeys.close();
-            }
-
-            if (!mergeTables.isEmpty()) {
-                Map<String, List<MysqlMergeTable>> mergeTableMap = mergeTables.stream().collect(Collectors.groupingBy(MysqlMergeTable::getLeftTable));
-                Map<String, MysqlMergeTable> mergeTableMaps = mergeTables.stream().collect(Collectors.toMap(MysqlMergeTable::getMergeTable, table -> table, (k1, k2) -> k1));
-                for (MysqlTable mysqlTable : tables) {
-                    List<MysqlMergeTable> tmpList = mergeTableMap.get(mysqlTable.getName());
-                    MysqlMergeTable mysqlMergeTable = mergeTableMaps.get(mysqlTable.getName());
-                    mysqlTable.setMergeTable(mysqlMergeTable);
-                    mysqlTable.setMergeTables(tmpList);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }

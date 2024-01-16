@@ -21,6 +21,8 @@ public class Config implements Serializable {
 
     String webFilePath;
 
+    String webPackagePath;
+
     String auth;
 
     String dateTime;

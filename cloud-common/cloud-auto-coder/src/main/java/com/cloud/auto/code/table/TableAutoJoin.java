@@ -4,7 +4,6 @@ import com.cloud.auto.code.mysql.Config;
 import com.cloud.auto.code.mysql.MysqlColumn;
 import com.cloud.auto.code.mysql.MysqlTable;
 import com.cloud.auto.code.mysql.ReadMysqlTable;
-import kotlin.collections.EmptyList;
 
 import java.sql.*;
 import java.util.*;
@@ -22,7 +21,7 @@ public class TableAutoJoin {
         try (Connection conn = DriverManager.getConnection(config.getUrl(), config.getUsername(), config.getPassword())) {
 
             //  获取表结果集
-            List<MysqlTable> tables = ReadMysqlTable.getTables(conn, config.getPackagePath(), new ArrayList<>());
+            List<MysqlTable> tables = ReadMysqlTable.getTables(conn, config.getPackagePath(), config.getWebPackagePath(), new ArrayList<>());
 
             //  设置表属性
             ReadMysqlTable.setColumn(conn, tables);

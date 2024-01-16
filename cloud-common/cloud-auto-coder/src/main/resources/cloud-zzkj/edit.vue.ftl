@@ -43,19 +43,49 @@
         </div>
       </template>
     </a-modal>
+    <#if foreignKeys?? && (foreignKeys?size > 0) >
+      <#list foreignKeys as foreignKey>
+        <#if foreignKey.joinTableNameClass != nameClass>
+          add${foreignKey.joinTableNameClass},
+    <!-- ${foreignKey.comment} -->
+    <add${foreignKey.joinTableNameClass? uncap_first} ref="add${foreignKey.joinTableNameClass? uncap_first}Ref" v-if="add${foreignKey.joinTableNameClass? uncap_first}Visible" @confirm="handleAdd${foreignKey.joinTableNameClass? uncap_first}" @handleCancel="handleAdd${foreignKey.joinTableNameClass? uncap_first}Cancel" />
+        </#if>
+      </#list>
+    </#if>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+      <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+    <!-- ${mergeTable.comment} -->
+    <!-- <add${mergeTable.tableNameClass? uncap_first} ref="add${mergeTable.tableNameClass? uncap_first}Ref" v-if="add${mergeTable.tableNameClass? uncap_first}Visible" @confirm="handleAdd${mergeTable.tableNameClass? uncap_first}" @handleCancel="handleAdd${mergeTable.tableNameClass? uncap_first}Cancel" /> -->
+        </#if>
+      </#list>
+    </#if>
     <!-- 添加当事人弹框 -->
-    <addProtyPop ref="addPartyPopupRef" v-if="addPartyVisible" @confirm="handleAddParty"
-      @handleCancel="handleAddPartyCancel" />
+    <addProtyPop ref="addPartyPopupRef" v-if="addPartyVisible" @confirm="handleAddParty" @handleCancel="handleAddPartyCancel" />
   </div>
 </template>
 
 <script>
-import dynamicForm from '@/components/common/dynamicForm';
+import dynamicForm from '@/${web}/form/dynamicForm';
 import { ACCESS_TOKEN } from '@/store/mutation-types';
 import Vue from 'vue';
 import { baseURL } from '@/config/net.config';
-// 添加当事人弹框
-import addProtyPop from './addProtyPop';
+<#if foreignKeys?? && (foreignKeys?size > 0) >
+<#list foreignKeys as foreignKey>
+<#if foreignKey.joinTableNameClass != nameClass>
+// ${foreignKey.comment}
+import add${foreignKey.joinTableNameClass} from '@/${web}/${foreignKey.joinTableNameClass}/${foreignKey.joinTableNameClass}Attributes.vue';
+</#if>
+</#list>
+</#if>
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+// ${mergeTable.comment}
+import add${mergeTable.tableNameClass? uncap_first} from '@/${web}/${mergeTable.tableNameClass? uncap_first}/${mergeTable.tableNameClass? uncap_first}Attributes.vue';
+</#if>
+</#list>
+</#if>
 // 接口
 import {
   appealInfoFull, appealInfoAdd, appealInfoUpdate,
@@ -66,7 +96,20 @@ export default {
   name: 'contradictionEditPopup',
   components: {
     dynamicForm,
-    addProtyPop,
+    <#if foreignKeys?? && (foreignKeys?size > 0) >
+    <#list foreignKeys as foreignKey>
+    <#if foreignKey.joinTableNameClass != nameClass>
+    add${foreignKey.joinTableNameClass},
+    </#if>
+    </#list>
+    </#if>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+    <#if mergeTable.leftTable == mergeTable.maintain>
+    add${mergeTable.tableNameClass? uncap_first},
+    </#if>
+    </#list>
+    </#if>
   },
   props: {
     // 编辑弹窗是否显示
