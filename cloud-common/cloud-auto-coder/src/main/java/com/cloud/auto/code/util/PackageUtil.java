@@ -55,7 +55,7 @@ public class PackageUtil {
         String[] packs = pack.split("\\.");
         StringBuilder stringBuffer = new StringBuilder();
         for (String p : packs) {
-            if (p.length() > 1) {
+            if (p.length() > 0) {
                 stringBuffer.append(p).append(filePathSeparator);
             }
         }
@@ -108,7 +108,7 @@ public class PackageUtil {
     private static String check(String[] packs, String symbol) {
         StringBuilder stringBuffer = new StringBuilder();
         for (String p : packs) {
-            if (p.length() > 1) {
+            if (p.length() > 0) {
                 stringBuffer.append(p).append(symbol);
             }
         }

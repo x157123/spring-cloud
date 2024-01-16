@@ -5,7 +5,14 @@ import io.swagger.annotations.ApiModelProperty;
 <#if mergeTables?? && (mergeTables?size > 0) >
     <#list mergeTables as mergeTable>
         <#if mergeTable.leftTable == mergeTable.maintain>
-import ${javaPath}.param.${mergeTable.rightTableClass}Param;
+import ${mergeTable.rightTablePath}.param.${mergeTable.rightTableClass}Param;
+        </#if>
+    </#list>
+</#if>
+<#if foreignKeys?? && (foreignKeys?size > 0) >
+    <#list foreignKeys as foreignKey>
+        <#if foreignKey.joinTableNameClass != nameClass>
+import ${foreignKey.packagePath}.param.${foreignKey.joinTableNameClass}Param;
         </#if>
     </#list>
 </#if>
@@ -28,7 +35,6 @@ import jakarta.validation.constraints.NotBlank;
     && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
         <#if col.required>
             <#if col.type != 'String'>
-
                 <#break>
             </#if>
         </#if>
@@ -106,6 +112,18 @@ public class ${nameClass}Param {
     @ApiModelProperty(value = "${comment}${mergeTable.comment}")
     private List<${mergeTable.rightTableClass}Param> ${mergeTable.rightTableClass? uncap_first}Params;
     </#if>
+    </#list>
+</#if>
+
+<#if foreignKeys?? && (foreignKeys?size > 0) >
+    <#list foreignKeys as foreignKey>
+        <#if foreignKey.joinTableNameClass != nameClass>
+    /**
+     * ${foreignKey.comment}
+     */
+    @ApiModelProperty(value = "${comment}${foreignKey.comment}")
+    private List<${foreignKey.joinTableNameClass}Param> ${foreignKey.joinTableNameClass? uncap_first}Params;
+        </#if>
     </#list>
 </#if>
 }

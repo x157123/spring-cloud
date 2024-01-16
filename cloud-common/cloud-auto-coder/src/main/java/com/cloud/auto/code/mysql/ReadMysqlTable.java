@@ -4,6 +4,7 @@ import com.cloud.auto.code.util.PackageUtil;
 import com.cloud.auto.code.util.StringUtil;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import org.springframework.util.CollectionUtils;
 
 import java.io.*;
 import java.sql.*;
@@ -21,7 +22,7 @@ public class ReadMysqlTable {
         boolean star = true;
 
         // 表前缀
-        List<String> prefix = Arrays.asList( "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
+        List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
         //模版路径
         String ftlPath;
 
@@ -38,8 +39,8 @@ public class ReadMysqlTable {
         if (zzkj) {
             config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.test", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
-            config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
-            config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\views\\test\\");
+            config.setJavaFilePath("D:\\work\\zzkj\\service\\mediation\\universe-platform\\");
+            config.setWebFilePath("D:\\work\\zzkj\\web\\mediation-web\\src\\views\\test\\");
             webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl"));
             ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
 
@@ -104,13 +105,14 @@ public class ReadMysqlTable {
 
             writer(writerTables, pom, ftlPath, config.getJavaFilePath() + config.getProjectName());
 
+            createMenus(writerTables, ftlPath, config);
             if (zzkj) {
                 //地方限制web页面
                 List<String> webTable = Arrays.asList("md_appeal");
                 writerTables = tables.stream().filter(table -> webTable.contains(table.getName())).toList();
             }
             // 生成前端页面
-            writer(writerTables, webList, ftlPath, config.getWebFilePath());
+//            writer(writerTables, webList, ftlPath, config.getWebFilePath());
 
 //            createPgSql(tables);
 
@@ -119,10 +121,9 @@ public class ReadMysqlTable {
     }
 
     /**
-     *
-     * @param tables    表信息
-     * @param keys      外键
-     * @param prefix    表前缀
+     * @param tables 表信息
+     * @param keys   外键
+     * @param prefix 表前缀
      */
     private static void setMerge(List<MysqlTable> tables, List<Keys> keys, List<String> prefix) {
         Map<String, MysqlTable> tableMap = tables.stream().collect(Collectors.toMap(MysqlTable::getName, table -> table));
@@ -147,6 +148,7 @@ public class ReadMysqlTable {
                     //当为主表时
                     a.getMergeTable().setMaintain(b.getName());
                     a.getMergeTable().setLeftTable(b.getName());
+                    a.getMergeTable().setLeftTablePath(b.getJavaPath());
                     a.getMergeTable().setLeftTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(b.getName(), prefix)));
                     a.getMergeTable().setLeftTableColumn(jo.getPkColumnName());
                     a.getMergeTable().setLeftTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(jo.getPkColumnName())));
@@ -158,6 +160,7 @@ public class ReadMysqlTable {
                     a.getMergeTable().setRightTableClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(b.getName(), prefix)));
                     a.getMergeTable().setRightTableColumn(jo.getPkColumnName());
                     a.getMergeTable().setRightTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(jo.getPkColumnName())));
+                    a.getMergeTable().setRightTablePath(b.getJavaPath());
                     a.getMergeTable().setRightMergeTableColumn(jo.getFkColumnName());
                     a.getMergeTable().setRightMergeTableColumnClass(StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(jo.getFkColumnName())));
                     b.setMergeTable(a.getMergeTable());
@@ -212,8 +215,18 @@ public class ReadMysqlTable {
         });
     }
 
-    private static void createMenus(List<MysqlTable> tables) {
+    private static void createMenus(List<MysqlTable> tables, String ftlPath, Config config) {
+        for (MysqlTable mysqlTable : tables) {
+            for (MysqlColumn mysqlColumn : mysqlTable.getColumn()) {
+                if (!CollectionUtils.isEmpty(mysqlColumn.getEnums()) && !"isDeleted".equals(mysqlColumn.getNameClass())) {
+                    mysqlTable.setEnumComment(mysqlColumn.getWebComment());
+                    mysqlTable.setTmpEnums(mysqlColumn.getEnums());
+                    mysqlTable.setEnumName(StringUtil.toUpperCaseFirstOne(mysqlColumn.getNameClass()));
+                    writer(Arrays.asList(mysqlTable), Arrays.asList("enums.java.ftl"), ftlPath, config.getJavaFilePath() + config.getProjectName() + "\\src\\main\\");
+                }
+            }
 
+        }
     }
 
     private static void createPgSql(List<MysqlTable> tables) {
@@ -374,6 +387,10 @@ public class ReadMysqlTable {
             case "param.java.ftl":
                 //保存到 xml+扩展包
                 saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getJavaPath(), "param")) + mysqlTable.getNameClass() + "Param.java";
+                break;
+            case "enums.java.ftl":
+                //保存到 xml+扩展包
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack("java", mysqlTable.getJavaPath(), "enums")) + mysqlTable.getEnumName() + "Enum.java";
                 break;
             case "service.java.ftl":
             case "serviceMerge.java.ftl":

@@ -66,6 +66,13 @@ public class MysqlTable {
 
     private Config config;
 
+    /**
+     * 临时数据
+     */
+    private String enumName;
+    private String enumComment;
+    private List<Enums> tmpEnums;
+
     public void setForeignKeys(List<MysqlForeignKey> foreignKeys) {
         if (foreignKeys != null && foreignKeys.size() > 0) {
             List<MysqlForeignKey> uniqueList = foreignKeys.stream().collect(
@@ -96,7 +103,7 @@ public class MysqlTable {
         this.column = new ArrayList<>();
     }
 
-    public MysqlTable(Config config){
+    public MysqlTable(Config config) {
         this.config = config;
     }
 }

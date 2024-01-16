@@ -18,7 +18,7 @@ import ${javaPath}.vo.${nameClass}Vo;
 <#if mergeTables?? && (mergeTables?size > 0) >
 <#list mergeTables as mergeTable>
 <#if mergeTable.leftTable == mergeTable.maintain>
-import ${javaPath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
+import ${mergeTable.rightTablePath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
     </#if>
     </#list>
     </#if>
@@ -45,8 +45,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.List;
-<#if foreignKeys?? && (foreignKeys?size > 0) >
-import java.util.Map;
+<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
 import java.util.stream.Collectors;
 </#if>
 
@@ -119,17 +118,23 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
         }else{
             ${nameClass? uncap_first}Mapper.insert(${nameClass? uncap_first});
         }
+        assert ${nameClass? uncap_first} != null;
+<#if foreignKeys?? && (foreignKeys?size > 0) >
+    <#list foreignKeys as foreignKey>
+        <#if foreignKey.joinTableNameClass != nameClass>
+        // 保存 ${foreignKey.comment}
+        ${foreignKey.joinTableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${foreignKey.joinTableNameClass? cap_first}Params(), Boolean.FALSE);
+        </#if>
+    </#list>
+</#if>
 <#if mergeTables?? && (mergeTables?size > 0) >
 <#list mergeTables as mergeTable>
 <#if mergeTable.leftTable == mergeTable.maintain>
-        if (${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params() != null && !${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params().isEmpty()) {
-            assert ${nameClass? uncap_first} != null;
-            ${mergeTable.tableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params());
-        }
+        // 保存 ${mergeTable.comment}
+        ${mergeTable.tableNameClass? uncap_first}Service.save(${nameClass? uncap_first}.getId(), ${nameClass? uncap_first}Param.get${mergeTable.rightTableClass? cap_first}Params());
     </#if>
 </#list>
 </#if>
-        assert ${nameClass? uncap_first} != null;
         return ${nameClass? uncap_first}.getId();
     }
 
@@ -143,14 +148,45 @@ public class ${nameClass}ServiceImpl extends ServiceImpl<${nameClass}Mapper, ${n
     @Override
     @Transactional
     public List<Long> save(List<${mergeTable.rightTableClass}Param> ${mergeTable.rightTableClass? uncap_first}Params){
+        if(CollectionUtils.isEmpty(${mergeTable.rightTableClass? uncap_first}Params)){
+            return new ArrayList<>();
+        }
         List<${mergeTable.rightTableClass}> ${mergeTable.rightTableClass? uncap_first}s = $.copy(${mergeTable.rightTableClass? uncap_first}Params,${mergeTable.rightTableClass}.class);
         List<Long> ids = new ArrayList<>();
         for(${mergeTable.rightTableClass} ${mergeTable.rightTableClass? uncap_first} : ${mergeTable.rightTableClass? uncap_first}s) {
-            this.save(${mergeTable.rightTableClass? uncap_first});
+            this.saveOrUpdate(${mergeTable.rightTableClass? uncap_first});
             ids.add(${mergeTable.rightTableClass? uncap_first}.getId());
         }
         return ids;
     }
+    </#if>
+
+    <#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
+    <#list mysqlJoinKeys as key>
+
+    /**
+    * 保存对象
+    *
+    * @param ${key.columnNameClass? uncap_first} ${key.columnNameClass? uncap_first}
+    * @param ${nameClass? uncap_first}Params ${nameClass? uncap_first}Params
+    * @param del 是否删除关联数据
+    * @return  返回保存成功
+    */
+    @Override
+    @Transactional
+    public Boolean save(Long ${key.columnNameClass? uncap_first}, List<${nameClass? cap_first}Param> ${nameClass? uncap_first}Params, boolean del){
+        if(!CollectionUtils.isEmpty(${nameClass? uncap_first}Params)){
+            List<${nameClass}> ${nameClass? uncap_first}s = $.copy(${nameClass? uncap_first}Params,${nameClass}.class);
+            ${nameClass? uncap_first}s.forEach(t->t.set${key.columnNameClass? cap_first}(${key.columnNameClass? uncap_first}));
+            if(del) {
+            List<Long> ids = ${nameClass? uncap_first}s.stream().map(t -> t.getId()).collect(Collectors.toList());
+                this.remove(new LambdaQueryWrapper<${nameClass}>().notIn(${nameClass}::getId, ids));
+            }
+            this.saveOrUpdateBatch(${nameClass? uncap_first}s);
+        }
+        return Boolean.TRUE;
+    }
+    </#list>
     </#if>
 
     /**

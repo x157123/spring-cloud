@@ -19,7 +19,7 @@ public class Enums {
         this.key = key;
         this.value = value;
         this.name = name;
-        Set<String> st = StringUtil.getAllPinyin(name);
+        Set<String> st = StringUtil.getAllPinyin(name, "_");
         Iterator<String> iterator = st.iterator();
         if (iterator.hasNext()) {
             String firstElement = iterator.next();

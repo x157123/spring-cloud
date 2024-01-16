@@ -1,6 +1,13 @@
 package ${javaPath}.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+<#if column?? && (column?size > 0) >
+    <#list column as col>
+        <#if col.nameClass != "isDeleted" && col.enums?? && (col.enums?size > 0)>
+import ${javaPath}.enums.${col.nameClass? cap_first}Enum;
+        </#if>
+    </#list>
+</#if>
 import ${javaPath}.param.${nameClass}Param;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.service.${nameClass}Service;
@@ -17,6 +24,14 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+<#if column?? && (column?size > 0) >
+    <#list column as col>
+        <#if col.nameClass != "isDeleted" && col.enums?? && (col.enums?size > 0)>
+import java.util.Map;
+        <#break>
+        </#if>
+    </#list>
+</#if>
 
 /**
  * @author liulei
@@ -127,14 +142,34 @@ public class ${nameClass}Controller {
         return Result.data(${nameClass? uncap_first}Service.removeByIds(ids));
     }
 
+<#if column?? && (column?size > 0) >
+<#list column as col>
+<#if col.nameClass != "isDeleted" && col.enums?? && (col.enums?size > 0)>
+    /**
+    * 数据来源类型
+    * @return
+    */
+    @Log(value = "${col.webComment}枚举类型", exception = "${col.webComment}枚举类型")
+    @GetMapping(value = "/get${col.nameClass? cap_first}Enum")
+    @ApiOperation(value = "获取${col.webComment}枚举类型", notes = "${comment}")
+    public Result<List<Map<String, Object>>> get${col.nameClass? cap_first}Enum(){
+        List<Map<String, Object>> ${col.nameClass}Enums = ${col.nameClass? cap_first}Enum.getList();
+        return Result.data(${col.nameClass}Enums);
+    }
+
+</#if>
+</#list>
+</#if>
+
+
     /**
      * 数据分页查询
      *
      * @param ${nameClass? uncap_first}Query  分页查询条件
      * @return  返回分页结果
      */
-     @PreAuth
-     @Log(value = "${comment}分页查询数据", exception = "${comment}分页查询数据异常")
+    @PreAuth
+    @Log(value = "${comment}分页查询数据", exception = "${comment}分页查询数据异常")
     @PostMapping(value = "/queryPage")
     @ApiOperation(value = "数据分页查询", notes = "${comment}")
     public Result<IPage<${nameClass}Vo>> queryPage(${nameClass}Query ${nameClass? uncap_first}Query) {

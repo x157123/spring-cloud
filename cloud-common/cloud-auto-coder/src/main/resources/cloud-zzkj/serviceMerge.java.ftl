@@ -1,8 +1,8 @@
 package ${javaPath}.service;
 
 import java.util.*;
-import ${javaPath}.param.${mergeTable.rightTableClass? cap_first}Param;
-import ${javaPath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
+import ${mergeTable.rightTablePath}.param.${mergeTable.rightTableClass? cap_first}Param;
+import ${mergeTable.rightTablePath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
 
 /**
  * @author liulei

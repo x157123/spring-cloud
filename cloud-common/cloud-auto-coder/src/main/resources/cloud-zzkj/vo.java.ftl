@@ -28,7 +28,7 @@ import ${foreignKey.packagePath}.vo.${foreignKey.joinTableNameClass}Vo;
 </#if>
 <#if mergeTables?? && (mergeTables?size > 0) >
     <#list mergeTables as mergeTable>
-import ${mergeTable.packagePath}.vo.${mergeTable.rightTableClass}Vo;
+import ${mergeTable.rightTablePath}.vo.${mergeTable.rightTableClass}Vo;
     </#list>
 </#if>
 

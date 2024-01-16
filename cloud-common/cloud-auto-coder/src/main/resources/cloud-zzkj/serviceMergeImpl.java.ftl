@@ -2,11 +2,11 @@ package ${javaPath}.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import ${javaPath}.entity.${nameClass};
-import ${javaPath}.param.${mergeTable.rightTableClass? cap_first}Param;
-import ${javaPath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
+import ${mergeTable.rightTablePath}.param.${mergeTable.rightTableClass? cap_first}Param;
+import ${mergeTable.rightTablePath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
 import ${javaPath}.mapper.${nameClass}Mapper;
 import ${javaPath}.service.${nameClass}Service;
-import ${javaPath}.service.${mergeTable.rightTableClass? cap_first}Service;
+import ${mergeTable.rightTablePath}.service.${mergeTable.rightTableClass? cap_first}Service;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -40,7 +40,7 @@ public class ${nameClass}ServiceImpl implements ${nameClass}Service {
     /**
      * 保存对象
      *
-     * @param ${mergeTable.leftMergeTableColumnClass? uncap_first}   ${mergeTable.leftMergeTableColumnClass? uncap_first}
+     * @param ${mergeTable.leftMergeTableColumnClass? uncap_first} ${mergeTable.leftMergeTableColumnClass? uncap_first}
      * @param ${mergeTable.rightTableClass? uncap_first}Params ${mergeTable.rightTableClass? uncap_first}Params
      * @return 返回保存成功状态
      */

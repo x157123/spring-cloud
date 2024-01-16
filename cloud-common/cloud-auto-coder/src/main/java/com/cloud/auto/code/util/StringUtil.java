@@ -203,7 +203,7 @@ public class StringUtil {
      * @param chineseStr
      * @return
      */
-    public static Set<String> getAllPinyin(String chineseStr) {
+    public static Set<String> getAllPinyin(String chineseStr, String append) {
         //输出格式设置
         HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
         /**
@@ -246,7 +246,7 @@ public class StringUtil {
                         Set<String> term = new HashSet<>();
                         for (String a1 : nameSet) {
                             for (String a2 : pys) {
-                                term.add(a1 + a2);
+                                term.add(a1 + append + a2);
                             }
                         }
                         nameSet = term;

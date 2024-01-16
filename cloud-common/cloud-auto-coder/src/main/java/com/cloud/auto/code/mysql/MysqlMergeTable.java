@@ -8,7 +8,7 @@ import lombok.Data;
  */
 @Data
 public class MysqlMergeTable {
-    
+
     /**
      * 主要维护关联表
      */
@@ -39,6 +39,7 @@ public class MysqlMergeTable {
      */
     private String leftTable;
     private String leftTableClass;
+    private String leftTablePath;
 
     /**
      * 关联列
@@ -64,6 +65,7 @@ public class MysqlMergeTable {
      */
     private String rightTable;
     private String rightTableColumn;
+    private String rightTablePath;
 
     /**
      * 关联表

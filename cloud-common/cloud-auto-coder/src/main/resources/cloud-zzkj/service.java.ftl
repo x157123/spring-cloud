@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import ${javaPath}.entity.${nameClass};
 import ${javaPath}.param.${nameClass}Param;
 <#if mergeTable?? >
-import ${javaPath}.param.${mergeTable.rightTableClass? cap_first}Param;
+import ${mergeTable.rightTablePath}.param.${mergeTable.rightTableClass? cap_first}Param;
 </#if>
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.vo.${nameClass}Vo;
@@ -30,10 +30,24 @@ public interface ${nameClass}Service extends IService<${nameClass}> {
     /**
      * 保存对象
      *
-     * @param ${mergeTable.rightTableClass? uncap_first}Params ${mergeTable.rightTableClass? uncap_first}Params
+     * @param ${nameClass? uncap_first}Params ${nameClass? uncap_first}Params
      * @return  返回保存成功id
      */
-    List<Long> save(List<${mergeTable.rightTableClass}Param> ${mergeTable.rightTableClass? uncap_first}Params);
+    List<Long> save(List<${nameClass}Param> ${nameClass? uncap_first}Params);
+</#if>
+<#if mysqlJoinKeys?? && (mysqlJoinKeys?size > 0) >
+<#list mysqlJoinKeys as key>
+
+    /**
+     * 保存对象
+     *
+     * @param ${key.columnNameClass? cap_first} ${key.columnNameClass? cap_first}
+     * @param ${nameClass? uncap_first}Params ${nameClass? uncap_first}Params
+     * @param del 是否删除关联数据
+     * @return  返回保存成功id
+     */
+    Boolean save(Long ${key.columnNameClass? cap_first}, List<${nameClass? cap_first}Param> ${nameClass? uncap_first}Params, boolean del);
+    </#list>
 </#if>
 
     /**
