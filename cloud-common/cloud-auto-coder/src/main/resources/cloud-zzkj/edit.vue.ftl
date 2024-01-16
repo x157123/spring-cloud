@@ -48,15 +48,7 @@
         <#if foreignKey.joinTableNameClass != nameClass>
           add${foreignKey.joinTableNameClass},
     <!-- ${foreignKey.comment} -->
-    <add${foreignKey.joinTableNameClass? uncap_first} ref="add${foreignKey.joinTableNameClass? uncap_first}Ref" v-if="add${foreignKey.joinTableNameClass? uncap_first}Visible" @confirm="handleAdd${foreignKey.joinTableNameClass? uncap_first}" @handleCancel="handleAdd${foreignKey.joinTableNameClass? uncap_first}Cancel" />
-        </#if>
-      </#list>
-    </#if>
-    <#if mergeTables?? && (mergeTables?size > 0) >
-      <#list mergeTables as mergeTable>
-        <#if mergeTable.leftTable == mergeTable.maintain>
-    <!-- ${mergeTable.comment} -->
-    <add${mergeTable.tableNameClass? uncap_first} ref="add${mergeTable.tableNameClass? uncap_first}Ref" v-if="add${mergeTable.tableNameClass? uncap_first}Visible" @confirm="handleAdd${mergeTable.tableNameClass? uncap_first}" @handleCancel="handleAdd${mergeTable.tableNameClass? uncap_first}Cancel" />
+    <add${foreignKey.joinTableNameClass? cap_first} ref="add${foreignKey.joinTableNameClass? uncap_first}Ref" v-if="add${foreignKey.joinTableNameClass? uncap_first}Visible" @confirm="handleAdd${foreignKey.joinTableNameClass? uncap_first}" @handleCancel="handleAdd${foreignKey.joinTableNameClass? uncap_first}Cancel" />
         </#if>
       </#list>
     </#if>
@@ -74,22 +66,15 @@ import { baseURL } from '@/config/net.config';
 <#list foreignKeys as foreignKey>
 <#if foreignKey.joinTableNameClass != nameClass>
 // ${foreignKey.comment}
-import add${foreignKey.joinTableNameClass? uncap_first} from '@/${web}/${foreignKey.joinTableNameClass}/${foreignKey.joinTableNameClass}Attributes.vue';
+import add${foreignKey.joinTableNameClass? cap_first} from '@/${web}/${foreignKey.joinTableNameClass? cap_first}/${foreignKey.joinTableNameClass? cap_first}Attributes.vue';
 </#if>
 </#list>
 </#if>
-<#if mergeTables?? && (mergeTables?size > 0) >
-<#list mergeTables as mergeTable>
-<#if mergeTable.leftTable == mergeTable.maintain>
-// ${mergeTable.comment}
-import add${mergeTable.tableNameClass? uncap_first} from '@/${web}/${mergeTable.tableNameClass? uncap_first}/${mergeTable.tableNameClass? uncap_first}Attributes.vue';
-</#if>
-</#list>
-</#if>
+
 // 接口
 import {
   appealInfoFull, appealInfoAdd, appealInfoUpdate,
-} from '@/api/modular/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
+} from '@/${web}/api/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
 import moment from 'moment';
 let that = null;
 export default {
@@ -99,14 +84,7 @@ export default {
     <#if foreignKeys?? && (foreignKeys?size > 0) >
     <#list foreignKeys as foreignKey>
     <#if foreignKey.joinTableNameClass != nameClass>
-    add${foreignKey.joinTableNameClass? uncap_first},
-    </#if>
-    </#list>
-    </#if>
-    <#if mergeTables?? && (mergeTables?size > 0) >
-    <#list mergeTables as mergeTable>
-    <#if mergeTable.leftTable == mergeTable.maintain>
-    add${mergeTable.tableNameClass? uncap_first},
+    add${foreignKey.joinTableNameClass? cap_first},
     </#if>
     </#list>
     </#if>
