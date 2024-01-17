@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 </#if>
 <#list column as col>
-    <#if col.type=='Date'>
+    <#if col.type=='Date' || col.type == 'java.util.Date'>
 
 import java.time.LocalDateTime;
         <#break>
@@ -37,7 +37,7 @@ public class ${nameClass}Query extends Search {
      * ${col.comment}
      */
     @ApiModelProperty(value = "${comment}${col.comment}")
-    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
+    private <#if col.type=='Date' || col.type == 'java.util.Date'>LocalDateTime<#else>${col.type}</#if> ${col.nameClass? uncap_first};
     </#if>
     </#list>
 </#if>

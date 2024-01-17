@@ -74,9 +74,9 @@ public class ${nameClass}Controller {
      */
     @PreAuth
     @Log(value = "${comment}Id查询数据", exception = "${comment}Id查询数据异常")
-    @GetMapping(value = "/findById")
+    @GetMapping(value = "/findById/{id}")
     @ApiOperation(value = "通过Id查询数据", notes = "${comment}")
-    public Result<${nameClass}Vo> findById(Long id) {
+    public Result<${nameClass}Vo> findById(@PathVariable Long id) {
         return Result.data(${nameClass? uncap_first}Service.findById(id));
     }
 

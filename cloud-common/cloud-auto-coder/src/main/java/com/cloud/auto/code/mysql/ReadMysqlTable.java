@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ReadMysqlTable {
 
-    static boolean pc = true;
+    static boolean pc = false;
     static boolean zzkj = true;
 
     public static void main(String[] args) throws SQLException {
@@ -32,15 +32,18 @@ public class ReadMysqlTable {
         List<String> configs = new ArrayList<>();
         List<String> webList = new ArrayList<>();
 
-
         if (!star) {
             return;
         }
         if (zzkj) {
             config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.test", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
-            config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
-            config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\");
+            config.setJavaFilePath("D:\\work\\zzkj\\service\\mediation\\universe-platform\\");
+            config.setWebFilePath("D:\\work\\zzkj\\web\\mediation-web\\src\\");
+            if (pc) {
+                config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
+                config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\");
+            }
             config.setWebPackagePath("views.test");
             webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl", "attributes.vue.ftl", "dynamicForm.vue.ftl"));
             ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
@@ -468,7 +471,7 @@ public class ReadMysqlTable {
                 break;
             case "dynamicForm.vue.ftl":
                 //保存到 web
-                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getConfig().getWebPackagePath(), "form")) + StringUtil.toUpperCaseFirstOne(ftlPath.replace(".ftl", ""));
+                saveFilePath = savePath + PackageUtil.packToFilePath(PackageUtil.mergePack(mysqlTable.getConfig().getWebPackagePath(), "form")) + StringUtil.toLowerCaseFirstOne(ftlPath.replace(".ftl", ""));
                 break;
 
 

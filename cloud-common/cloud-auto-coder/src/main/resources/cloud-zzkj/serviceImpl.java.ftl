@@ -19,9 +19,9 @@ import ${javaPath}.vo.${nameClass}Vo;
 <#list mergeTables as mergeTable>
 <#if mergeTable.leftTable == mergeTable.maintain>
 import ${mergeTable.rightTablePath}.vo.${mergeTable.rightTableClass? cap_first}Vo;
-    </#if>
-    </#list>
-    </#if>
+</#if>
+</#list>
+</#if>
 import ${javaPath}.mapper.${nameClass}Mapper;
 import ${javaPath}.query.${nameClass}Query;
 import ${javaPath}.service.${nameClass}Service;

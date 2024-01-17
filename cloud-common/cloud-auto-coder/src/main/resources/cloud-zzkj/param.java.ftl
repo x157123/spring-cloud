@@ -56,7 +56,7 @@ import org.hibernate.validator.constraints.Length;
     <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
     && col.nameClass != "createDate" && col.nameClass != "updateDate"
     && col.nameClass != "isDelete" && col.nameClass != "isDeleted">
-    <#if col.type=='Date'>
+    <#if col.type=='Date' || col.type == 'java.util.Date'>
 import java.time.LocalDateTime;
         <#break>
     </#if>
@@ -98,7 +98,7 @@ public class ${nameClass}Param {
     </#if>
 </#if>
     @ApiModelProperty(value = "${col.comment}"<#if col.required && col.nameClass != "id">, requiredMode = Schema.RequiredMode.REQUIRED</#if><#if col.type == 'NUMBER' || col.type == 'int' || col.type == 'bigint'></#if>)
-    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
+    private <#if col.type=='Date' || col.type == 'java.util.Date'>LocalDateTime<#else>${col.type}</#if> ${col.nameClass? uncap_first};
     </#if>
     </#list>
 </#if>

@@ -69,7 +69,7 @@ import {
   ${nameClass? uncap_first}InfoDelete,
   ${nameClass? uncap_first}InfoAdd,
   ${nameClass? uncap_first}InfoUpdate,
-} from '@/api/modular/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
+} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
 // 表单信息
 const columns = [
   <#if column?? && (column?size > 0) >
@@ -78,7 +78,7 @@ const columns = [
   && col.nameClass != "createDate" && col.nameClass != "updateDate"
   && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
   && col.nameClass != "createBy" && col.nameClass != "updateBy"
-  && col.nameClass != "version"
+  && col.nameClass != "version" && col.nameClass != "id"
   && col.nameClass != "createTime" && col.nameClass != "updateTime">
   {
     title: '${col.webComment}',

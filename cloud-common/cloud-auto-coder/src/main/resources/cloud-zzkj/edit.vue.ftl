@@ -1,31 +1,61 @@
 <template>
   <div>
-    <!-- 矛盾纠纷编辑弹窗 -->
+    <!-- ${comment}编辑弹窗 -->
     <a-modal :title="title" :width="1200" :visible="visible" @cancel="handleEditCancel" destroyOnClose class="modal-box">
       <dynamic-form :formFields="formFields" :formRules="formRules" ref="formRef" layout="inline" :btnText="'上传附件'"
         :moduleType="'mediationDisputeType'" :echoData="detailInfoData" :handleType="handleType" :detailId="detailId">
       </dynamic-form>
+<#if foreignKeys?? && (foreignKeys?size > 0) >
+<#list foreignKeys as foreignKey>
+<#if foreignKey.joinTableNameClass != nameClass>
       <a-row type="flex" justify="space-between" class="edit-tit">
         <a-col flex="auto">
           <h3>
-            <span style="color: red">*</span>
-            当事人列表
+            ${foreignKey.comment}
           </h3>
         </a-col>
         <a-col flex="30px">
-          <a-icon type="plus-circle" theme="filled" style="color: #4d7bdf;font-size: 22px;" @click="handleAddPeople" />
+          <a-icon type="plus-circle" theme="filled" style="color: #4d7bdf;font-size: 22px;" @click="handleAdd${foreignKey.joinTableNameClass? cap_first}" />
         </a-col>
       </a-row>
-      <a-table ref="tablePeopleRef" :columns="partiesColumns" :data-source="partiesList" :scroll="{ x: 'calc(600px + 50%)', y: 600 }" bordered :pagination="false">
+      <a-table ref="table${foreignKey.joinTableNameClass? cap_first}Ref" :columns="${foreignKey.joinTableNameClass? uncap_first}Columns" :data-source="${foreignKey.joinTableNameClass? uncap_first}List" :scroll="{ x: 'calc(600px + 50%)', y: 600 }" bordered :pagination="false">
         <a slot="name" slot-scope="text">{{ text }}</a>
         <a slot="actions" slot-scope="text,record,index">
-          <a-popconfirm title="是否删除?" @confirm="() => deleteOne(index)">
+          <a-popconfirm title="是否删除?" @confirm="() => delete${foreignKey.joinTableNameClass? cap_first}(index)">
             <a class="ml10">删除</a>
           </a-popconfirm>
-          <a class="ml10" @click="handleEditPeople(record)">编辑</a>
+          <a class="ml10" @click="handleEdit${foreignKey.joinTableNameClass? cap_first}(record)">编辑</a>
         </a>
       </a-table>
-      <slot></slot>
+</#if>
+</#list>
+</#if>
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+      <a-row type="flex" justify="space-between" class="edit-tit">
+        <a-col flex="auto">
+          <h3>
+            ${mergeTable.mysqlTable.comment}
+          </h3>
+        </a-col>
+        <a-col flex="30px">
+          <a-icon type="plus-circle" theme="filled" style="color: #4d7bdf;font-size: 22px;" @click="handleAdd${mergeTable.mysqlTable.nameClass? cap_first}" />
+        </a-col>
+      </a-row>
+      <a-table ref="table${mergeTable.mysqlTable.nameClass? cap_first}Ref" :columns="${mergeTable.mysqlTable.nameClass? uncap_first}Columns" :data-source="${mergeTable.mysqlTable.nameClass? uncap_first}List" :scroll="{ x: 'calc(600px + 50%)', y: 600 }" bordered :pagination="false">
+        <a slot="name" slot-scope="text">{{ text }}</a>
+        <a slot="actions" slot-scope="text,record,index">
+          <a-popconfirm title="是否删除?" @confirm="() => delete${mergeTable.mysqlTable.nameClass? cap_first}(index)">
+            <a class="ml10">删除</a>
+          </a-popconfirm>
+          <a class="ml10" @click="handleEdit${mergeTable.mysqlTable.nameClass? cap_first}(record)">编辑</a>
+        </a>
+      </a-table>
+</#if>
+</#list>
+</#if>
+      <slot/>
       <template slot="footer">
         <a-form-model-item label="附件信息" :label-col="{ span: 3 }" :wrapper-col="{ span: 16 }" class="upload-box">
           <a-upload name="file" :multiple="true" :action="uploadUrl" :headers="headers" @change="changeFile"
@@ -46,14 +76,19 @@
     <#if foreignKeys?? && (foreignKeys?size > 0) >
       <#list foreignKeys as foreignKey>
         <#if foreignKey.joinTableNameClass != nameClass>
-          add${foreignKey.joinTableNameClass},
     <!-- ${foreignKey.comment} -->
-    <add${foreignKey.joinTableNameClass? cap_first} ref="add${foreignKey.joinTableNameClass? uncap_first}Ref" v-if="add${foreignKey.joinTableNameClass? uncap_first}Visible" @confirm="handleAdd${foreignKey.joinTableNameClass? uncap_first}" @handleCancel="handleAdd${foreignKey.joinTableNameClass? uncap_first}Cancel" />
+    <add${foreignKey.joinTableNameClass? cap_first} ref="add${foreignKey.joinTableNameClass? cap_first}Ref" v-if="add${foreignKey.joinTableNameClass? cap_first}Visible" @confirm="handleAdd${foreignKey.joinTableNameClass? cap_first}Confirm" @handleCancel="handleAdd${foreignKey.joinTableNameClass? cap_first}Cancel" />
         </#if>
       </#list>
     </#if>
-    <!-- 添加当事人弹框 -->
-    <!-- <addProtyPop ref="addPartyPopupRef" v-if="addPartyVisible" @confirm="handleAddParty" @handleCancel="handleAddPartyCancel" />  -->
+    <#if mergeTables?? && (mergeTables?size > 0) >
+      <#list mergeTables as mergeTable>
+        <#if mergeTable.leftTable == mergeTable.maintain>
+    <!-- ${mergeTable.mysqlTable.comment} -->
+    <add${mergeTable.mysqlTable.nameClass? cap_first} ref="add${mergeTable.mysqlTable.nameClass? cap_first}Ref" v-if="add${mergeTable.mysqlTable.nameClass? cap_first}Visible" @confirm="handleAdd${mergeTable.mysqlTable.nameClass? cap_first}Confirm" @handleCancel="handleAdd${mergeTable.mysqlTable.nameClass? cap_first}Cancel" />
+        </#if>
+      </#list>
+    </#if>
   </div>
 </template>
 
@@ -66,15 +101,23 @@ import { baseURL } from '@/config/net.config';
 <#list foreignKeys as foreignKey>
 <#if foreignKey.joinTableNameClass != nameClass>
 // ${foreignKey.comment}
-import add${foreignKey.joinTableNameClass? cap_first} from '@/${web}/${foreignKey.joinTableNameClass? cap_first}/${foreignKey.joinTableNameClass? cap_first}Attributes.vue';
+import add${foreignKey.joinTableNameClass? cap_first} from '@/${web}${foreignKey.mysqlTable.webExpandPackage}/${foreignKey.joinTableNameClass? uncap_first}/${foreignKey.joinTableNameClass? uncap_first}Attributes';
+</#if>
+</#list>
+</#if>
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+// ${mergeTable.mysqlTable.comment}
+import add${mergeTable.mysqlTable.nameClass? cap_first} from '@/${web}${mergeTable.mysqlTable.webExpandPackage}/${mergeTable.mysqlTable.nameClass? cap_first? uncap_first}/${mergeTable.mysqlTable.nameClass? cap_first? uncap_first}Attributes';
 </#if>
 </#list>
 </#if>
 
 // 接口
 import {
-  appealInfoFull, appealInfoAdd, appealInfoUpdate,
-} from '@/${web}/api/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
+  ${nameClass? uncap_first}InfoFull, ${nameClass? uncap_first}InfoAdd, ${nameClass? uncap_first}InfoUpdate,
+} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
 import moment from 'moment';
 let that = null;
 export default {
@@ -85,6 +128,13 @@ export default {
     <#list foreignKeys as foreignKey>
     <#if foreignKey.joinTableNameClass != nameClass>
     add${foreignKey.joinTableNameClass? cap_first},
+    </#if>
+    </#list>
+    </#if>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+    <#if mergeTable.leftTable == mergeTable.maintain>
+    add${mergeTable.mysqlTable.nameClass? cap_first},
     </#if>
     </#list>
     </#if>
@@ -133,7 +183,6 @@ export default {
         xs: { span: 24 },
         sm: { span: 16 },
       },
-      mediation: {},
       demands: [
         {
           demand: '',
@@ -147,42 +196,32 @@ export default {
       },
       uploadUrl: `<#noparse>${baseURL}</#noparse>/system/oss/upload`,
       fileList: [],
-      fileDeletedIds: [],
-      confirmLoading: false,
-      // 当事人表头
-      partiesColumns: [
+      btnLoading: false, // 确认按钮loading
+      <#if foreignKeys?? && (foreignKeys?size > 0) >
+      <#list foreignKeys as foreignKey>
+      <#if foreignKey.joinTableNameClass != nameClass>
+      add${foreignKey.joinTableNameClass? cap_first},
+      // ${foreignKey.comment}列表
+      ${foreignKey.joinTableNameClass? uncap_first}List: [],
+      // 添加${foreignKey.comment}弹框
+      add${foreignKey.joinTableNameClass? cap_first}Visible: false,
+      // ${foreignKey.comment}表头
+      ${foreignKey.joinTableNameClass? uncap_first}Columns: [
+        <#list foreignKey.mysqlTable.column as col>
+        <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+    && col.nameClass != "createDate" && col.nameClass != "updateDate"
+    && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+    && col.nameClass != "createBy" && col.nameClass != "updateBy"
+    && col.nameClass != "version" && col.nameClass != "id"
+    && col.nameClass != "createTime" && col.nameClass != "updateTime">
         {
-          key: 'name',
-          title: '姓名',
-          dataIndex: 'name',
+          key: '${col.nameClass}',
+          title: '${col.webComment}',
+          dataIndex: '${col.nameClass}',
           width: 120,
         },
-        {
-          key: 'idCardNo',
-          title: '身份证号码',
-          dataIndex: 'idCardNo',
-          width: 200,
-        },
-        {
-          key: 'phone',
-          title: '联系电话',
-          dataIndex: 'phone',
-          width: 200,
-        },
-        {
-          key: 'address',
-          title: '户籍地址',
-          ellipsis: true,
-          dataIndex: 'address',
-          width: 240,
-        },
-        {
-          key: 'permanentAddress',
-          title: '常住地址',
-          ellipsis: true,
-          dataIndex: 'permanentAddress',
-          width: 240,
-        },
+        </#if>
+        </#list>
         {
           key: 'actions',
           title: '操作',
@@ -192,16 +231,48 @@ export default {
           scopedSlots: { customRender: 'actions' },
         },
       ],
-      // 当事人列表
-      partiesList: [],
-      addPartyVisible: false, // 添加当事人弹框
-      btnLoading: false, // 确认按钮loading
+      </#if>
+      </#list>
+      </#if>
+      <#if mergeTables?? && (mergeTables?size > 0) >
+      <#list mergeTables as mergeTable>
+      <#if mergeTable.leftTable == mergeTable.maintain>
+      // ${mergeTable.mysqlTable.comment}列表
+      ${mergeTable.mysqlTable.nameClass? uncap_first}List: [],
+      // 添加${mergeTable.mysqlTable.comment}弹框
+      add${mergeTable.mysqlTable.nameClass? cap_first}Visible: false,
+      // ${mergeTable.mysqlTable.comment}表头
+      ${mergeTable.mysqlTable.nameClass? uncap_first}Columns: [
+        <#list mergeTable.mysqlTable.column as col>
+        <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+    && col.nameClass != "createDate" && col.nameClass != "updateDate"
+    && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+    && col.nameClass != "createBy" && col.nameClass != "updateBy"
+    && col.nameClass != "version" && col.nameClass != "id"
+    && col.nameClass != "createTime" && col.nameClass != "updateTime">
+        {
+          key: '${col.nameClass}',
+          title: '${col.webComment}',
+          dataIndex: '${col.nameClass}',
+          width: 120,
+        },
+              </#if>
+        </#list>
+        {
+          key: 'actions',
+          title: '操作',
+          fixed: 'right',
+          dataIndex: 'actions',
+          width: 160,
+          scopedSlots: { customRender: 'actions' },
+        },
+      ],
+      </#if>
+      </#list>
+      </#if>
     };
   },
   methods: {
-    deleteOne(index) {
-      this.partiesList.splice(index, 1);
-    },
     // 附件信息
     changeFile(info) {
       this.fileList = info.fileList;
@@ -229,7 +300,6 @@ export default {
     removeFile(file) {
       let i = this.fileList.findIndex(it => it.uid === file.uid);
       // 删除附件id数组
-      this.fileDeletedIds.push(file.uid);
       if (i === -1) return;
       this.fileList.splice(i, 1);
     },
@@ -238,68 +308,38 @@ export default {
       this.$refs.formRef
         .validateForm()
         .then((formData) => {
-          // 表单校验通过，可以进行提交操作
-          if (!this.partiesList || !this.partiesList.length) {
-            this.$message.warning({
-              content: '请添加当事人列表！',
-              key: 1,
-            });
-            return false;
-          }
           this.btnLoading = true;
-          // 新增
-          if (this.handleType === 1) {
-            let params = {
-              ...formData,
-              source: formData.source, // 数据来源（0：研判会商，1：新增）
-              persons: this.partiesList,
-              occurTime: moment(formData.occurTime).format('YYYY-MM-DD HH:mm:ss'),
-              demands: this.demands,
-              files: this.fileList,
-            };
-            appealInfoAdd(params).then((res) => {
-              if (res.success) {
-                this.$message.success(res.msg);
-                this.fileList = [];
-                this.partiesList = [];
-                this.demands = [
-                  {
-                    demand: '',
-                    id: Date.now(),
-                  },
-                ];
-                this.handleEditCancel();
-                this.$emit('editOk');
-              } else {
-                this.$message.error(res.msg);
-              }
-            }).finally(() => {
-              this.btnLoading = false;
-            });
-          } else {
-            // 编辑提交
-            let params = {
-              ...formData,
-              id: this.detailId,
-              persons: this.partiesList,
-              occurTime: moment(formData.occurTime).format('YYYY-MM-DD HH:mm:ss'),
-              demands: this.demands,
-              files: this.fileList,
-              demandDeletedIds: this.demandDeletedIds,
-              fileDeletedIds: this.fileDeletedIds,
-            };
-            appealInfoUpdate(params).then((res) => {
-              if (res.success) {
-                this.$message.success(res.msg);
-                this.handleEditCancel();
-                this.$emit('editOk');
-              } else {
-                this.$message.error(res.msg);
-              }
-            }).finally(() => {
-              this.btnLoading = false;
-            });
-          }
+          let params = {
+            ...formData,
+            <#if foreignKeys?? && (foreignKeys?size > 0) >
+            <#list foreignKeys as foreignKey>
+            <#if foreignKey.joinTableNameClass != nameClass>
+            ${foreignKey.joinTableNameClass? uncap_first}Params: this.${foreignKey.joinTableNameClass? uncap_first}List,
+            </#if>
+            </#list>
+            </#if>
+            <#if mergeTables?? && (mergeTables?size > 0) >
+            <#list mergeTables as mergeTable>
+            <#if mergeTable.leftTable == mergeTable.maintain>
+            ${mergeTable.mysqlTable.nameClass? uncap_first}Params: this.${mergeTable.mysqlTable.nameClass? uncap_first}List,
+            </#if>
+            </#list>
+            </#if>
+            files: this.fileList,
+          };
+          params.id = this.detailId;
+          // 新增修改
+          ${nameClass? uncap_first}InfoUpdate(params).then((res) => {
+            if (res.success) {
+              this.$message.success(res.msg);
+              this.handleEditCancel();
+              this.$emit('editOk');
+            } else {
+              this.$message.error(res.msg);
+            }
+          }).finally(() => {
+            this.btnLoading = false;
+          });
         })
         .catch((error) => {
           this.btnLoading = false;
@@ -316,7 +356,22 @@ export default {
           id: Date.now(),
         },
       ];
-      this.partiesList = [];
+      <#if foreignKeys?? && (foreignKeys?size > 0) >
+      <#list foreignKeys as foreignKey>
+      <#if foreignKey.joinTableNameClass != nameClass>
+      // ${foreignKey.comment}列表
+      this.${foreignKey.joinTableNameClass? uncap_first}List = [];
+      </#if>
+      </#list>
+      </#if>
+      <#if mergeTables?? && (mergeTables?size > 0) >
+      <#list mergeTables as mergeTable>
+      <#if mergeTable.leftTable == mergeTable.maintain>
+      // ${mergeTable.mysqlTable.comment}列表
+      this.${mergeTable.mysqlTable.nameClass? uncap_first}List = [];
+      </#if>
+      </#list>
+      </#if>
       this.fileList = [];
       this.$refs.formRef.resetForm();
     },
@@ -324,40 +379,28 @@ export default {
       return that.$refs.formRef
         .validateForm();
     },
-    // 添加主要诉求
-    handleAddDemand() {
-      this.demands.push({
-        demand: '',
-        id: Date.now(),
-      });
-    },
-    // 移除主要诉求
-    removeDomain(item) {
-      let index = this.demands.indexOf(item);
-      if (index !== -1) {
-        this.demands.splice(index, 1);
-      }
-      if (this.detailId) {
-        this.demandDeletedIds.push(item.id);
-      }
-    },
+    <#if foreignKeys?? && (foreignKeys?size > 0) >
+    <#list foreignKeys as foreignKey>
+    <#if foreignKey.joinTableNameClass != nameClass>
+    // -------------------------------------------------------------添加${foreignKey.comment}开始------------------------------------------
     // 打开添加当事人列表弹框
-    handleAddPeople() {
-      this.addPartyVisible = true;
+    handleAdd${foreignKey.joinTableNameClass? cap_first}() {
+      this.add${foreignKey.joinTableNameClass? cap_first}Visible = true;
       this.$nextTick().then(() => {
-        this.$refs.addPartyPopupRef.initData();
+        this.$refs.add${foreignKey.joinTableNameClass? cap_first}Ref.initData();
       });
     },
-    handleEditPeople(record) {
-      this.addPartyVisible = true;
+    // 编辑
+    handleEdit${foreignKey.joinTableNameClass? cap_first}(record) {
+      this.add${foreignKey.joinTableNameClass? cap_first}Visible = true;
       this.$nextTick().then(() => {
-        this.$refs.addPartyPopupRef.initData(record);
+        this.$refs.add${foreignKey.joinTableNameClass? cap_first}Ref.initData(record);
       });
     },
-    // 添加
-    handleAddParty(data) {
+    // 回调添加数据
+    handleAdd${foreignKey.joinTableNameClass? cap_first}Confirm(data) {
       let bool = 0;
-      this.partiesList.forEach((item, index) => {
+      this.${foreignKey.joinTableNameClass? uncap_first}List.forEach((item, index) => {
         if (item.key === data.key) {
           item.name = data.name;
           item.idCardNo = data.idCardNo;
@@ -368,16 +411,69 @@ export default {
         }
       });
       if (bool === 0) {
-        this.partiesList.push(data);
+        this.${foreignKey.joinTableNameClass? uncap_first}List.push(data);
       }
     },
-    // 取消添加当事人
-    handleAddPartyCancel() {
-      this.addPartyVisible = false;
+    // 取消添加数据
+    handleAdd${foreignKey.joinTableNameClass? cap_first}Cancel() {
+      this.add${foreignKey.joinTableNameClass? cap_first}Visible = false;
     },
+    delete${foreignKey.joinTableNameClass? cap_first}(index) {
+      this.${foreignKey.joinTableNameClass? uncap_first}List.splice(index, 1);
+    },
+    // -------------------------------------------------------------添加${foreignKey.comment}结束------------------------------------------
+    </#if>
+    </#list>
+    </#if>
+    <#if mergeTables?? && (mergeTables?size > 0) >
+    <#list mergeTables as mergeTable>
+    <#if mergeTable.leftTable == mergeTable.maintain>
+    // -------------------------------------------------------------添加${mergeTable.mysqlTable.comment}开始------------------------------------------
+    // 打开添加当事人列表弹框
+    handleAdd${mergeTable.mysqlTable.nameClass? cap_first}() {
+      this.add${mergeTable.mysqlTable.nameClass? cap_first}Visible = true;
+      this.$nextTick().then(() => {
+        this.$refs.add${mergeTable.mysqlTable.nameClass? cap_first}Ref.initData();
+      });
+    },
+    // 编辑
+    handleEdit${mergeTable.mysqlTable.nameClass? cap_first}(record) {
+      this.add${mergeTable.mysqlTable.nameClass? cap_first}Visible = true;
+      this.$nextTick().then(() => {
+        this.$refs.add${mergeTable.mysqlTable.nameClass? cap_first}Ref.initData(record);
+      });
+    },
+    // 回调添加数据
+    handleAdd${mergeTable.mysqlTable.nameClass? cap_first}Confirm(data) {
+      let bool = 0;
+      this.${mergeTable.mysqlTable.nameClass? uncap_first}List.forEach((item, index) => {
+        if (item.key === data.key) {
+          item.name = data.name;
+          item.idCardNo = data.idCardNo;
+          item.phone = data.phone;
+          item.address = data.address;
+          item.permanentAddress = data.permanentAddress;
+          bool = 1;
+        }
+      });
+      if (bool === 0) {
+        this.${mergeTable.mysqlTable.nameClass? uncap_first}List.push(data);
+      }
+    },
+    // 取消添加数据
+    handleAdd${mergeTable.mysqlTable.nameClass? cap_first}Cancel() {
+      this.add${mergeTable.mysqlTable.nameClass? cap_first}Visible = false;
+    },
+    delete${mergeTable.mysqlTable.nameClass? cap_first}(index) {
+      this.${mergeTable.mysqlTable.nameClass? uncap_first}List.splice(index, 1);
+    },
+    // -------------------------------------------------------------添加${mergeTable.mysqlTable.comment}结束------------------------------------------
+    </#if>
+    </#list>
+    </#if>
     // 获取展示信息
     getDetailInfo() {
-      appealInfoFull(this.detailId).then((res) => {
+      ${nameClass? uncap_first}InfoFull(this.detailId).then((res) => {
         if (res.success) {
           // this.detailInfoData = res.data;
           this.detailInfoData = {
@@ -394,9 +490,23 @@ export default {
           </#list>
           </#if>
           };
-          // 当事人列表
-          this.partiesList = res.data.appealPersonVoList;
-          this.fileList = res.data?.appealFileVoList.map(p => {
+          <#if foreignKeys?? && (foreignKeys?size > 0) >
+          <#list foreignKeys as foreignKey>
+          <#if foreignKey.joinTableNameClass != nameClass>
+          // ${foreignKey.comment}列表
+          this.${foreignKey.joinTableNameClass? uncap_first}List = res.data.${foreignKey.joinTableNameClass? uncap_first}VoList;
+          </#if>
+          </#list>
+          </#if>
+          <#if mergeTables?? && (mergeTables?size > 0) >
+          <#list mergeTables as mergeTable>
+          <#if mergeTable.leftTable == mergeTable.maintain>
+          // ${mergeTable.mysqlTable.comment}列表
+          this.${mergeTable.mysqlTable.nameClass? uncap_first}List = res.data.${mergeTable.mysqlTable.nameClass? uncap_first}VoList;
+          </#if>
+          </#list>
+          </#if>
+          this.fileList = res.data?.${nameClass? uncap_first}FileVoList.map(p => {
             return {
               uid: p.id,
               id: p.id,

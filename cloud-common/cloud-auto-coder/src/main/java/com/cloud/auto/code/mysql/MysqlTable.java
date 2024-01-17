@@ -35,6 +35,7 @@ public class MysqlTable {
      * web路径
      */
     private String web;
+    private String webExpandPackage;
     /**
      * web路径
      */
@@ -100,13 +101,14 @@ public class MysqlTable {
         }
     }
 
-    public MysqlTable(String name, String comment, String packagePath,String webPackagePath, List<String> prefix) {
+    public MysqlTable(String name, String comment, String packagePath, String webPackagePath, List<String> prefix) {
         this.name = name;
         this.nameClass = StringUtil.toUpperCaseFirstOne(StringUtil.getClassName(name, prefix));
         this.javaPath = StringUtil.getPackagePath(packagePath, comment);
-        this.web = webPackagePath.replace(".","/");
-        this.webPath = StringUtil.getPackagePath(webPackagePath, comment);
         this.expandPackage = StringUtil.getPackagePath(comment);
+        this.web = webPackagePath.replace(".", "/");
+        this.webPath = StringUtil.getPackagePath(webPackagePath, comment);
+        this.webExpandPackage = "/" + expandPackage.replace(".", "/");
         this.comment = StringUtil.getComment(comment);
         this.foreignKeys = new ArrayList<>();
         this.mergeTables = new ArrayList<>();

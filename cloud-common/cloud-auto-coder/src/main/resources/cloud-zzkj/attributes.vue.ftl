@@ -60,7 +60,7 @@
         <a-col :md="24" :sm="24">
           <a-form :form="form">
             <a-form-item label="${col.comment}" :labelCol="labelCol" :wrapperCol="wrapperCol" has-feedback>
-              <a-input-number v-model="${col.nameClass? uncap_first}" :min="1" :precision="0" :step="1" placeholder="${col.comment}" />
+              <a-input-number v-model="${col.nameClass? uncap_first}" :min="1" :precision="0" :step="1" placeholder="${col.comment}"  style="width: 100%"/>
             </a-form-item>
           </a-form>
         </a-col>
@@ -91,7 +91,6 @@ export default {
       },
       visible: false,
       confirmLoading: false,
-      identity: 0,
       form: this.$form.createForm(this),
       key: '',
     <#if column?? && (column?size > 0) >
@@ -100,7 +99,7 @@ export default {
     && col.nameClass != "createDate" && col.nameClass != "updateDate"
     && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
     && col.nameClass != "createBy" && col.nameClass != "updateBy"
-    && col.nameClass != "version" && col.nameClass != "id"
+    && col.nameClass != "version"
     && col.nameClass != "createTime" && col.nameClass != "updateTime">
       ${col.nameClass? uncap_first}: null,
     </#if>
@@ -121,7 +120,7 @@ export default {
 && col.nameClass != "createDate" && col.nameClass != "updateDate"
 && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
 && col.nameClass != "createBy" && col.nameClass != "updateBy"
-&& col.nameClass != "version" && col.nameClass != "id"
+&& col.nameClass != "version"
 && col.nameClass != "createTime" && col.nameClass != "updateTime">
           this.${col.nameClass? uncap_first} = record.${col.nameClass? uncap_first};
 </#if>
@@ -150,7 +149,18 @@ export default {
           } else {
             values.key = this.key;
           }
-          values.identity = this.identity;
+          <#if column?? && (column?size > 0) >
+          <#list column as col>
+          <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+          && col.nameClass != "createDate" && col.nameClass != "updateDate"
+          && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+          && col.nameClass != "createBy" && col.nameClass != "updateBy"
+          && col.nameClass != "version"
+          && col.nameClass != "createTime" && col.nameClass != "updateTime">
+          values.${col.nameClass? uncap_first} = this.${col.nameClass? uncap_first};
+          </#if>
+          </#list>
+          </#if>
           this.$emit('confirm', values);
           this.$emit('handleCancel');
           this.handleCancel();
@@ -162,6 +172,18 @@ export default {
       this.form.resetFields();
       this.confirmLoading = false;
       this.visible = false;
+      <#if column?? && (column?size > 0) >
+      <#list column as col>
+      <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+      && col.nameClass != "createDate" && col.nameClass != "updateDate"
+      && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+      && col.nameClass != "createBy" && col.nameClass != "updateBy"
+      && col.nameClass != "version"
+      && col.nameClass != "createTime" && col.nameClass != "updateTime">
+      this.${col.nameClass? uncap_first} = null;
+      </#if>
+      </#list>
+      </#if>
     },
   },
 };

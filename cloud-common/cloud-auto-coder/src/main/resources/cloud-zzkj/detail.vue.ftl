@@ -20,11 +20,28 @@
               </#if>
             </#list>
           </#if>
-          <a-descriptions-item label="当事人列表" :span="5">
-            <a-table :columns="columns" :data-source="personData" size="small" :pagination="false" rowKey="id">
+          <#if foreignKeys?? && (foreignKeys?size > 0) >
+            <#list foreignKeys as foreignKey>
+              <#if foreignKey.joinTableNameClass != nameClass>
+          <a-descriptions-item label="${foreignKey.comment}列表" :span="5">
+            <a-table :columns="${foreignKey.joinTableNameClass? uncap_first}Columns" :data-source="${foreignKey.joinTableNameClass? uncap_first}Data" size="small" :pagination="false" rowKey="id">
               <a slot="name" slot-scope="text">{{ text }}</a>
             </a-table>
           </a-descriptions-item>
+              </#if>
+            </#list>
+          </#if>
+          <#if mergeTables?? && (mergeTables?size > 0) >
+            <#list mergeTables as mergeTable>
+              <#if mergeTable.leftTable == mergeTable.maintain>
+          <a-descriptions-item label="${mergeTable.mysqlTable.comment}列表" :span="5">
+            <a-table :columns="${mergeTable.mysqlTable.nameClass? uncap_first}Columns" :data-source="${mergeTable.mysqlTable.nameClass? uncap_first}Data" size="small" :pagination="false" rowKey="id">
+              <a slot="name" slot-scope="text">{{ text }}</a>
+            </a-table>
+          </a-descriptions-item>
+              </#if>
+            </#list>
+          </#if>
           <a-descriptions-item label="附件信息" :span="3">
             <div v-if="detailParams.appealFileVoList && detailParams.appealFileVoList.length">
               <div v-for="(item, index) in detailParams.appealFileVoList" :key="index" style="margin: 8px">
@@ -46,54 +63,60 @@
       </div>
     </a-spin>
     <imgPreview v-if="showPreview" ref="previewRef"></imgPreview>
-    <a-divider/>
-    <!-- 按钮列表 -->
-    <div class="btn-box">
-      <div>
-        <a-button v-if="operateType == 'process'" :key="10" type="primary"
-                  class="btn-margin" @click="handleClickBtn(10)">
-          转纠纷化解
-        </a-button>
-        <a-button v-if="operateType == 'process'" :key="12" type="primary"
-                  class="btn-margin" @click="handleClickBtn(12)">
-          办结
-        </a-button>
-      </div>
-    </div>
   </a-modal>
 </template>
 
 <script>
 // 接口
 import {
-  appealInfoFull,
-} from '@/api/modular/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
-import imgPreview from '@/views/dazhou/issue/all/imgPreview.vue';
+  ${nameClass? uncap_first}InfoFull,
+} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
+import imgPreview from '@/views/system/opinion/imgPreview.vue';
 
-const columns = [
+<#if foreignKeys?? && (foreignKeys?size > 0) >
+<#list foreignKeys as foreignKey>
+<#if foreignKey.joinTableNameClass != nameClass>
+const ${foreignKey.joinTableNameClass? uncap_first}Columns = [
+  <#list foreignKey.mysqlTable.column as col>
+  <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+&& col.nameClass != "createDate" && col.nameClass != "updateDate"
+&& col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+&& col.nameClass != "createBy" && col.nameClass != "updateBy"
+&& col.nameClass != "version" && col.nameClass != "id"
+&& col.nameClass != "createTime" && col.nameClass != "updateTime">
   {
-    title: '姓名',
-    dataIndex: 'name',
-    key: 'name',
-    scopedSlots: { customRender: 'name' },
+    key: '${col.nameClass}',
+    title: '${col.webComment}',
+    dataIndex: '${col.nameClass}',
   },
-  {
-    title: '联系方式',
-    dataIndex: 'phone',
-    key: 'phone',
-  },
-  {
-    title: '身份证号码',
-    dataIndex: 'idCardNo',
-    key: 'idCardNo',
-  },
-  {
-    title: '地址',
-    dataIndex: 'address',
-    key: 'address',
-    ellipsis: true,
-  },
+  </#if>
+  </#list>
 ];
+</#if>
+</#list>
+</#if>
+<#if mergeTables?? && (mergeTables?size > 0) >
+<#list mergeTables as mergeTable>
+<#if mergeTable.leftTable == mergeTable.maintain>
+const ${mergeTable.mysqlTable.nameClass? uncap_first}Columns = [
+  <#list mergeTable.mysqlTable.column as col>
+  <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+&& col.nameClass != "createDate" && col.nameClass != "updateDate"
+&& col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+&& col.nameClass != "createBy" && col.nameClass != "updateBy"
+&& col.nameClass != "version" && col.nameClass != "id"
+&& col.nameClass != "createTime" && col.nameClass != "updateTime">
+  {
+    key: '${col.nameClass}',
+    title: '${col.webComment}',
+    dataIndex: '${col.nameClass}',
+  },
+  </#if>
+  </#list>
+];
+</#if>
+</#list>
+</#if>
 export default {
   components: {
     imgPreview,
@@ -133,22 +156,33 @@ export default {
   },
   data() {
     return {
-      columns,
+      <#if foreignKeys?? && (foreignKeys?size > 0) >
+      <#list foreignKeys as foreignKey>
+      <#if foreignKey.joinTableNameClass != nameClass>
+      // ${foreignKey.comment}
+      ${foreignKey.joinTableNameClass? uncap_first}Columns,
+      ${foreignKey.joinTableNameClass? uncap_first}Data: [],
+      </#if>
+      </#list>
+      </#if>
+      <#if mergeTables?? && (mergeTables?size > 0) >
+      <#list mergeTables as mergeTable>
+      <#if mergeTable.leftTable == mergeTable.maintain>
+      // ${mergeTable.mysqlTable.comment}
+      ${mergeTable.mysqlTable.nameClass? uncap_first}Columns,
+      ${mergeTable.mysqlTable.nameClass? uncap_first}Data: [],
+      </#if>
+      </#list>
+      </#if>
       operateType: '',
-      partyNames: '',
       detailParams: {}, // 展示信息数据
       showPreview: false, // 附件预览
       loading: false,
-      // 当事人列表
-      personData: [],
     };
   },
   methods: {
     init(type) {
       this.operateType = type;
-    },
-    refrensh() {
-      this.handleEditCancel();
     },
     // 编辑弹窗取消
     handleEditCancel(e) {
@@ -158,19 +192,26 @@ export default {
     getDetailInfo() {
       if (this.detailId) {
         this.loading = true;
-        appealInfoFull(this.detailId)
+        ${nameClass? uncap_first}InfoFull(this.detailId)
           .then((res) => {
             if (res.success) {
               this.detailParams = res.data;
-              // 当事人列表
-              this.personData = res.data.appealPersonVoList;
-              if (this.personData && this.personData.length > 0) {
-                this.personData.forEach(item => {
-                  if (item && item !== null) {
-                    this.partyNames += item.name + ',';
-                  }
-                });
-              }
+              <#if foreignKeys?? && (foreignKeys?size > 0) >
+              <#list foreignKeys as foreignKey>
+              <#if foreignKey.joinTableNameClass != nameClass>
+              // ${foreignKey.comment}
+              this.${foreignKey.joinTableNameClass? uncap_first}Data = res.data.${foreignKey.joinTableNameClass? uncap_first}VoList;
+              </#if>
+              </#list>
+              </#if>
+              <#if mergeTables?? && (mergeTables?size > 0) >
+              <#list mergeTables as mergeTable>
+              <#if mergeTable.leftTable == mergeTable.maintain>
+              // ${mergeTable.mysqlTable.comment}
+              this.${mergeTable.mysqlTable.nameClass? uncap_first}Data = res.data.${mergeTable.mysqlTable.nameClass? uncap_first}VoList;
+              </#if>
+              </#list>
+              </#if>
             } else {
               this.$message.error(res.msg);
             }
@@ -186,14 +227,24 @@ export default {
         this.$refs.previewRef.init(path);
       });
     },
-    // 点击按钮展示对应操作弹框
-    handleClickBtn(key) {
-    },
     handleCancel() {
       this.detailParams = {};
-      // 当事人列表
-      this.data = [];
-      this.partyNames = '';
+      <#if foreignKeys?? && (foreignKeys?size > 0) >
+      <#list foreignKeys as foreignKey>
+      <#if foreignKey.joinTableNameClass != nameClass>
+      // ${foreignKey.comment}
+      this.${foreignKey.joinTableNameClass? uncap_first}Data = [];
+      </#if>
+      </#list>
+      </#if>
+      <#if mergeTables?? && (mergeTables?size > 0) >
+      <#list mergeTables as mergeTable>
+      <#if mergeTable.leftTable == mergeTable.maintain>
+      // ${mergeTable.mysqlTable.comment}
+      this.${mergeTable.mysqlTable.nameClass? uncap_first}Data = [];
+      </#if>
+      </#list>
+      </#if>
     },
   },
   mounted() {

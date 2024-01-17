@@ -16,7 +16,8 @@ import lombok.Data;
 import java.util.List;
 </#if>
 <#list column as col>
-    <#if col.type=='Date'>
+    <#if col.type=='Date' || col.type == 'java.util.Date'>
+import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
         <#break>
     </#if>
@@ -54,7 +55,10 @@ public class ${nameClass}Vo {
     <#if col.type=='Long'>
     @JsonSerialize(using = ToStringSerializer.class)
     </#if>
-    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
+    <#if col.type =='Date' || col.type == 'java.util.Date'>
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    </#if>
+    private <#if col.type =='Date' || col.type == 'java.util.Date'>LocalDateTime<#else>${col.type}</#if> ${col.nameClass? uncap_first};
     </#if>
     </#list>
 </#if>

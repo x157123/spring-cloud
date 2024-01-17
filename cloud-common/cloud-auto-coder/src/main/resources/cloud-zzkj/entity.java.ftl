@@ -12,7 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 <#list column as col>
-    <#if col.type=='Date'>
+    <#if col.type=='Date' || col.type == 'java.util.Date'>
 import java.time.LocalDateTime;
         <#break>
     </#if>
@@ -40,7 +40,7 @@ public class ${nameClass} extends BaseEntity {
 <#if col.nameClass=='isDeleted'>
     @TableLogic
 </#if>
-    private <#if col.type=='Date'>LocalDateTime</#if><#if col.type!='Date'>${col.type}</#if> ${col.nameClass? uncap_first};
+    private <#if col.type=='Date' || col.type == 'java.util.Date'>LocalDateTime<#else >${col.type}</#if> ${col.nameClass? uncap_first};
         </#if>
     </#list>
 </#if>
