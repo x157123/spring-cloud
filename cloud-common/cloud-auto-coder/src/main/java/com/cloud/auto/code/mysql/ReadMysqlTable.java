@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ReadMysqlTable {
 
-    static boolean pc = false;
+    static boolean pc = true;
     static boolean zzkj = true;
 
     public static void main(String[] args) throws SQLException {

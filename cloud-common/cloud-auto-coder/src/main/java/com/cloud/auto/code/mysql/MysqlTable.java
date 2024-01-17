@@ -108,7 +108,7 @@ public class MysqlTable {
         this.expandPackage = StringUtil.getPackagePath(comment);
         this.web = webPackagePath.replace(".", "/");
         this.webPath = StringUtil.getPackagePath(webPackagePath, comment);
-        this.webExpandPackage = "/" + expandPackage.replace(".", "/");
+        this.webExpandPackage = !expandPackage.isEmpty() ?"/" + expandPackage.replace(".", "/"):"";
         this.comment = StringUtil.getComment(comment);
         this.foreignKeys = new ArrayList<>();
         this.mergeTables = new ArrayList<>();
