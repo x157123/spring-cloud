@@ -162,25 +162,24 @@ public class MyService {
     public void startFlow(Integer day, String assignee, String processKey,String userId) {
         Map<String, Object> map = new HashMap<>();
         map.put("day", day);
-
+        if (assignee != null) {
+            map.put("assignee", assignee);
+        }
         ProcessDefinition processDefinition = getLatestProcessDefinition(processKey);
         Authentication.setAuthenticatedUserId(userId);
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinition.getId(), map);
-        Map<String, Object> variables = processInstance.getProcessVariables();
         Authentication.setAuthenticatedUserId(null);
-
-
         if (assignee != null) {
             Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
             taskService.setAssignee(task.getId(), assignee);
         }
-
         // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
         ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
         CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
+        // 设置流程状态
         commandExecutor.execute(new SetProcessInstanceBusinessStatusCmd(processInstance.getId(), "开始"));
+        // 设置流程名称
         commandExecutor.execute(new SetProcessInstanceNameCmd(processInstance.getId(), "小明请假流程"));
-
 
         System.out.println(processInstance.getId());
     }
