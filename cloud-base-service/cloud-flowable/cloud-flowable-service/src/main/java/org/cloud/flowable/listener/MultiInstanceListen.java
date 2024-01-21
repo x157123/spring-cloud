@@ -28,10 +28,10 @@ public class MultiInstanceListen implements ExecutionListener {
             Object assignee = execution.getVariable("assignee");
             Object assignees = execution.getVariable("assignees");
 
-            set.add("user1");
-            set.add("user2");
-            set.add("user3");
             set.add("user4");
+            set.add("user5");
+            set.add("user6");
+            set.add("user7");
             execution.setVariable("assigneeList", set);
             Object flag = execution.getVariable("assigneeList");
             log.info("candidateGroups value: {}", flag);

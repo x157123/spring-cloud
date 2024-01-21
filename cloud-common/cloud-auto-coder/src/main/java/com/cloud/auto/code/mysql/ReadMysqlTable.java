@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ReadMysqlTable {
 
-    static boolean pc = true;
+    static boolean pc = false;
     static boolean zzkj = true;
 
     public static void main(String[] args) throws SQLException {
@@ -22,7 +22,7 @@ public class ReadMysqlTable {
         boolean star = true;
 
         // 表前缀
-        List<String> prefix = Arrays.asList("app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
+        List<String> prefix = Arrays.asList("md_", "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
         //模版路径
         String ftlPath;
 
@@ -43,6 +43,9 @@ public class ReadMysqlTable {
             if (pc) {
                 config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
                 config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\");
+            }else{
+                config.setJavaFilePath("D:\\test\\");
+                config.setWebFilePath("D:\\test\\");
             }
             config.setWebPackagePath("views.test");
             webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl", "attributes.vue.ftl", "dynamicForm.vue.ftl"));

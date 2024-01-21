@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.cloud.flowable.utils.XmlUtil;
 import org.cloud.flowable.vo.FlowableInitiateTaskVo;
 import org.cloud.flowable.vo.FlowableManageVo;
+import org.cloud.flowable.vo.FlowableProcessing;
 import org.cloud.flowable.vo.FlowableTaskVo;
 import org.flowable.bpmn.model.Process;
 import org.flowable.bpmn.model.*;
@@ -26,6 +27,7 @@ import org.flowable.idm.engine.impl.persistence.entity.UserEntityImpl;
 import org.flowable.image.ProcessDiagramGenerator;
 import org.flowable.task.api.Task;
 import org.flowable.task.api.TaskQuery;
+import org.flowable.task.service.delegate.DelegateTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -169,10 +171,6 @@ public class MyService {
         Authentication.setAuthenticatedUserId(userId);
         ProcessInstance processInstance = runtimeService.startProcessInstanceById(processDefinition.getId(), map);
         Authentication.setAuthenticatedUserId(null);
-        if (assignee != null) {
-            Task task = taskService.createTaskQuery().processInstanceId(processInstance.getId()).singleResult();
-            taskService.setAssignee(task.getId(), assignee);
-        }
         // 创建 SetProcessInstanceNameCmd 命令   设置任务名称
         ProcessEngineConfiguration processEngineConfiguration = processEngine.getProcessEngineConfiguration();
         CommandExecutor commandExecutor = processEngineConfiguration.getCommandExecutor();
@@ -304,33 +302,18 @@ public class MyService {
      */
     public List<Map<String, Object>> getNextFlowElement(String currentTaskId) {
         TaskService taskService = processEngine.getTaskService();
-
         Task currentTask = taskService.createTaskQuery().taskId(currentTaskId).singleResult();
+        //获取参数
+        Integer day = runtimeService.getVariable(currentTask.getProcessInstanceId(),"day",Integer.class);
         RepositoryService repositoryService = processEngine.getRepositoryService();
         BpmnModel bpmnModel = repositoryService.getBpmnModel(currentTask.getProcessDefinitionId());
 
-
-        List<FlowElement> nextFlowElements = new ArrayList<>();
-        setNextFlowElements(nextFlowElements, bpmnModel, currentTask.getTaskDefinitionKey());
+        FlowableProcessing flowableProcessing = new FlowableProcessing();
+        setNextFlowElements(flowableProcessing, bpmnModel, currentTask.getTaskDefinitionKey());
 
         List<Map<String, Object>> list = new ArrayList<>();
 
-        for (FlowElement nextFlowElement : nextFlowElements) {
-            if (nextFlowElement instanceof UserTask userTask) {
-                Map<String, Object> map = new HashMap<>();
-                map.put("activityId", userTask.getId());
-                map.put("activityName", userTask.getName());
-                map.put("assignee", userTask.getAssignee());
-                List<String> candidateUsers = new ArrayList<>();
-                if(!userTask.getCandidateUsers().isEmpty()){
-                    for(String str:userTask.getCandidateUsers()) {
-                        candidateUsers.add(XmlUtil.extractExpression(str));
-                    }
-                }
-                map.put("candidateUsers", candidateUsers);
-                list.add(map);
-            }
-        }
+
         return list;
     }
 
@@ -342,23 +325,43 @@ public class MyService {
     /**
      * 获取下一个任务节点
      *
-     * @param nextFlowElements
+     * @param flowableProcessing
      * @param bpmnModel
      * @param key
      */
+    private void setNextFlowElements(FlowableProcessing flowableProcessing, BpmnModel bpmnModel, String key) {
+        FlowElement currentFlowElement = bpmnModel.getFlowElement(key);
+        if (currentFlowElement instanceof FlowNode) {
+            List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
+
+            for (SequenceFlow sequenceFlow : outgoingFlows) {
+                FlowableProcessing fp = FlowableProcessing.createLine(sequenceFlow.getConditionExpression());
+                flowableProcessing.add(fp);
+                System.out.println("--1-->" + sequenceFlow.getConditionExpression());
+                FlowElement targetFlowElement = bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
+                // Exclude Gateway
+                if (targetFlowElement instanceof UserTask userTask) {
+                    fp.add(FlowableProcessing.createNode(userTask.getName(),userTask.getAssignee(),userTask.getCandidateUsers(),userTask.getCandidateGroups()));
+                } else {
+//                    System.out.println("--2-->" + targetFlowElement.getClass());
+                    setNextFlowElements(fp, bpmnModel, targetFlowElement.getId());
+                }
+            }
+        }
+    }
     private void setNextFlowElements(List<FlowElement> nextFlowElements, BpmnModel bpmnModel, String key) {
         FlowElement currentFlowElement = bpmnModel.getFlowElement(key);
         if (currentFlowElement instanceof FlowNode) {
             List<SequenceFlow> outgoingFlows = ((FlowNode) currentFlowElement).getOutgoingFlows();
 
             for (SequenceFlow sequenceFlow : outgoingFlows) {
-                System.out.println("---->" + sequenceFlow.getConditionExpression());
+                System.out.println("--1-->" + sequenceFlow.getConditionExpression());
                 FlowElement targetFlowElement = bpmnModel.getFlowElement(sequenceFlow.getTargetRef());
                 // Exclude Gateway
                 if (targetFlowElement instanceof UserTask) {
                     nextFlowElements.add(targetFlowElement);
                 } else {
-                    System.out.println("---->" + targetFlowElement.getClass());
+//                    System.out.println("--2-->" + targetFlowElement.getClass());
                     setNextFlowElements(nextFlowElements, bpmnModel, targetFlowElement.getId());
                 }
             }

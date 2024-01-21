@@ -17,10 +17,10 @@ public class MultiTaskListener implements TaskListener {
     public void notify(DelegateTask delegateTask) {
 
         Set<String> set = new HashSet<>();
-        set.add("user1");
-        set.add("user2");
-        set.add("user3");
-        set.add("user4");
+        set.add("user44");
+        set.add("user55");
+        set.add("user66");
+        set.add("user77");
 
         log.info("candidateGroups value: {}", set.toString());
         // 设置 setVariableLocal 会导致找不到 assigneeList 变量

@@ -13,6 +13,7 @@ import java.util.Map;
  */
 @Getter
 public enum ${enumName}Enum {
+
 <#list tmpEnums as col>
     ${col.name}("${col.value}", ${col.key}),
 </#list>
@@ -44,5 +45,18 @@ public enum ${enumName}Enum {
             list.add(map);
         }
         return list;
+    }
+
+    public static ${enumName}Enum contains(Integer value) {
+        for (${enumName}Enum ${enumName? uncap_first}Enum : values()) {
+            if (${enumName? uncap_first}Enum.value.equals(value)) {
+                return ${enumName? uncap_first}Enum;
+            }
+        }
+    <#list tmpEnums as col>
+        <#if col_index == 0>
+        return ${enumName}Enum.${col.name};
+        </#if>
+    </#list>
     }
 }
