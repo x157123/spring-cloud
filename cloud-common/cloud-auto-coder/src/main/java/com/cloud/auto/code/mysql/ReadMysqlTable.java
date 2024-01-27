@@ -36,18 +36,19 @@ public class ReadMysqlTable {
             return;
         }
         if (zzkj) {
-            config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.test", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
+            String pack = ".task";
+            config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict" + pack, "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
             config.setJavaFilePath("D:\\work\\zzkj\\service\\mediation\\universe-platform\\");
             config.setWebFilePath("D:\\work\\zzkj\\web\\mediation-web\\src\\");
             if (pc) {
                 config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
                 config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\");
-            }else{
+            } else {
                 config.setJavaFilePath("D:\\test\\");
                 config.setWebFilePath("D:\\test\\");
             }
-            config.setWebPackagePath("views.test");
+            config.setWebPackagePath("views" + pack);
             webList.addAll(Arrays.asList("list.vue.ftl", "edit.vue.ftl", "detail.vue.ftl", "api.js.ftl", "attributes.vue.ftl", "dynamicForm.vue.ftl"));
             ftlList.addAll(Arrays.asList("entity.java.ftl", "dto.java.ftl", "query.java.ftl", "vo.java.ftl", "param.java.ftl"));
 

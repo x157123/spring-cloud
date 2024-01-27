@@ -494,7 +494,7 @@ export default {
           <#list foreignKeys as foreignKey>
           <#if foreignKey.joinTableNameClass != nameClass>
           // ${foreignKey.comment}列表
-          this.${foreignKey.joinTableNameClass? uncap_first}List = res.data.${foreignKey.joinTableNameClass? uncap_first}VoList;
+          this.${foreignKey.joinTableNameClass? uncap_first}List = res.data.${foreignKey.joinTableNameClass? uncap_first}VoList == null ? [] : res.data.${foreignKey.joinTableNameClass? uncap_first}VoList;
           </#if>
           </#list>
           </#if>
@@ -502,7 +502,7 @@ export default {
           <#list mergeTables as mergeTable>
           <#if mergeTable.leftTable == mergeTable.maintain>
           // ${mergeTable.mysqlTable.comment}列表
-          this.${mergeTable.mysqlTable.nameClass? uncap_first}List = res.data.${mergeTable.mysqlTable.nameClass? uncap_first}VoList;
+          this.${mergeTable.mysqlTable.nameClass? uncap_first}List = res.data.${mergeTable.mysqlTable.nameClass? uncap_first}VoList == null ? [] : res.data.${mergeTable.mysqlTable.nameClass? uncap_first}VoList;
           </#if>
           </#list>
           </#if>

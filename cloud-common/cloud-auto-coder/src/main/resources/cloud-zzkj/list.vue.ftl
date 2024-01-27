@@ -351,69 +351,6 @@ export default {
       this.handleType = 2;
       this.detailId = value.id;
     },
-    // 新增/编辑弹窗确认--目前遗弃使用
-    handleEditOk(data) {
-      this.confirmLoading = true;
-      this.$refs.editFrom
-        .validateForm()
-        .then(() => {
-          // 表单校验通过，可以进行提交操作
-          if (!this.partiesList || !this.partiesList.length) {
-            this.$message.warning({
-              content: '请添加当事人列表！',
-              key: 1,
-            });
-            return false;
-          }
-          // data.typeIds = data.typeIds.split(',');
-          // 新增
-          if (this.handleType === 1) {
-            let params = {
-              ...data,
-              source: 1, // 数据来源（0：研判会商，1：新增）
-              persons: this.partiesList,
-            };
-            ${nameClass? uncap_first}InfoAdd(params).then((res) => {
-              this.loading = false;
-              if (res.success) {
-                this.$message.success(res.msg);
-                this.editVisible = false;
-                this.selectedRowKeys = [];
-                this.submitForm();
-              } else {
-                this.$message.error(res.msg);
-              }
-            }).finally(() => {
-              this.confirmLoading = false;
-            });
-          } else {
-            // 编辑提交
-            let params = {
-              ...data,
-              id: this.detailId,
-              persons: this.partiesList,
-            };
-            ${nameClass? uncap_first}InfoUpdate(params).then((res) => {
-              this.loading = false;
-              if (res.success) {
-                this.$message.success(res.msg);
-                this.editVisible = false;
-                this.selectedRowKeys = [];
-                this.submitForm();
-              } else {
-                this.$message.error(res.msg);
-              }
-            }).finally(() => {
-              this.confirmLoading = false;
-            });
-          }
-        })
-        .catch((error) => {
-          this.confirmLoading = false;
-          // 表单校验不通过，做出相应的处理
-          console.error(error);
-        });
-    },
     // 编辑弹窗取消
     handleEditCancel(e) {
       this.editVisible = false;
