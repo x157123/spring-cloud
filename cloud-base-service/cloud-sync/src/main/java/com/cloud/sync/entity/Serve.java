@@ -3,12 +3,15 @@ package com.cloud.sync.entity;
 import com.cloud.common.core.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-    import java.util.List;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
 * @author liulei
 * 表映射
 */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("sync_serve")
 public class Serve extends BaseEntity {

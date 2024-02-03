@@ -3,12 +3,15 @@ package com.cloud.sync.entity;
 import com.cloud.common.core.entity.BaseEntity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
-    import java.util.List;
+import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
 * @author liulei
 * 数据库配置
 */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("sync_connect_config")
 public class ConnectConfig extends BaseEntity {

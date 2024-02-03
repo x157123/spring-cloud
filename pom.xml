@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.1</version>
+        <version>3.2.2</version>
         <relativePath/>
     </parent>
 
@@ -31,7 +31,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
-        <spring-cloud.version>2023.0.0</spring-cloud.version>
+        <spring-cloud.version>2023.0.0-RC1</spring-cloud.version>
         <lombok.version>1.18.30</lombok.version>
 
         <mysql.version>8.0.33</mysql.version>
@@ -39,10 +39,10 @@
         <clickhouse.version>0.4.6</clickhouse.version>
         <oracle.version>11.2.0.4</oracle.version>
 
-        <mybatis-plus.version>3.5.2.6-SNAPSHOT</mybatis-plus.version>
+        <mybatis-plus.version>3.5.5</mybatis-plus.version>
 
 
-        <okhttp.version>4.12.0</okhttp.version>
+        <okhttp.version>4.10.0</okhttp.version>
 
         <knife4j-springdoc-ui.version>3.0.3</knife4j-springdoc-ui.version>
         <knife4j-openapi3-ui.version>4.4.0</knife4j-openapi3-ui.version>
@@ -76,7 +76,7 @@
             </dependency>
             <dependency>
                 <groupId>com.baomidou</groupId>
-                <artifactId>mybatis-plus-boot-starter</artifactId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
         </dependencies>

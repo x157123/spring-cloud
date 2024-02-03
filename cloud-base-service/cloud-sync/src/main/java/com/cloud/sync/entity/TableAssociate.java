@@ -3,10 +3,12 @@ package com.cloud.sync.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.cloud.common.core.entity.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author liulei
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("sync_table_associate")
 public class TableAssociate extends BaseEntity {

@@ -3,11 +3,13 @@ package com.cloud.sync.entity;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.cloud.common.core.entity.BaseEntity;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author liulei
  * 同步数据库列配置
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("sync_column_config")
 public class ColumnConfig extends BaseEntity {
