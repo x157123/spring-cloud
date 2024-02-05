@@ -31,7 +31,7 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
 
-        <spring-cloud.version>2023.0.0-RC1</spring-cloud.version>
+        <spring-cloud.version>2023.0.0</spring-cloud.version>
         <lombok.version>1.18.30</lombok.version>
 
         <mysql.version>8.0.33</mysql.version>
@@ -119,12 +119,6 @@
 
 
     <repositories>
-        <!--阿里云私服-->
-        <repository>
-            <id>aliyun</id>
-            <name>aliyun</name>
-            <url>https://maven.aliyun.com/repository/public</url>
-        </repository>
         <repository>
             <id>spring-milestones</id>
             <name>Spring Milestones</name>
@@ -144,6 +138,12 @@
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
+        </repository>
+        <!--阿里云私服-->
+        <repository>
+            <id>aliyun</id>
+            <name>aliyun</name>
+            <url>https://maven.aliyun.com/repository/public</url>
         </repository>
         <repository>
             <id>ossrh</id>
