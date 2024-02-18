@@ -116,8 +116,8 @@ import add${mergeTable.mysqlTable.nameClass? cap_first} from '@/${web}${mergeTab
 
 // 接口
 import {
-  ${nameClass? uncap_first}InfoFull, ${nameClass? uncap_first}InfoAdd, ${nameClass? uncap_first}InfoUpdate,
-} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
+  ${nameClass? uncap_first}InfoFull, ${nameClass? uncap_first}InfoUpdate,
+} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api.js';
 import moment from 'moment';
 let that = null;
 export default {
