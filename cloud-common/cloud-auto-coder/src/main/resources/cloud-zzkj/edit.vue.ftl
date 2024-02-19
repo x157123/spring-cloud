@@ -328,6 +328,19 @@ export default {
             files: this.fileList,
           };
           params.id = this.detailId;
+          <#if column?? && (column?size > 0) >
+          <#list column as col>
+          <#if col.nameClass != "createUser" && col.nameClass != "updateUser"
+          && col.nameClass != "createDate" && col.nameClass != "updateDate"
+          && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
+          && col.nameClass != "createBy" && col.nameClass != "updateBy"
+          && col.nameClass != "version" && col.nameClass != "id"
+          && col.nameClass != "createTime" && col.nameClass != "updateTime"
+          && (col.type=='Date' || col.type == 'java.util.Date')>
+          params.${col.nameClass? uncap_first} = moment(formData.${col.nameClass? uncap_first}).format('YYYY-MM-DD HH:mm:ss');
+          </#if>
+          </#list>
+          </#if>
           // 新增修改
           ${nameClass? uncap_first}InfoUpdate(params).then((res) => {
             if (res.success) {

@@ -133,7 +133,7 @@ export default {
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
         && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
         && col.nameClass != "createBy" && col.nameClass != "updateBy"
-        && col.nameClass != "version"
+        && col.nameClass != "version" && col.nameClass != "id"
         && col.nameClass != "createTime" && col.nameClass != "updateTime">
         {
           label: '${col.webComment}',
@@ -153,7 +153,7 @@ export default {
         && col.nameClass != "createDate" && col.nameClass != "updateDate"
         && col.nameClass != "isDelete" && col.nameClass != "isDeleted"
         && col.nameClass != "createBy" && col.nameClass != "updateBy"
-        && col.nameClass != "version"
+        && col.nameClass != "version" && col.nameClass != "id"
         && col.nameClass != "createTime" && col.nameClass != "updateTime">
         <#if col.enums?? && (col.enums?size > 0) >
         {
@@ -175,7 +175,7 @@ export default {
           label: '${col.comment}',
           key: '${col.nameClass? uncap_first}',
           type: 'input',
-          placeholder: '请输入${col.nameClass? uncap_first}',
+          placeholder: '请输入${col.webComment}',
         },
           </#if>
           <#if col.type == 'Date' ||  col.type == 'java.util.Date'>
@@ -193,7 +193,7 @@ export default {
           key: '${col.nameClass? uncap_first}',
           label: '${col.comment}',
           type: 'number',
-          placeholder: '请输入${col.comment}',
+          placeholder: '请输入${col.webComment}',
           style: 'width:140px',
           maxLength: 5,
         },
