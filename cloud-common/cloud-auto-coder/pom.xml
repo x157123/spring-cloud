@@ -42,12 +42,17 @@
             <scope>compile</scope>
         </dependency>
 
-
         <dependency>
             <groupId>com.belerweb</groupId>
             <artifactId>pinyin4j</artifactId>
             <version>2.5.1</version>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.plexpt</groupId>
+            <artifactId>chatgpt</artifactId>
+            <version>4.2.0</version>
         </dependency>
     </dependencies>
 </project>

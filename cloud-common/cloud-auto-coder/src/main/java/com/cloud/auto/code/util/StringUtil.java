@@ -26,8 +26,8 @@ public class StringUtil {
     /**
      * 数据库字段转java驼峰命名
      *
-     * @param dbName
-     * @return
+     * @param dbName 数据库字段名
+     * @return 转换后的java类名
      */
     public static String dbToClassName(String dbName) {
         String[] words = dbName.split("_");
@@ -38,16 +38,26 @@ public class StringUtil {
         return stringBuilder.toString();
     }
 
-    /**
-     * 获取ClassName
-     *
-     * @return
-     */
 
+    /**
+     * 获取类名
+     *
+     * @param name    类名
+     * @return 类名
+     */
     public static String getClassName(String name) {
         return getClassName(name, null);
     }
 
+
+
+    /**
+     * 获取类名
+     *
+     * @param name    类名
+     * @param prefix  类名前缀
+     * @return 类名
+     */
     public static String getClassName(String name, List<String> prefix) {
         String className = name;
         if (prefix != null && !prefix.isEmpty()) {
@@ -62,9 +72,11 @@ public class StringUtil {
     }
 
     /**
-     * 截取表备注-> 符号后配置的包路径
+     * 截取表备注中的包路径
      *
-     * @return
+     * @param path    包路径
+     * @param comment 表备注
+     * @return 包路径
      */
     public static String getPackagePath(String path, String comment) {
         String expandPackage = getPackagePath(comment);
@@ -74,6 +86,12 @@ public class StringUtil {
         return path;
     }
 
+    /**
+     * 获取表备注中的包路径
+     *
+     * @param comment 表备注
+     * @return 包路径
+     */
     public static String getPackagePath(String comment) {
         comment = BeanUtil.replaceBlank(comment);
         if (comment != null && comment.lastIndexOf("->") > 0) {
@@ -85,10 +103,11 @@ public class StringUtil {
     /**
      * 获取表备注
      *
-     * @return
+     * @param commentData 表备注
+     * @return 表备注
      */
-    public static String getComment(String comment) {
-        comment = BeanUtil.replaceBlank(comment);
+    public static String getComment(String commentData) {
+        String comment = BeanUtil.replaceBlank(commentData);
         if (comment != null && comment.lastIndexOf("->") > 0) {
             return comment.substring(0, comment.lastIndexOf("->"));
         } else if (comment == null) {
@@ -97,12 +116,11 @@ public class StringUtil {
         return comment;
     }
 
-
     /**
      * 首字母转小写
      *
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 首字母小写的字符串
      */
     public static String toLowerCaseFirstOne(String str) {
         if (Character.isLowerCase(str.charAt(0))) {
@@ -115,8 +133,8 @@ public class StringUtil {
     /**
      * 首字母转大写
      *
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 首字母大写的字符串
      */
     public static String toUpperCaseFirstOne(String str) {
         if (str.isEmpty() || Character.isUpperCase(str.charAt(0))) {
@@ -126,15 +144,13 @@ public class StringUtil {
         }
     }
 
-
     /**
-     * 获取null字符串判断
+     * 获取非空字符串
      *
-     * @param str
-     * @return
+     * @param str 字符串
+     * @return 非空字符串
      */
     public static String getString(String str) {
-        //StringUtils.hasLength(str) 为true时返回str
         if (StringUtils.hasLength(str)) {
             return str;
         }
@@ -142,8 +158,10 @@ public class StringUtil {
     }
 
     /**
-     * @param str
-     * @return
+     * 去除字符串中的空白字符
+     *
+     * @param str 字符串
+     * @return 去除空白字符后的字符串
      */
     public static String replaceBlank(String str) {
         String dest = "";
@@ -154,19 +172,8 @@ public class StringUtil {
         return dest;
     }
 
-
     public static boolean isBlank(@Nullable String string) {
-        if (isEmpty(string)) {
-            return true;
-        } else {
-            for (int i = 0; i < string.length(); ++i) {
-                if (!Character.isWhitespace(string.charAt(i))) {
-                    return false;
-                }
-            }
-
-            return true;
-        }
+        return isEmpty(string) || string.trim().isEmpty();
     }
 
     public static boolean isNotBlank(@Nullable String string) {
@@ -196,50 +203,25 @@ public class StringUtil {
         }
     }
 
-
     /**
      * 中文转拼音（大写，无音标）
      *
-     * @param chineseStr
-     * @return
+     * @param chineseStr 中文字符串
+     * @param append     拼音间的分隔符
+     * @return 拼音集合
      */
     public static Set<String> getAllPinyin(String chineseStr, String append) {
-        //输出格式设置
         HanyuPinyinOutputFormat format = new HanyuPinyinOutputFormat();
-        /**
-         * 输出大小写设置
-         *
-         * LOWERCASE:输出小写
-         * UPPERCASE:输出大写
-         */
         format.setCaseType(HanyuPinyinCaseType.UPPERCASE);
-
-        /**
-         * 输出音标设置
-         *
-         * WITH_TONE_MARK:直接用音标符（必须设置WITH_U_UNICODE，否则会抛出异常）
-         * WITH_TONE_NUMBER：1-4数字表示音标
-         * WITHOUT_TONE：没有音标
-         */
         format.setToneType(HanyuPinyinToneType.WITHOUT_TONE);
-
-        /**
-         * 特殊音标ü设置
-         *
-         * WITH_V：用v表示ü
-         * WITH_U_AND_COLON：用"u:"表示ü
-         * WITH_U_UNICODE：直接用ü
-         */
         format.setVCharType(HanyuPinyinVCharType.WITH_V);
 
         char[] hanYuArr = chineseStr.trim().toCharArray();
         Set<String> nameSet = new LinkedHashSet<>();
         try {
-            for (int i = 0, len = hanYuArr.length; i < len; i++) {
-                //匹配是否是汉字
-                if (Character.toString(hanYuArr[i]).matches("[\\u4E00-\\u9FA5]+")) {
-                    //如果是多音字，返回多个拼音
-                    String[] pys = PinyinHelper.toHanyuPinyinStringArray(hanYuArr[i], format);
+            for (char c : hanYuArr) {
+                if (Character.toString(c).matches("[\\u4E00-\\u9FA5]+")) {
+                    String[] pys = PinyinHelper.toHanyuPinyinStringArray(c, format);
                     if (nameSet.isEmpty()) {
                         nameSet.addAll(Arrays.asList(pys));
                     } else {
@@ -254,7 +236,7 @@ public class StringUtil {
                 } else {
                     Set<String> term = new HashSet<>();
                     for (String a : nameSet) {
-                        term.add(a + hanYuArr[i]);
+                        term.add(a + c);
                     }
                     nameSet = term;
                 }
