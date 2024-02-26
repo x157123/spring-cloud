@@ -70,7 +70,7 @@
 // 接口
 import {
   ${nameClass? uncap_first}InfoFull,
-} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api';
+} from '@/${web}/api${webExpandPackage}/${nameClass? uncap_first}/${nameClass? uncap_first}Api.js';
 import imgPreview from '@/views/system/opinion/imgPreview.vue';
 
 <#if foreignKeys?? && (foreignKeys?size > 0) >

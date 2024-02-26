@@ -13,7 +13,7 @@ import java.util.stream.Collectors;
 
 public class ReadMysqlTable {
 
-    static boolean pc = false;
+    static boolean pc = true;
     static boolean zzkj = true;
 
     public static void main(String[] args) throws SQLException {
@@ -22,7 +22,7 @@ public class ReadMysqlTable {
         boolean star = true;
 
         // 表前缀
-        List<String> prefix = Arrays.asList("md_", "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
+        List<String> prefix = Arrays.asList("md_resource_", "md_", "app_", "sg_et_", "wgh_", "sg_", "sync_", "zz_");
         //模版路径
         String ftlPath;
 
@@ -36,14 +36,14 @@ public class ReadMysqlTable {
             return;
         }
         if (zzkj) {
-            String pack = ".task";
-            config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict" + pack, "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
+            String pack = ".mediation.resource";
+            config = new Config("mediation", "jdbc:mysql://localhost:3306/code_db", "root", "123456", "com.zc.conflict.resource", "D:\\work\\service\\mediation\\universe-platform\\", "E:\\code\\web\\cloud-angular-web\\src\\app\\module\\", "liulei", "2023-01-09");
             ftlPath = "cloud-zzkj";
             config.setJavaFilePath("D:\\work\\zzkj\\service\\mediation\\universe-platform\\");
             config.setWebFilePath("D:\\work\\zzkj\\web\\mediation-web\\src\\");
             if (pc) {
-                config.setJavaFilePath("E:\\work\\zzjk\\mediation\\universe-platform\\");
-                config.setWebFilePath("E:\\work\\zzjk\\mediation-web\\src\\");
+                config.setJavaFilePath("D:\\work\\zzkj\\service\\mediation\\universe-platform\\");
+                config.setWebFilePath("D:\\work\\zzkj\\web\\mediation-web\\src\\");
             } else {
                 config.setJavaFilePath("D:\\test\\");
                 config.setWebFilePath("D:\\test\\");
